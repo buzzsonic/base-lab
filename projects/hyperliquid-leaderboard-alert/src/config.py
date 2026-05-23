@@ -72,7 +72,7 @@ def load_config() -> Settings:
     if min_abs_position_usd < 0:
         raise ConfigError("MIN_ABS_POSITION_USD は0以上で指定してください。")
 
-    min_position_change_usd = _read_float("MIN_POSITION_CHANGE_USD", 5000)
+    min_position_change_usd = _read_float("MIN_POSITION_CHANGE_USD", 500000)
     if min_position_change_usd < 0:
         raise ConfigError("MIN_POSITION_CHANGE_USD は0以上で指定してください。")
 

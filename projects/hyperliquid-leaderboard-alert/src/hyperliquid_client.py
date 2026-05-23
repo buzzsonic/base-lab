@@ -70,6 +70,18 @@ class HyperliquidClient:
             raise HyperliquidApiError(f"clearinghouseState の応答形式が不正です: address={address}")
         return data
 
+    def all_mids(self) -> dict[str, float]:
+        data = self.post_info({"type": "allMids"})
+        if not isinstance(data, dict):
+            raise HyperliquidApiError("allMids の応答形式が不正です。")
+        mids: dict[str, float] = {}
+        for coin, value in data.items():
+            try:
+                mids[str(coin)] = float(value)
+            except (TypeError, ValueError):
+                continue
+        return mids
+
     def _retry_wait_seconds(self, response: requests.Response, attempt: int) -> float:
         retry_after = response.headers.get("Retry-After")
         if retry_after:

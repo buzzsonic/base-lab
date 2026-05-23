@@ -29,6 +29,14 @@ jobs:
           cache: pip
           cache-dependency-path: projects/hyperliquid-leaderboard-alert/requirements.txt
 
+      - name: Restore previous snapshot
+        uses: actions/cache/restore@v4
+        with:
+          path: projects/hyperliquid-leaderboard-alert/.state
+          key: hyperliquid-leaderboard-alert-state-${{ github.run_id }}
+          restore-keys: |
+            hyperliquid-leaderboard-alert-state-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -41,6 +49,13 @@ jobs:
           LEADERBOARD_LIMIT: "100"
           TARGET_SIDE: both
           MIN_ABS_POSITION_USD: "10000"
-          MIN_POSITION_CHANGE_USD: "5000"
+          MIN_POSITION_CHANGE_USD: "500000"
           DRY_RUN: "false"
         run: python -m src.main
+
+      - name: Save current snapshot
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: projects/hyperliquid-leaderboard-alert/.state
+          key: hyperliquid-leaderboard-alert-state-${{ github.run_id }}

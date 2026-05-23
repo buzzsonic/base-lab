@@ -3,8 +3,6 @@ from typing import Any
 
 import requests
 
-from .leaderboard import short_address
-
 
 DISCORD_CONTENT_LIMIT = 1900
 
@@ -13,25 +11,47 @@ class DiscordNotifyError(RuntimeError):
     pass
 
 
-def format_alert_message(alerts: list[dict[str, Any]], run_at_jst: datetime, settings: Any) -> str:
+def format_position_report_message(report: dict[str, Any], run_at_jst: datetime, settings: Any) -> str:
+    stats = report["stats"]
     header = [
-        "【Hyperliquidリーダーボード検知】",
-        f"実行時刻: {run_at_jst.strftime('%Y-%m-%d %H:%M:%S JST')}",
-        f"条件: ポジションUSD換算 >= {format_usd(settings.min_abs_position_usd)} / 方向={_target_side_label(settings.target_side)}",
-        f"通知対象: {len(alerts)}件",
+        "【Hyperliquidリーダーボード集約】",
+        f"時刻: {run_at_jst.strftime('%Y-%m-%d %H:%M:%S JST')}",
+        f"対象: 勝ち{settings.leaderboard_limit} / 負け{settings.leaderboard_limit}",
+        f"条件: 現在>={format_usd(settings.min_abs_position_usd)} / 新規・増加>={format_usd(settings.min_position_change_usd)}",
+        f"件数: 現在{stats['current_positions']} / 新規{stats['new_positions']} / 増加{stats['increased_positions']}",
         "",
     ]
+    if not report["has_previous_snapshot"]:
+        header.append("※ 初回は前回データがないため、新規・増加は次回から判定")
+        header.append("")
 
-    visible_alerts = alerts[:10]
-    while visible_alerts:
-        omitted_count = max(len(alerts) - len(visible_alerts), 0)
-        lines = header + _format_alert_lines(visible_alerts, omitted_count)
+    current_limit = 4
+    change_limit = 3
+    while current_limit >= 1:
+        lines = header + _format_cohort_sections(report, current_limit=current_limit, change_limit=change_limit)
         message = "\n".join(lines)
         if len(message) <= DISCORD_CONTENT_LIMIT:
             return message
-        visible_alerts = visible_alerts[:-1]
+        if change_limit > 1:
+            change_limit -= 1
+        else:
+            current_limit -= 1
 
-    return "\n".join(header + ["通知対象が多すぎるため本文を省略しました。GitHub Actionsログを確認してください。"])
+    compact_lines = header + _format_cohort_sections(report, current_limit=1, change_limit=1)
+    return "\n".join(compact_lines)[:DISCORD_CONTENT_LIMIT]
+
+
+def _format_cohort_sections(report: dict[str, Any], current_limit: int, change_limit: int) -> list[str]:
+    lines: list[str] = []
+    for cohort, label in [("winner", "勝ちウォレット"), ("loser", "負けウォレット")]:
+        lines.append(f"■ {label} 現在ポジ")
+        lines.extend(_format_summary_rows(report["current_summary"], cohort=cohort, limit=current_limit, mode="current"))
+        lines.append(f"■ {label} 新規ポジ")
+        lines.extend(_format_summary_rows(report["new_summary"], cohort=cohort, limit=change_limit, mode="new"))
+        lines.append(f"■ {label} 増加ポジ")
+        lines.extend(_format_summary_rows(report["increased_summary"], cohort=cohort, limit=change_limit, mode="increase"))
+        lines.append("")
+    return lines
 
 
 def send_discord_message(webhook_url: str, message: str, dry_run: bool, logger: Any) -> None:
@@ -47,39 +67,39 @@ def send_discord_message(webhook_url: str, message: str, dry_run: bool, logger: 
         raise DiscordNotifyError(f"Discord Webhook送信に失敗しました: {exc}") from exc
 
 
-def _format_alert_lines(alerts: list[dict[str, Any]], omitted_count: int) -> list[str]:
-    lines: list[str] = []
-    for index, alert in enumerate(alerts, start=1):
-        wallet = alert["wallet"]
-        display_name = wallet.get("display_name")
-        name_part = f" ({display_name})" if display_name else ""
-        leverage = _format_leverage(alert.get("leverage_value"), alert.get("leverage_type"))
-        lines.extend(
-            [
-                f"{index}. {wallet['cohort_label']} #{wallet['rank']} {short_address(wallet['address'])}{name_part}",
-                f"   銘柄: {alert['coin']} / {_side_label(alert['side'])}{leverage}",
-                f"   ポジション: {format_usd(alert['abs_position_usd'])} / 数量 {format_number(alert['abs_size'])}",
-                f"   Entry: {format_price(alert.get('entry_px'))} / 未実現PnL: {format_usd(alert.get('unrealized_pnl'))} / Liq: {format_price(alert.get('liquidation_px'))}",
-            ]
-        )
-    if omitted_count:
-        lines.append(f"...ほか {omitted_count} 件はDiscord文字数制限のため省略")
+def _format_summary_rows(rows: list[dict[str, Any]], cohort: str, limit: int, mode: str) -> list[str]:
+    selected = [row for row in rows if row["cohort"] == cohort][:limit]
+    if not selected:
+        return ["なし"]
+
+    lines = []
+    for row in selected:
+        side = _side_label(row["side"])
+        if mode == "current":
+            lines.append(
+                f"{row['coin']} {side} {format_usd(row['total_usd'])} / "
+                f"Entry {format_price(row['avg_entry_px'])} / 現在 {format_price(row.get('current_px'))} / "
+                f"{row['wallet_count']}ウォレット / PnL {format_usd(row.get('unrealized_pnl'))}"
+            )
+        elif mode == "new":
+            lines.append(
+                f"{row['coin']} {side} 新規 {format_usd(row['total_usd'])} / "
+                f"Entry {format_price(row['avg_entry_px'])} / {row['wallet_count']}ウォレット"
+            )
+        else:
+            lines.append(
+                f"{row['coin']} {side} 増加 +{format_usd(row['total_usd'])} / "
+                f"推定Entry {format_price(row['avg_entry_px'])} / {row['wallet_count']}ウォレット"
+            )
+
+    omitted = len([row for row in rows if row["cohort"] == cohort]) - len(selected)
+    if omitted > 0:
+        lines.append(f"...ほか{omitted}行")
     return lines
 
 
 def _side_label(side: str) -> str:
-    return {"long": "ロング", "short": "ショート"}.get(side, side)
-
-
-def _target_side_label(side: str) -> str:
-    return {"both": "両方", "long": "ロングのみ", "short": "ショートのみ"}.get(side, side)
-
-
-def _format_leverage(value: float | None, leverage_type: str | None) -> str:
-    if value is None:
-        return ""
-    type_label = f"{leverage_type} " if leverage_type else ""
-    return f" / {type_label}{value:g}x"
+    return {"long": "LONG", "short": "SHORT"}.get(side, side.upper())
 
 
 def format_usd(value: float | None) -> str:
