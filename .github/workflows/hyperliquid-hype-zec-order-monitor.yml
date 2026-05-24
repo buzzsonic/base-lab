@@ -1,0 +1,70 @@
+name: Hyperliquid HYPE ZEC Order Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hyperliquid-hype-zec-order-monitor
+  cancel-in-progress: false
+
+jobs:
+  run-monitor:
+    name: Run HYPE/ZEC order monitor
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: projects/hyperliquid-hype-zec-order-monitor
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/hyperliquid-hype-zec-order-monitor/requirements.txt
+
+      - name: Restore previous order snapshot
+        uses: actions/cache/restore@v4
+        with:
+          path: projects/hyperliquid-hype-zec-order-monitor/.state
+          key: hyperliquid-hype-zec-order-monitor-state-${{ github.run_id }}
+          restore-keys: |
+            hyperliquid-hype-zec-order-monitor-state-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run monitor
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DRY_RUN: "false"
+          NOTIFY_EMPTY: "false"
+          LEADERBOARD_LIMIT: "100"
+          TARGET_SYMBOLS: HYPE,ZEC
+          NEAR_BAND_PCT: "1.0"
+          WATCH_BAND_PCT: "3.0"
+          MIN_NEAR_CHANGE_USD: "500000"
+          MIN_WATCH_CHANGE_USD: "1000000"
+          MIN_ACTIVE_USD: "500000"
+          REQUEST_SLEEP_SECONDS: "0.12"
+          STATE_PATH: .state/hype_zec_order_snapshot.json
+        run: python -m src.main
+
+      - name: Save current order snapshot
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: projects/hyperliquid-hype-zec-order-monitor/.state
+          key: hyperliquid-hype-zec-order-monitor-state-${{ github.run_id }}
