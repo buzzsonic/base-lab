@@ -46,6 +46,7 @@ def build_snapshot(
         "as_of_utc": datetime.now(timezone.utc).isoformat(),
         "target_symbols": list(settings.target_symbols),
         "leaderboard_limit": settings.leaderboard_limit,
+        "mids": {symbol: mids.get(symbol) for symbol in settings.target_symbols},
         "wallets": list(wallet_by_address.values()),
         "orders": orders,
         "errors": errors,
@@ -144,6 +145,7 @@ def build_report(
         "as_of_utc": current.get("as_of_utc"),
         "previous_as_of_utc": previous.get("as_of_utc") if previous else None,
         "has_previous_snapshot": previous is not None,
+        "mids": current.get("mids", {}),
         "stats": {
             "current_orders": len(current_orders),
             "previous_orders": len(previous_orders),
@@ -235,10 +237,12 @@ def build_active_rows(current_orders: list[dict[str, Any]], settings: Settings) 
         if in_band(order, settings.near_band_pct):
             row["near_usd"] += notional
             row["near_count"] += 1
+            row["near_wallets"].add(order["address"])
             row["near_prices"].append(float(order["limit_px"]))
         if in_band(order, settings.watch_band_pct):
             row["watch_usd"] += notional
             row["watch_count"] += 1
+            row["watch_wallets"].add(order["address"])
             row["watch_prices"].append(float(order["limit_px"]))
 
     rows = []
@@ -247,12 +251,16 @@ def build_active_rows(current_orders: list[dict[str, Any]], settings: Settings) 
         prices = row.pop("prices")
         near_prices = row.pop("near_prices")
         watch_prices = row.pop("watch_prices")
+        near_wallets = row.pop("near_wallets")
+        watch_wallets = row.pop("watch_wallets")
         row["min_px"] = min(prices) if prices else None
         row["max_px"] = max(prices) if prices else None
         row["near_min_px"] = min(near_prices) if near_prices else None
         row["near_max_px"] = max(near_prices) if near_prices else None
         row["watch_min_px"] = min(watch_prices) if watch_prices else None
         row["watch_max_px"] = max(watch_prices) if watch_prices else None
+        row["near_wallet_count"] = len(near_wallets)
+        row["watch_wallet_count"] = len(watch_wallets)
         row["alert"] = row["watch_usd"] >= settings.min_active_usd
         rows.append(row)
     rows.sort(key=lambda row: (-row["watch_usd"], -row["near_usd"], row["market"], row["cohort"], row["side"]))
@@ -303,6 +311,8 @@ def _empty_active_row() -> dict[str, Any]:
         "near_usd": 0.0,
         "watch_usd": 0.0,
         "wallets": set(),
+        "near_wallets": set(),
+        "watch_wallets": set(),
         "prices": [],
         "near_prices": [],
         "watch_prices": [],

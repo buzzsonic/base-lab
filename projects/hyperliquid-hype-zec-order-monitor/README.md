@@ -8,6 +8,8 @@ Hyperliquid leaderboard の勝ちウォレット上位100 / 負けウォレッ�
 - 消滅注文: 前回あり、今回なくなった注文ID
 - 価格帯入り: 前回は現在価格から3%以上離れていたが、今回3%以内に入った注文
 - 現在の厚い帯: 現在価格から1%以内 / 3%以内に残っている注文
+- net: `新規注文 - 消滅注文`
+- active: 今も板に残っている未約定注文量
 
 デフォルトの通知条件:
 
@@ -28,6 +30,32 @@ Perp の `HYPE`, `ZEC` に加えて、spotMeta から判定できる `HYPE/USDC`
 Discord Webhook は GitHub Secrets に `DISCORD_WEBHOOK_URL` として設定してください。Webhook URLはリポジトリにコミットしません。
 
 初回実行では前回スナップショットがないため、状態保存のみで変化通知は基本的に出ません。2回目以降に「新規/消滅/価格帯入り」を判定します。
+
+## Discord通知の見方
+
+通知は「新規/消滅」の羅列ではなく、HYPE/ZECの判断に使う集計を優先します。
+
+```text
+HYPE 現在: $62.10
+判定: ロング待ち / ロング可 / 見送り
+理由: BUYが近1% $650K / 3% $1.2M 残存 @61.8-62.5
+
+■ BUY確認
+勝ちBUY: active 近1% $xxx / 3% $xxx / net近 +$xxx / net3% +$xxx / 2ウォレット / @price-range
+負けBUY: active 近1% $xxx / 3% $xxx / net近 -$xxx / net3% -$xxx / 1ウォレット / @price-range
+
+■ SELL圧
+勝ちSELL: active 近1% $xxx / 3% $xxx / net近 +$xxx / net3% +$xxx / 1ウォレット / @price-range
+負けSELL: active 近1% $xxx / 3% $xxx / net近 +$xxx / net3% +$xxx / 3ウォレット / @price-range
+```
+
+- `active` は現在残っている注文量です
+- `net近` は1%以内の `新規 - 消滅` です
+- `net3%` は3%以内の `新規 - 消滅` です
+- `@price-range` は3%以内に残っている注文の価格帯です
+- ZECはHYPEより短く、BUY/SELLの要点だけを表示します
+- 初回スナップショットは通知せず、状態保存だけ行います
+- `NOTIFY_EMPTY=false` の場合、判断材料になる変化がない回は通知しません
 
 ## ローカル実行
 
