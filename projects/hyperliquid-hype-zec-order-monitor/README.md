@@ -25,7 +25,9 @@ Perp の `HYPE`, `ZEC` に加えて、spotMeta から判定できる `HYPE/USDC`
 
 ## GitHub Actions
 
-`.github/workflows/hyperliquid-hype-zec-order-monitor.yml` が毎時 7/22/37/52 分に実行します。GitHub Actions の定時実行遅延を避けるため、ちょうど 0/15/30/45 分から少しずらしています。
+`.github/workflows/hyperliquid-hype-zec-order-monitor.yml` がGitHub Actionsで自動実行します。
+
+GitHub Actions の `schedule` は15分ごとの厳密な起動が落ちることがあるため、ワークフローは約4時間ごとに起動し、1回のジョブ内で15分間隔の監視を20回続けます。これにより、GitHubのcronイベントが多少遅れても監視間隔が空きにくくなります。
 
 関連ファイルを `main` に push した時も1回実行します。通知フォーマットや閾値を変えた直後に、次の定時実行を待たず確認するためです。
 

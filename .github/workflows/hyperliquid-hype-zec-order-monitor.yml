@@ -9,7 +9,7 @@ on:
       - ".github/workflows/hyperliquid-hype-zec-order-monitor.yml"
       - "projects/hyperliquid-hype-zec-order-monitor/**"
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "7 */4 * * *"
 
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
   run-monitor:
     name: Run HYPE/ZEC order monitor
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 320
 
     defaults:
       run:
@@ -52,7 +52,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run monitor
+      - name: Run monitor loop
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DRY_RUN: "false"
@@ -66,7 +66,27 @@ jobs:
           MIN_ACTIVE_USD: "500000"
           REQUEST_SLEEP_SECONDS: "0.12"
           STATE_PATH: .state/hype_zec_order_snapshot.json
-        run: python -m src.main
+          RUN_CYCLES: "20"
+          RUN_INTERVAL_SECONDS: "900"
+        run: |
+          set -euo pipefail
+
+          for cycle in $(seq 1 "$RUN_CYCLES"); do
+            started_at="$(date +%s)"
+            echo "::group::Monitor cycle ${cycle}/${RUN_CYCLES}"
+            python -m src.main
+            echo "::endgroup::"
+
+            if [ "$cycle" -lt "$RUN_CYCLES" ]; then
+              elapsed="$(( $(date +%s) - started_at ))"
+              sleep_for="$(( RUN_INTERVAL_SECONDS - elapsed ))"
+              if [ "$sleep_for" -lt 30 ]; then
+                sleep_for=30
+              fi
+              echo "Sleeping ${sleep_for}s before next cycle."
+              sleep "$sleep_for"
+            fi
+          done
 
       - name: Save current order snapshot
         if: success()
