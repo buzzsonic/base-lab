@@ -2,8 +2,14 @@ name: Hyperliquid HYPE ZEC Order Monitor
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/hyperliquid-hype-zec-order-monitor.yml"
+      - "projects/hyperliquid-hype-zec-order-monitor/**"
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "7,22,37,52 * * * *"
 
 permissions:
   contents: read
@@ -50,7 +56,7 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DRY_RUN: "false"
-          NOTIFY_EMPTY: "false"
+          NOTIFY_EMPTY: "true"
           LEADERBOARD_LIMIT: "100"
           TARGET_SYMBOLS: HYPE,ZEC
           NEAR_BAND_PCT: "1.0"

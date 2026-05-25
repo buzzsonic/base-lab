@@ -25,7 +25,9 @@ Perp の `HYPE`, `ZEC` に加えて、spotMeta から判定できる `HYPE/USDC`
 
 ## GitHub Actions
 
-`.github/workflows/hyperliquid-hype-zec-order-monitor.yml` が15分おきに実行します。
+`.github/workflows/hyperliquid-hype-zec-order-monitor.yml` が毎時 7/22/37/52 分に実行します。GitHub Actions の定時実行遅延を避けるため、ちょうど 0/15/30/45 分から少しずらしています。
+
+関連ファイルを `main` に push した時も1回実行します。通知フォーマットや閾値を変えた直後に、次の定時実行を待たず確認するためです。
 
 Discord Webhook は GitHub Secrets に `DISCORD_WEBHOOK_URL` として設定してください。Webhook URLはリポジトリにコミットしません。
 
@@ -55,7 +57,7 @@ HYPE 現在: $62.10
 - `@price-range` は3%以内に残っている注文の価格帯です
 - ZECはHYPEより短く、BUY/SELLの要点だけを表示します
 - 初回スナップショットは通知せず、状態保存だけ行います
-- `NOTIFY_EMPTY=false` の場合、判断材料になる変化がない回は通知しません
+- GitHub Actions では `NOTIFY_EMPTY=true` にしているため、見送り回でもHYPE/ZECの状態確認を通知します
 
 ## ローカル実行
 
