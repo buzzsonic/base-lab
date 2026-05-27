@@ -1,6 +1,6 @@
 # Hyperliquid HYPE/ZEC Order Monitor
 
-Hyperliquid leaderboard の勝ちウォレット上位100 / 負けウォレット下位100を対象に、HYPE/ZEC周辺の未約定注文を15分ごとに監視するバッチです。
+Hyperliquid leaderboard の勝ちウォレット上位100 / 負けウォレット下位100を対象に、HYPE/ZEC周辺の未約定注文を1時間ごとに監視するバッチです。
 
 ## 見ている変化
 
@@ -27,7 +27,7 @@ Perp の `HYPE`, `ZEC` に加えて、spotMeta から判定できる `HYPE/USDC`
 
 `.github/workflows/hyperliquid-hype-zec-order-monitor.yml` がGitHub Actionsで自動実行します。
 
-GitHub Actions の `schedule` は15分ごとの厳密な起動が落ちることがあるため、ワークフローは約4時間ごとに起動し、1回のジョブ内で15分間隔の監視を20回続けます。これにより、GitHubのcronイベントが多少遅れても監視間隔が空きにくくなります。
+GitHub Actions の `schedule` で毎時7分に起動し、1回チェックして終了します。通知頻度を落としてノイズを減らすため、常駐ループは使いません。
 
 関連ファイルを `main` に push した時も1回実行します。通知フォーマットや閾値を変えた直後に、次の定時実行を待たず確認するためです。
 

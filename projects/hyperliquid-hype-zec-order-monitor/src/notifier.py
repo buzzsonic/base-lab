@@ -17,7 +17,7 @@ def format_report_message(report: dict[str, Any], settings: Any) -> str:
     run_at = datetime.fromisoformat(report["as_of_utc"]).astimezone(JST)
     stats = report["stats"]
     header = [
-        "【HYPE/ZEC未約定注文 15m監視】",
+        "【HYPE/ZEC未約定注文 1h監視】",
         f"時刻: {run_at.strftime('%Y-%m-%d %H:%M:%S JST')}",
         f"対象: 勝ち{settings.leaderboard_limit} / 負け{settings.leaderboard_limit} / {','.join(settings.target_symbols)}",
         f"件数(参考): 現在{stats['current_orders']} / 新規{stats['new_orders']} / "
