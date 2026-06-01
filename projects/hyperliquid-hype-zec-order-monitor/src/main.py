@@ -42,7 +42,7 @@ def run() -> int:
         logger.info(
             "判定完了: "
             f"現在={stats['current_orders']}, 新規={stats['new_orders']}, 消滅={stats['cancelled_orders']}, "
-            f"帯入り={stats['entered_watch_orders']}, errors={stats['errors']}"
+            f"帯入り={stats['entered_watch_orders']}, ポジション={stats['current_positions']}, errors={stats['errors']}"
         )
         message = format_report_message(report=report, settings=settings)
         send_discord_message(

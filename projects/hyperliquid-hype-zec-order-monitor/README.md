@@ -1,9 +1,13 @@
 # Hyperliquid HYPE/ZEC Order Monitor
 
-Hyperliquid leaderboard の勝ちウォレット上位100 / 負けウォレット下位100を対象に、HYPE/ZEC周辺の未約定注文を1時間ごとに監視するバッチです。
+Hyperliquid leaderboard の勝ちウォレット上位100 / 負けウォレット下位100を対象に、HYPE/ZECの売買判断、ポジション増減、未約定注文を1時間ごとに監視するバッチです。
 
 ## 見ている変化
 
+- HYPE売買判断: `SMA6 > SMA12` ならロング、`SMA6 <= SMA12` ならノーポジ
+- ZEC売買判断: `SMA6 > SMA24` ならロング、`SMA6 < SMA24` ならショート
+- 現在ポジション: 勝ち/負けウォレット別のLong/Short総額と平均建値
+- ポジション増減: 前回スナップショットからのLong側/Short側/net変化
 - 新規注文: 前回になく、今回ある注文ID
 - 消滅注文: 前回あり、今回なくなった注文ID
 - 価格帯入り: 前回は現在価格から3%以上離れていたが、今回3%以内に入った注文
@@ -37,27 +41,30 @@ Discord Webhook は GitHub Secrets に `DISCORD_WEBHOOK_URL` として設定し�
 
 ## Discord通知の見方
 
-通知は「新規/消滅」の羅列ではなく、HYPE/ZECの判断に使う集計を優先します。
+通知は「SMAによる売買判断」を最初に出し、その下に勝ち/負けウォレットのポジション増減を残します。未約定注文は最後の補足です。
 
 ```text
-HYPE 現在: $62.10
-判定: ロング待ち / ロング可 / 見送り
-理由: BUYが近1% $650K / 3% $1.2M 残存 @61.8-62.5
+HYPE $71.66
+判断: ロング
+条件: SMA6 $70.8 > SMA12 $69.4 / 6h +3.2%
+出る/切替: SMA6 <= SMA12
+理由: SMA6がSMA12を上回る
 
-■ BUY確認
-勝ちBUY: active 近1% $xxx / 3% $xxx / net近 +$xxx / net3% +$xxx / 2ウォレット / @price-range
-負けBUY: active 近1% $xxx / 3% $xxx / net近 -$xxx / net3% -$xxx / 1ウォレット / @price-range
+■ ポジション増減
+勝ち: net +$4.2M / Long側 +$5.1M / Short側 +$900.0K / 6W
+負け: net -$1.8M / Long側 +$400.0K / Short側 +$2.2M / 9W
 
-■ SELL圧
-勝ちSELL: active 近1% $xxx / 3% $xxx / net近 +$xxx / net3% +$xxx / 1ウォレット / @price-range
-負けSELL: active 近1% $xxx / 3% $xxx / net近 +$xxx / net3% +$xxx / 3ウォレット / @price-range
+■ 現在ポジ
+勝ち: Long $18.4M avg $64.2 (3W) / Short $3.1M avg $69.8 (1W)
+負け: Long $5.2M avg $68.1 (2W) / Short $12.8M avg $66.4 (5W)
+注文補足: BUY近 $420.0K / 3% $1.1M / net3 +$200.0K | SELL近 $390.0K / 3% $900.0K / net3 -$100.0K
 ```
 
-- `active` は現在残っている注文量です
-- `net近` は1%以内の `新規 - 消滅` です
-- `net3%` は3%以内の `新規 - 消滅` です
-- `@price-range` は3%以内に残っている注文の価格帯です
-- ZECはHYPEより短く、BUY/SELLの要点だけを表示します
+- `判断` は売買方向です。HYPEはロング/ノーポジ、ZECはロング/ショートで見ます
+- `ポジション増減` の `net` はLong側増加からShort側増加を差し引いた値です
+- `W` は変化したウォレット数です
+- `現在ポジ` は勝ち/負けウォレット別のLong/Short総額と平均建値です
+- `注文補足` は未約定注文の残量とnetです。判断の主役ではなく補助として見ます
 - 初回スナップショットは通知せず、状態保存だけ行います
 - GitHub Actions では `NOTIFY_EMPTY=true` にしているため、見送り回でもHYPE/ZECの状態確認を通知します
 

@@ -110,6 +110,28 @@ class HyperliquidClient:
             raise HyperliquidApiError(f"frontendOpenOrders の応答形式が不正です: address={address}")
         return [item for item in data if isinstance(item, dict)]
 
+    def clearinghouse_state(self, address: str) -> dict[str, Any]:
+        data = self.post_info({"type": "clearinghouseState", "user": address})
+        if not isinstance(data, dict):
+            raise HyperliquidApiError(f"clearinghouseState の応答形式が不正です: address={address}")
+        return data
+
+    def candle_snapshot(self, coin: str, interval: str, start_ms: int, end_ms: int) -> list[dict[str, Any]]:
+        data = self.post_info(
+            {
+                "type": "candleSnapshot",
+                "req": {
+                    "coin": coin,
+                    "interval": interval,
+                    "startTime": start_ms,
+                    "endTime": end_ms,
+                },
+            }
+        )
+        if not isinstance(data, list):
+            raise HyperliquidApiError(f"candleSnapshot の応答形式が不正です: coin={coin}")
+        return [item for item in data if isinstance(item, dict)]
+
     def _retry_wait_seconds(self, response: requests.Response, attempt: int) -> float:
         retry_after = response.headers.get("Retry-After")
         if retry_after:
