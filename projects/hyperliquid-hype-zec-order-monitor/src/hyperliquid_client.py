@@ -70,6 +70,47 @@ class HyperliquidClient:
                 continue
         return mids
 
+    def meta_and_asset_ctxs(self) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        data = self.post_info({"type": "metaAndAssetCtxs"})
+        if not isinstance(data, list) or len(data) != 2:
+            raise HyperliquidApiError("metaAndAssetCtxs の応答形式が不正です。")
+        meta, asset_ctxs = data
+        if not isinstance(meta, dict) or not isinstance(asset_ctxs, list):
+            raise HyperliquidApiError("metaAndAssetCtxs の応答形式が不正です。")
+        return meta, [item if isinstance(item, dict) else {} for item in asset_ctxs]
+
+    def market_contexts(self, target_symbols: tuple[str, ...]) -> dict[str, dict[str, float | None]]:
+        meta, asset_ctxs = self.meta_and_asset_ctxs()
+        universe = meta.get("universe")
+        if not isinstance(universe, list):
+            raise HyperliquidApiError("metaAndAssetCtxs の universe 応答形式が不正です。")
+
+        targets = set(target_symbols)
+        contexts: dict[str, dict[str, float | None]] = {}
+        for index, asset in enumerate(universe):
+            if not isinstance(asset, dict):
+                continue
+            symbol = str(asset.get("name") or "").upper()
+            if symbol not in targets:
+                continue
+            asset_ctx = asset_ctxs[index] if index < len(asset_ctxs) else {}
+            mark_px = _to_float(asset_ctx.get("markPx")) or _to_float(asset_ctx.get("midPx"))
+            open_interest_coin = _to_float(asset_ctx.get("openInterest"))
+            open_interest_usd = (
+                abs(open_interest_coin * mark_px)
+                if open_interest_coin is not None and mark_px is not None
+                else None
+            )
+            contexts[symbol] = {
+                "mark_px": mark_px,
+                "mid_px": _to_float(asset_ctx.get("midPx")),
+                "oracle_px": _to_float(asset_ctx.get("oraclePx")),
+                "funding": _to_float(asset_ctx.get("funding")),
+                "open_interest_coin": open_interest_coin,
+                "open_interest_usd": open_interest_usd,
+            }
+        return contexts
+
     def spot_meta(self) -> dict[str, str]:
         data = self.post_info({"type": "spotMeta"})
         if not isinstance(data, dict):
@@ -150,3 +191,12 @@ class HyperliquidClient:
             f"Hyperliquid API retry: type={request_type}, attempt={attempt}/{self.retries}, "
             f"wait={wait_seconds:.1f}s, error={exc}"
         )
+
+
+def _to_float(value: Any) -> float | None:
+    if value in (None, "", "null"):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None

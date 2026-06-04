@@ -1,4 +1,4 @@
-name: Hyperliquid HYPE ZEC Order Monitor
+name: Hyperliquid Liquidation OI Monitor
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   run-monitor:
-    name: Run HYPE/ZEC order monitor
+    name: Run liquidation/OI monitor
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -39,7 +39,7 @@ jobs:
           cache: pip
           cache-dependency-path: projects/hyperliquid-hype-zec-order-monitor/requirements.txt
 
-      - name: Restore previous order snapshot
+      - name: Restore previous monitor snapshot
         uses: actions/cache/restore@v4
         with:
           path: projects/hyperliquid-hype-zec-order-monitor/.state
@@ -58,17 +58,22 @@ jobs:
           DRY_RUN: "false"
           NOTIFY_EMPTY: "true"
           LEADERBOARD_LIMIT: "100"
-          TARGET_SYMBOLS: HYPE,ZEC
+          TARGET_SYMBOLS: LIT,HYPE,ZEC,NEAR
           NEAR_BAND_PCT: "1.0"
           WATCH_BAND_PCT: "3.0"
           MIN_NEAR_CHANGE_USD: "500000"
           MIN_WATCH_CHANGE_USD: "1000000"
           MIN_ACTIVE_USD: "500000"
+          LIQUIDATION_BAND_PCT: "5.0"
+          LIQUIDATION_BUCKET_PCT: "0.5"
+          MIN_LIQUIDATION_USD: "100000"
+          MIN_OI_DELTA_USD: "1000000"
+          MAX_LIQUIDATION_LEVELS: "2"
           REQUEST_SLEEP_SECONDS: "0.12"
           STATE_PATH: .state/hype_zec_order_snapshot.json
         run: python -m src.main
 
-      - name: Save current order snapshot
+      - name: Save current monitor snapshot
         if: success()
         uses: actions/cache/save@v4
         with:

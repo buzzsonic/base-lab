@@ -3,7 +3,7 @@ from __future__ import annotations
 import statistics
 import time
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any
 
 from .config import Settings
@@ -13,7 +13,7 @@ def build_snapshot(
     client: Any,
     wallets: list[dict[str, Any]],
     mids: dict[str, float],
-    spot_pairs: dict[str, str],
+    market_contexts: dict[str, dict[str, Any]],
     settings: Settings,
     logger: Any,
 ) -> dict[str, Any]:
@@ -22,29 +22,10 @@ def build_snapshot(
     errors: list[dict[str, Any]] = []
     wallet_by_address = {wallet["address"].lower(): wallet for wallet in wallets}
     total = len(wallets)
-    signals = build_market_signals(client=client, target_symbols=settings.target_symbols, logger=logger)
 
     for index, wallet in enumerate(wallets, start=1):
         address = wallet["address"]
         logger.info(f"ウォレット情報取得 {index}/{total}: {wallet['cohort_label']} #{wallet['rank']} {short_addr(address)}")
-        try:
-            raw_orders = client.frontend_open_orders(address)
-            for raw_order in raw_orders:
-                normalized = normalize_order(
-                    raw_order=raw_order,
-                    wallet=wallet,
-                    mids=mids,
-                    spot_pairs=spot_pairs,
-                    target_symbols=settings.target_symbols,
-                )
-                if normalized is not None:
-                    orders.append(normalized)
-        except Exception as exc:
-            logger.warning(f"未約定注文取得エラー: {short_addr(address)} error={exc}")
-            errors.append(
-                {"address": address, "cohort": wallet["cohort"], "rank": wallet["rank"], "kind": "orders", "error": str(exc)}
-            )
-
         try:
             state = client.clearinghouse_state(address)
             for raw_position in state.get("assetPositions", []):
@@ -74,80 +55,12 @@ def build_snapshot(
         "target_symbols": list(settings.target_symbols),
         "leaderboard_limit": settings.leaderboard_limit,
         "mids": {symbol: mids.get(symbol) for symbol in settings.target_symbols},
+        "market_contexts": {symbol: market_contexts.get(symbol, {}) for symbol in settings.target_symbols},
         "wallets": list(wallet_by_address.values()),
         "orders": orders,
         "positions": positions,
-        "signals": signals,
         "errors": errors,
     }
-
-
-def build_market_signals(client: Any, target_symbols: tuple[str, ...], logger: Any) -> dict[str, dict[str, Any]]:
-    end_dt = datetime.now(timezone.utc)
-    start_dt = end_dt - timedelta(hours=72)
-    start_ms = int(start_dt.timestamp() * 1000)
-    end_ms = int(end_dt.timestamp() * 1000)
-    signals: dict[str, dict[str, Any]] = {}
-
-    for symbol in target_symbols:
-        try:
-            candles = client.candle_snapshot(symbol, "1h", start_ms, end_ms)
-            closes = [
-                to_float(candle.get("c"))
-                for candle in sorted(candles, key=lambda item: int(item.get("t", item.get("T", 0)) or 0))
-            ]
-            closes = [close for close in closes if close is not None]
-            signals[symbol] = build_signal(symbol=symbol, closes=closes)
-            logger.info(f"{symbol} SMA判定取得: candles={len(closes)}")
-        except Exception as exc:
-            logger.warning(f"{symbol} SMA判定取得エラー: {exc}")
-            signals[symbol] = {"symbol": symbol, "action": "判定不可", "reason": str(exc)}
-
-    return signals
-
-
-def build_signal(symbol: str, closes: list[float]) -> dict[str, Any]:
-    latest = closes[-1] if closes else None
-    sma6 = average_tail(closes, 6)
-    sma12 = average_tail(closes, 12)
-    sma24 = average_tail(closes, 24)
-    ret6h = closes[-1] / closes[-7] - 1 if len(closes) >= 7 and closes[-7] else None
-
-    if symbol == "HYPE":
-        action = "ロング" if sma6 is not None and sma12 is not None and sma6 > sma12 else "ノーポジ"
-        exit_rule = "SMA6 <= SMA12"
-        compare_to = "SMA12"
-    elif symbol == "ZEC":
-        if sma6 is not None and sma24 is not None and sma6 > sma24:
-            action = "ロング"
-        elif sma6 is not None and sma24 is not None and sma6 < sma24:
-            action = "ショート"
-        else:
-            action = "ノーポジ"
-        exit_rule = "SMA6 > SMA24 でロング / SMA6 < SMA24 でショート"
-        compare_to = "SMA24"
-    else:
-        action = "判定不可"
-        exit_rule = "判定ルール未設定"
-        compare_to = ""
-
-    return {
-        "symbol": symbol,
-        "latest": latest,
-        "sma6": sma6,
-        "sma12": sma12,
-        "sma24": sma24,
-        "ret6h": ret6h,
-        "action": action,
-        "exit_rule": exit_rule,
-        "compare_to": compare_to,
-    }
-
-
-def average_tail(values: list[float], length: int) -> float | None:
-    if len(values) < length:
-        return None
-    return sum(values[-length:]) / length
 
 
 def normalize_order(
@@ -263,6 +176,9 @@ def build_report(
     current_positions = current.get("positions", [])
     has_previous_positions = previous is not None and isinstance(previous.get("positions"), list)
     previous_positions = previous.get("positions", []) if has_previous_positions else []
+    current_market_contexts = current.get("market_contexts", {})
+    previous_market_contexts = previous.get("market_contexts", {}) if previous else {}
+    has_previous_market_contexts = previous is not None and isinstance(previous.get("market_contexts"), dict)
 
     current_by_key = {row["key"]: row for row in current_orders if row.get("key")}
     previous_by_key = {row["key"]: row for row in previous_orders if row.get("key")}
@@ -299,12 +215,23 @@ def build_report(
         if has_previous_positions
         else []
     )
+    market_rows = build_market_rows(
+        current_market_contexts=current_market_contexts,
+        previous_market_contexts=previous_market_contexts,
+        settings=settings,
+    )
+    liquidation_levels = build_liquidation_levels(
+        current_positions=current_positions,
+        market_contexts=current_market_contexts,
+        settings=settings,
+    )
 
     return {
         "as_of_utc": current.get("as_of_utc"),
         "previous_as_of_utc": previous.get("as_of_utc") if previous else None,
         "has_previous_snapshot": previous is not None,
         "has_previous_position_snapshot": has_previous_positions,
+        "has_previous_market_contexts": has_previous_market_contexts,
         "mids": current.get("mids", {}),
         "stats": {
             "current_orders": len(current_orders),
@@ -316,15 +243,144 @@ def build_report(
             "left_watch_orders": len(left_watch_orders),
             "current_positions": len(current_positions),
             "previous_positions": len(previous_positions),
+            "markets": len(market_rows),
+            "liquidation_levels": sum(len(rows) for sides in liquidation_levels.values() for rows in sides.values()),
             "errors": len(current.get("errors", [])),
         },
         "changes": changes,
         "active": active,
         "positions": position_rows,
         "position_changes": position_change_rows,
-        "signals": current.get("signals", {}),
+        "markets": market_rows,
+        "liquidation_levels": liquidation_levels,
         "errors": current.get("errors", []),
     }
+
+
+def build_market_rows(
+    current_market_contexts: dict[str, Any],
+    previous_market_contexts: dict[str, Any],
+    settings: Settings,
+) -> dict[str, dict[str, Any]]:
+    rows: dict[str, dict[str, Any]] = {}
+    for market in settings.target_symbols:
+        current = current_market_contexts.get(market, {}) if isinstance(current_market_contexts, dict) else {}
+        previous = previous_market_contexts.get(market, {}) if isinstance(previous_market_contexts, dict) else {}
+        if not isinstance(current, dict):
+            current = {}
+        if not isinstance(previous, dict):
+            previous = {}
+
+        oi_usd = to_float(current.get("open_interest_usd"))
+        previous_oi_usd = to_float(previous.get("open_interest_usd"))
+        oi_delta_usd = None
+        oi_delta_pct = None
+        if oi_usd is not None and previous_oi_usd is not None:
+            oi_delta_usd = oi_usd - previous_oi_usd
+            oi_delta_pct = oi_delta_usd / previous_oi_usd if previous_oi_usd else None
+
+        rows[market] = {
+            "market": market,
+            "mark_px": to_float(current.get("mark_px")),
+            "mid_px": to_float(current.get("mid_px")),
+            "oracle_px": to_float(current.get("oracle_px")),
+            "funding": to_float(current.get("funding")),
+            "open_interest_coin": to_float(current.get("open_interest_coin")),
+            "open_interest_usd": oi_usd,
+            "previous_open_interest_usd": previous_oi_usd,
+            "oi_delta_usd": oi_delta_usd,
+            "oi_delta_pct": oi_delta_pct,
+            "oi_alert": oi_delta_usd is not None and abs(oi_delta_usd) >= settings.min_oi_delta_usd,
+        }
+    return rows
+
+
+def build_liquidation_levels(
+    current_positions: list[dict[str, Any]],
+    market_contexts: dict[str, Any],
+    settings: Settings,
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    grouped: dict[tuple[str, str, float], dict[str, Any]] = defaultdict(_empty_liquidation_row)
+
+    for position in current_positions:
+        market = position.get("market")
+        if not market:
+            continue
+        context = market_contexts.get(market, {}) if isinstance(market_contexts, dict) else {}
+        mark_px = to_float(context.get("mark_px")) if isinstance(context, dict) else None
+        if mark_px is None:
+            mark_px = to_float(position.get("mid_px"))
+        liquidation_px = to_float(position.get("liquidation_px"))
+        if mark_px is None or mark_px <= 0 or liquidation_px is None or liquidation_px <= 0:
+            continue
+
+        distance_pct = liquidation_px / mark_px - 1
+        if abs(distance_pct) > settings.liquidation_band_pct / 100:
+            continue
+
+        side = str(position.get("side") or "").upper()
+        if side == "SHORT":
+            direction = "above"
+        elif side == "LONG":
+            direction = "below"
+        else:
+            direction = "above" if distance_pct > 0 else "below"
+
+        bucket_px = liquidation_bucket_price(
+            price=liquidation_px,
+            mark_px=mark_px,
+            bucket_pct=settings.liquidation_bucket_pct,
+        )
+        key = (market, direction, bucket_px)
+        row = grouped[key]
+        row["market"], row["direction"], row["bucket_px"] = key
+        notional = float(position.get("notional_usd") or 0)
+        row["notional_usd"] += notional
+        row["wallets"].add(position.get("address"))
+        row["liquidation_prices"].append(liquidation_px)
+        row["distances"].append(distance_pct)
+        row["weighted_distance"] += distance_pct * notional
+        row["distance_weight"] += notional
+        cohort = position.get("cohort")
+        if cohort == "winner":
+            row["winner_usd"] += notional
+        elif cohort == "loser":
+            row["loser_usd"] += notional
+
+    levels: dict[str, dict[str, list[dict[str, Any]]]] = {
+        market: {"above": [], "below": []} for market in settings.target_symbols
+    }
+    for row in grouped.values():
+        prices = row.pop("liquidation_prices")
+        distances = row.pop("distances")
+        wallets = {wallet for wallet in row.pop("wallets") if wallet}
+        row["wallet_count"] = len(wallets)
+        row["min_px"] = min(prices) if prices else None
+        row["max_px"] = max(prices) if prices else None
+        row["avg_distance_pct"] = weighted_average(row.pop("weighted_distance"), row.pop("distance_weight"))
+        if row["avg_distance_pct"] is None and distances:
+            row["avg_distance_pct"] = statistics.mean(distances)
+        row["alert"] = row["notional_usd"] >= settings.min_liquidation_usd
+        levels.setdefault(row["market"], {"above": [], "below": []})
+        levels[row["market"]][row["direction"]].append(row)
+
+    for market_levels in levels.values():
+        for direction in ("above", "below"):
+            market_levels[direction].sort(
+                key=lambda row: (
+                    not row["alert"],
+                    -row["notional_usd"],
+                    abs(row.get("avg_distance_pct") or 0),
+                )
+            )
+    return levels
+
+
+def liquidation_bucket_price(price: float, mark_px: float, bucket_pct: float) -> float:
+    bucket_size = mark_px * bucket_pct / 100
+    if bucket_size <= 0:
+        return price
+    return round(price / bucket_size) * bucket_size
 
 
 def build_position_rows(current_positions: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -587,6 +643,24 @@ def _empty_position_change_row() -> dict[str, Any]:
         "short_delta_usd": 0.0,
         "net_delta_usd": 0.0,
         "wallets": set(),
+        "wallet_count": 0,
+        "alert": False,
+    }
+
+
+def _empty_liquidation_row() -> dict[str, Any]:
+    return {
+        "market": "",
+        "direction": "",
+        "bucket_px": 0.0,
+        "notional_usd": 0.0,
+        "winner_usd": 0.0,
+        "loser_usd": 0.0,
+        "wallets": set(),
+        "liquidation_prices": [],
+        "distances": [],
+        "weighted_distance": 0.0,
+        "distance_weight": 0.0,
         "wallet_count": 0,
         "alert": False,
     }

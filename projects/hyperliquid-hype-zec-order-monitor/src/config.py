@@ -19,6 +19,11 @@ class Settings:
     min_near_change_usd: float
     min_watch_change_usd: float
     min_active_usd: float
+    liquidation_band_pct: float
+    liquidation_bucket_pct: float
+    min_liquidation_usd: float
+    min_oi_delta_usd: float
+    max_liquidation_levels: int
     request_sleep_seconds: float
     notify_empty: bool
     dry_run: bool
@@ -63,8 +68,15 @@ def load_config() -> Settings:
     if not webhook_url and not dry_run:
         raise ConfigError("DISCORD_WEBHOOK_URL が未設定です。GitHub Secrets または .env に設定してください。")
 
-    raw_targets = _read_str("TARGET_SYMBOLS", "HYPE,ZEC")
-    target_symbols = tuple(sorted({item.strip().upper() for item in raw_targets.split(",") if item.strip()}))
+    raw_targets = _read_str("TARGET_SYMBOLS", "LIT,HYPE,ZEC,NEAR")
+    targets: list[str] = []
+    seen_targets: set[str] = set()
+    for item in raw_targets.split(","):
+        target = item.strip().upper()
+        if target and target not in seen_targets:
+            targets.append(target)
+            seen_targets.add(target)
+    target_symbols = tuple(targets)
     if not target_symbols:
         raise ConfigError("TARGET_SYMBOLS は1つ以上指定してください。例: HYPE,ZEC")
 
@@ -83,6 +95,20 @@ def load_config() -> Settings:
     if min_near_change_usd < 0 or min_watch_change_usd < 0 or min_active_usd < 0:
         raise ConfigError("閾値USDは0以上で指定してください。")
 
+    liquidation_band_pct = _read_float("LIQUIDATION_BAND_PCT", 5.0)
+    liquidation_bucket_pct = _read_float("LIQUIDATION_BUCKET_PCT", 0.5)
+    min_liquidation_usd = _read_float("MIN_LIQUIDATION_USD", 100000)
+    min_oi_delta_usd = _read_float("MIN_OI_DELTA_USD", 1000000)
+    max_liquidation_levels = _read_int("MAX_LIQUIDATION_LEVELS", 2)
+    if liquidation_band_pct <= 0:
+        raise ConfigError("LIQUIDATION_BAND_PCT は0より大きい数値で指定してください。")
+    if liquidation_bucket_pct <= 0:
+        raise ConfigError("LIQUIDATION_BUCKET_PCT は0より大きい数値で指定してください。")
+    if min_liquidation_usd < 0 or min_oi_delta_usd < 0:
+        raise ConfigError("MIN_LIQUIDATION_USD と MIN_OI_DELTA_USD は0以上で指定してください。")
+    if max_liquidation_levels <= 0:
+        raise ConfigError("MAX_LIQUIDATION_LEVELS は1以上で指定してください。")
+
     state_path = Path(_read_str("STATE_PATH", ".state/hype_zec_order_snapshot.json"))
 
     return Settings(
@@ -94,6 +120,11 @@ def load_config() -> Settings:
         min_near_change_usd=min_near_change_usd,
         min_watch_change_usd=min_watch_change_usd,
         min_active_usd=min_active_usd,
+        liquidation_band_pct=liquidation_band_pct,
+        liquidation_bucket_pct=liquidation_bucket_pct,
+        min_liquidation_usd=min_liquidation_usd,
+        min_oi_delta_usd=min_oi_delta_usd,
+        max_liquidation_levels=max_liquidation_levels,
         request_sleep_seconds=_read_float("REQUEST_SLEEP_SECONDS", 0.12),
         notify_empty=_read_bool("NOTIFY_EMPTY", False),
         dry_run=dry_run,

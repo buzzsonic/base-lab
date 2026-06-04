@@ -18,20 +18,23 @@ def run() -> int:
         logger.info(
             "設定読み込み完了: "
             f"limit={settings.leaderboard_limit}, targets={','.join(settings.target_symbols)}, "
-            f"near={settings.near_band_pct:g}%, watch={settings.watch_band_pct:g}%, "
+            f"liq_band={settings.liquidation_band_pct:g}%, "
             f"dry_run={settings.dry_run}, notify_empty={settings.notify_empty}"
         )
 
         previous = load_snapshot(path=settings.state_path, logger=logger)
         client = HyperliquidClient(request_sleep_seconds=settings.request_sleep_seconds, logger=logger)
-        mids = client.all_mids()
-        spot_pairs = client.spot_meta()
+        market_contexts = client.market_contexts(settings.target_symbols)
+        mids = {symbol: context.get("mark_px") for symbol, context in market_contexts.items()}
+        missing_mids = [symbol for symbol in settings.target_symbols if mids.get(symbol) is None]
+        if missing_mids:
+            mids.update(client.all_mids())
         wallets = fetch_leaderboard_wallets(limit=settings.leaderboard_limit, logger=logger)
         snapshot = build_snapshot(
             client=client,
             wallets=wallets,
             mids=mids,
-            spot_pairs=spot_pairs,
+            market_contexts=market_contexts,
             settings=settings,
             logger=logger,
         )
@@ -41,8 +44,8 @@ def run() -> int:
         stats = report["stats"]
         logger.info(
             "判定完了: "
-            f"現在={stats['current_orders']}, 新規={stats['new_orders']}, 消滅={stats['cancelled_orders']}, "
-            f"帯入り={stats['entered_watch_orders']}, ポジション={stats['current_positions']}, errors={stats['errors']}"
+            f"ポジション={stats['current_positions']}, 清算候補={stats['liquidation_levels']}, "
+            f"markets={stats['markets']}, errors={stats['errors']}"
         )
         message = format_report_message(report=report, settings=settings)
         send_discord_message(
