@@ -1,0 +1,1 @@
+"""HYPE signal bot package."""
