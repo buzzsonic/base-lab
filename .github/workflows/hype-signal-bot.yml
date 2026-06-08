@@ -1,0 +1,118 @@
+name: HYPE Signal Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Run mode
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - scalp
+          - swing
+  schedule:
+    - cron: "*/5 * * * *"
+    - cron: "3 */4 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  scalp:
+    name: Scalp signal check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event.schedule == '*/5 * * * *' || (github.event_name == 'workflow_dispatch' && (inputs.mode == 'both' || inputs.mode == 'scalp')) }}
+
+    defaults:
+      run:
+        working-directory: projects/hype-signal-bot
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/hype-signal-bot/requirements.txt
+
+      - name: Restore scalp state
+        uses: actions/cache/restore@v4
+        with:
+          path: projects/hype-signal-bot/.state
+          key: hype-signal-bot-scalp-state-${{ github.run_id }}
+          restore-keys: |
+            hype-signal-bot-scalp-state-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scalp signal check
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COIN: HYPE
+          DRY_RUN: "false"
+        run: python -m src.main_scalp
+
+      - name: Save scalp state
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: projects/hype-signal-bot/.state
+          key: hype-signal-bot-scalp-state-${{ github.run_id }}
+
+  swing:
+    name: Swing signal check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event.schedule == '3 */4 * * *' || (github.event_name == 'workflow_dispatch' && (inputs.mode == 'both' || inputs.mode == 'swing')) }}
+
+    defaults:
+      run:
+        working-directory: projects/hype-signal-bot
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/hype-signal-bot/requirements.txt
+
+      - name: Restore swing state
+        uses: actions/cache/restore@v4
+        with:
+          path: projects/hype-signal-bot/.state
+          key: hype-signal-bot-swing-state-${{ github.run_id }}
+          restore-keys: |
+            hype-signal-bot-swing-state-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run swing signal check
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COIN: HYPE
+          DRY_RUN: "false"
+          NOTIFY_HEARTBEAT: "false"
+        run: python -m src.main_swing
+
+      - name: Save swing state
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: projects/hype-signal-bot/.state
+          key: hype-signal-bot-swing-state-${{ github.run_id }}
