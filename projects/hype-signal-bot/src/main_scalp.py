@@ -5,9 +5,20 @@ from datetime import datetime
 from .config import load_settings
 from .fetcher import get_asset_ctx, get_candles
 from .logger import JST, get_logger
-from .notifier import send_signal
+from .notifier import send_no_signal_status, send_signal
 from .signals import check_funding, check_volume_oi
 from .state import load_state, save_state
+
+
+def _should_send_empty_status(state: dict, now_jst: datetime, interval_minutes: int) -> bool:
+    last_sent = state.get("last_empty_notification_jst")
+    if not last_sent:
+        return True
+    try:
+        last_sent_at = datetime.fromisoformat(last_sent)
+    except ValueError:
+        return True
+    return (now_jst - last_sent_at).total_seconds() >= interval_minutes * 60
 
 
 def run() -> int:
@@ -51,14 +62,30 @@ def run() -> int:
             )
             signals_found.append(volume_oi_signal.kind)
 
+        price = float(ctx.get("markPx", 0))
+        now_jst = datetime.now(JST)
         state["last_oi"] = float(ctx.get("openInterest", 0))
-        state["last_run_jst"] = datetime.now(JST).isoformat()
-        save_state("scalp", state)
+        state["last_run_jst"] = now_jst.isoformat()
 
         if signals_found:
             logger.info(f"[SCALP] シグナル検知: {signals_found}")
         else:
             logger.info("[SCALP] シグナルなし")
+            if settings.notify_empty and _should_send_empty_status(
+                state,
+                now_jst,
+                settings.empty_notification_interval_minutes,
+            ):
+                send_no_signal_status(
+                    coin=settings.coin,
+                    price=price,
+                    checked_at_jst=now_jst,
+                    webhook_url=settings.discord_webhook_url,
+                    dry_run=settings.dry_run,
+                )
+                state["last_empty_notification_jst"] = now_jst.isoformat()
+
+        save_state("scalp", state)
         return 0
     except Exception as exc:
         logger.error(f"[SCALP] 実行エラー: {exc}")

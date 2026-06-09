@@ -59,6 +59,8 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           COIN: HYPE
           DRY_RUN: "false"
+          NOTIFY_EMPTY: "true"
+          EMPTY_NOTIFICATION_INTERVAL_MINUTES: "60"
         run: python -m src.main_scalp
 
       - name: Save scalp state

@@ -64,3 +64,37 @@ def send_heartbeat(*, coin: str, price: float, webhook_url: str | None, dry_run:
         price=price,
     )
     send_signal(signal, coin=coin, webhook_url=webhook_url, dry_run=dry_run)
+
+
+def send_no_signal_status(
+    *,
+    coin: str,
+    price: float,
+    checked_at_jst: datetime,
+    webhook_url: str | None,
+    dry_run: bool = False,
+) -> None:
+    checked_at = checked_at_jst.strftime("%Y/%m/%d %H:%M JST")
+    embed = {
+        "title": f"💚 [{coin}] Bot 稼働中",
+        "description": "シグナルなし。監視は正常に動いています。",
+        "color": 0x888888,
+        "fields": [
+            {"name": "状態", "value": "シグナルなし", "inline": True},
+            {"name": "現在価格", "value": f"${price:.2f}", "inline": True},
+            {"name": "確認時刻", "value": checked_at, "inline": True},
+        ],
+        "footer": {"text": f"Hyperliquid Signal Bot • {checked_at}"},
+    }
+
+    if dry_run:
+        print("[DRY_RUN] Discord通知予定: no_signal")
+        print(embed)
+        return
+    if not webhook_url:
+        print("[WARN] DISCORD_WEBHOOK_URL が未設定です")
+        return
+
+    response = requests.post(webhook_url, json={"embeds": [embed]}, timeout=15)
+    response.raise_for_status()
+    print("[OK] Discord通知送信: no_signal")

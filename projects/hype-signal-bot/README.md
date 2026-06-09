@@ -31,6 +31,7 @@ projects/hype-signal-bot/
 - スキャル: 5分ごと
 - スイング: 4時間ごと
 - 手動実行: GitHub Actions の `workflow_dispatch`
+- シグナルなしの場合も、スキャル監視が1時間に1回Discordへ稼働通知します。
 
 GitHub Actions の cron は厳密な分単位実行を保証しません。通知が止まったように見える場合は、まず Actions の実行履歴で「workflow が起動しているか」と「起動したが通知対象なしだったか」を分けて確認してください。
 
