@@ -12,6 +12,12 @@ on:
           - both
           - scalp
           - swing
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/hype-signal-bot.yml"
+      - "projects/hype-signal-bot/**"
   schedule:
     - cron: "*/5 * * * *"
     - cron: "3 */4 * * *"
@@ -24,7 +30,7 @@ jobs:
     name: Scalp signal check
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ github.event.schedule == '*/5 * * * *' || (github.event_name == 'workflow_dispatch' && (inputs.mode == 'both' || inputs.mode == 'scalp')) }}
+    if: ${{ github.event.schedule == '*/5 * * * *' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.mode == 'both' || inputs.mode == 'scalp')) }}
 
     defaults:
       run:
