@@ -1,0 +1,112 @@
+name: Hyperliquid Wallet Report Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "discord-test, risk, daily, weekly, or snapshot"
+        required: true
+        default: "risk"
+        type: choice
+        options:
+          - risk
+          - daily
+          - weekly
+          - snapshot
+          - discord-test
+      dry_run:
+        description: "Do not send Discord messages"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+  schedule:
+    - cron: "0 * * * *"
+    - cron: "30 14 * * *"
+    - cron: "0 13 * * 0"
+
+permissions:
+  contents: read
+
+jobs:
+  run-wallet-report:
+    name: Run wallet report bot
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: projects/hyperliquid-wallet-report-bot
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/hyperliquid-wallet-report-bot/requirements.txt
+
+      - name: Restore state and reports
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            projects/hyperliquid-wallet-report-bot/.state
+            projects/hyperliquid-wallet-report-bot/reports
+          key: hyperliquid-wallet-report-bot-state-${{ github.run_id }}
+          restore-keys: |
+            hyperliquid-wallet-report-bot-state-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Resolve mode
+        id: resolve
+        shell: bash
+        run: |
+          MODE="${{ github.event.inputs.mode || 'risk' }}"
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ github.event.schedule }}" = "30 14 * * *" ]; then
+              MODE="daily"
+            elif [ "${{ github.event.schedule }}" = "0 13 * * 0" ]; then
+              MODE="weekly"
+            else
+              MODE="risk"
+            fi
+            DRY_RUN="false"
+          fi
+          echo "mode=${MODE}" >> "$GITHUB_OUTPUT"
+          echo "dry_run=${DRY_RUN}" >> "$GITHUB_OUTPUT"
+
+      - name: Run wallet report bot
+        env:
+          # Reuses the same Discord webhook secret used by the existing Hyperliquid bots.
+          HYPERLIQUID_WALLET_ADDRESS: ${{ secrets.HYPERLIQUID_WALLET_ADDRESS }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DRY_RUN: ${{ steps.resolve.outputs.dry_run }}
+          RISK_COOLDOWN_MINUTES: "60"
+        run: python -m src.main "${{ steps.resolve.outputs.mode }}"
+
+      - name: Save state and reports
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            projects/hyperliquid-wallet-report-bot/.state
+            projects/hyperliquid-wallet-report-bot/reports
+          key: hyperliquid-wallet-report-bot-state-${{ github.run_id }}
+
+      - name: Upload reports artifact
+        if: success()
+        uses: actions/upload-artifact@v5
+        with:
+          name: hyperliquid-wallet-reports
+          path: projects/hyperliquid-wallet-report-bot/reports
+          if-no-files-found: ignore
