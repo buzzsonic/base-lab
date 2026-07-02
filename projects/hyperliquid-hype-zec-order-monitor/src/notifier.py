@@ -1,16 +1,12 @@
 from datetime import datetime
 from typing import Any
 
-import requests
+from shared.discord import DiscordNotifyError, send_discord_message  # noqa: F401
 
 from .logger import JST
 
 
 DISCORD_CONTENT_LIMIT = 1900
-
-
-class DiscordNotifyError(RuntimeError):
-    pass
 
 
 def format_report_message(report: dict[str, Any], settings: Any) -> str:
@@ -204,22 +200,6 @@ def format_position_change_compact(row: dict[str, Any]) -> str:
         f"L {format_signed_usd(row['long_delta_usd'])}, "
         f"S {format_signed_usd(row['short_delta_usd'])}, {row['wallet_count']}W"
     )
-
-
-def send_discord_message(webhook_url: str, message: str, dry_run: bool, logger: Any) -> None:
-    if not message:
-        logger.info("通知メッセージなし")
-        return
-    if dry_run:
-        logger.info("DRY_RUN=true のためDiscord送信はスキップします。")
-        logger.info(f"送信予定メッセージ:\n{message}")
-        return
-
-    try:
-        response = requests.post(webhook_url, json={"content": message}, timeout=10)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        raise DiscordNotifyError(f"Discord Webhook送信に失敗しました: {exc}") from exc
 
 
 def clamp_message(lines: list[str]) -> str:

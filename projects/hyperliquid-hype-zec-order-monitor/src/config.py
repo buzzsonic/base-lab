@@ -1,12 +1,15 @@
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-
-class ConfigError(ValueError):
-    pass
+from shared.envtools import (  # noqa: F401
+    ConfigError,
+    read_bool as _read_bool,
+    read_float as _read_float,
+    read_int as _read_int,
+    read_str as _read_str,
+)
 
 
 @dataclass(frozen=True)
@@ -28,36 +31,6 @@ class Settings:
     notify_empty: bool
     dry_run: bool
     state_path: Path
-
-
-def _read_str(name: str, default: str | None = None) -> str:
-    raw = os.environ.get(name, default)
-    return "" if raw is None else str(raw).strip()
-
-
-def _read_int(name: str, default: int) -> int:
-    raw = _read_str(name, str(default))
-    try:
-        return int(raw)
-    except ValueError as exc:
-        raise ConfigError(f"{name} は整数で指定してください。現在値: {raw!r}") from exc
-
-
-def _read_float(name: str, default: float) -> float:
-    raw = _read_str(name, str(default))
-    try:
-        return float(raw)
-    except ValueError as exc:
-        raise ConfigError(f"{name} は数値で指定してください。現在値: {raw!r}") from exc
-
-
-def _read_bool(name: str, default: bool) -> bool:
-    raw = _read_str(name, "true" if default else "false").lower()
-    if raw in {"1", "true", "yes", "y", "on"}:
-        return True
-    if raw in {"0", "false", "no", "n", "off"}:
-        return False
-    raise ConfigError(f"{name} は true または false で指定してください。現在値: {raw!r}")
 
 
 def load_config() -> Settings:

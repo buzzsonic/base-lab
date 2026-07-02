@@ -87,6 +87,7 @@ jobs:
 
       - name: Run wallet report bot
         env:
+          PYTHONPATH: ${{ github.workspace }}
           # Reuses the same Discord webhook secret used by the existing Hyperliquid bots.
           HYPERLIQUID_WALLET_ADDRESS: ${{ secrets.HYPERLIQUID_WALLET_ADDRESS }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

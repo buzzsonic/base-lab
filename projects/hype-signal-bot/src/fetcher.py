@@ -1,10 +1,9 @@
 import time
 from typing import Any
 
-import requests
+from shared.hyperliquid import HyperliquidClient
+from shared.logging_utils import get_logger
 
-
-HL_API = "https://api.hyperliquid.xyz/info"
 
 INTERVAL_MS = {
     "1m": 60 * 1000,
@@ -21,20 +20,19 @@ INTERVAL_MS = {
 }
 
 
+_client = HyperliquidClient(
+    timeout_seconds=15,
+    user_agent="base-lab-hype-signal-bot/0.1",
+    logger=get_logger("hype-signal-bot"),
+)
+
+
 def _post(payload: dict[str, Any]) -> Any:
-    response = requests.post(HL_API, json=payload, timeout=15)
-    response.raise_for_status()
-    return response.json()
+    return _client.post_info(payload)
 
 
 def get_asset_ctx(coin: str = "HYPE") -> dict[str, Any] | None:
-    data = _post({"type": "metaAndAssetCtxs"})
-    universe = data[0]["universe"]
-    ctxs = data[1]
-    for index, asset in enumerate(universe):
-        if asset["name"] == coin:
-            return ctxs[index]
-    return None
+    return _client.asset_ctx(coin)
 
 
 def get_candles(

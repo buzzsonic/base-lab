@@ -25,6 +25,7 @@ def run() -> int:
     logger = get_logger()
     settings = load_settings()
     logger.info(f"[SCALP] {settings.coin} シグナルチェック開始")
+    state: dict | None = None
 
     try:
         ctx = get_asset_ctx(settings.coin)
@@ -40,14 +41,18 @@ def run() -> int:
         last_funding_direction = state.get("last_funding_direction")
         if funding_signal:
             if funding_signal.direction != last_funding_direction:
-                send_signal(
+                sent = send_signal(
                     funding_signal,
                     coin=settings.coin,
                     webhook_url=settings.discord_webhook_url,
                     dry_run=settings.dry_run,
                 )
                 signals_found.append(funding_signal.kind)
-            state["last_funding_direction"] = funding_signal.direction
+                # 送信失敗時は方向を更新せず、次回実行で再通知を試みる
+                if sent:
+                    state["last_funding_direction"] = funding_signal.direction
+            else:
+                state["last_funding_direction"] = funding_signal.direction
         else:
             state["last_funding_direction"] = None
 
@@ -76,21 +81,27 @@ def run() -> int:
                 now_jst,
                 settings.empty_notification_interval_minutes,
             ):
-                send_no_signal_status(
+                sent = send_no_signal_status(
                     coin=settings.coin,
                     price=price,
                     checked_at_jst=now_jst,
                     webhook_url=settings.discord_webhook_url,
                     dry_run=settings.dry_run,
                 )
-                state["last_empty_notification_jst"] = now_jst.isoformat()
+                if sent:
+                    state["last_empty_notification_jst"] = now_jst.isoformat()
 
-        save_state("scalp", state)
         return 0
     except Exception as exc:
         logger.error(f"[SCALP] 実行エラー: {exc}")
         traceback.print_exc()
         return 1
+    finally:
+        if state is not None:
+            try:
+                save_state("scalp", state)
+            except Exception as exc:
+                logger.error(f"[SCALP] 状態保存失敗: {exc}")
 
 
 def main() -> None:

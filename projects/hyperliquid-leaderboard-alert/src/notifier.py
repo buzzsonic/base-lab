@@ -1,14 +1,10 @@
 from datetime import datetime
 from typing import Any
 
-import requests
+from shared.discord import DiscordNotifyError, send_discord_message  # noqa: F401
 
 
 DISCORD_CONTENT_LIMIT = 1900
-
-
-class DiscordNotifyError(RuntimeError):
-    pass
 
 
 def format_position_report_message(report: dict[str, Any], run_at_jst: datetime, settings: Any) -> str:
@@ -52,19 +48,6 @@ def _format_cohort_sections(report: dict[str, Any], current_limit: int, change_l
         lines.extend(_format_summary_rows(report["increased_summary"], cohort=cohort, limit=change_limit, mode="increase"))
         lines.append("")
     return lines
-
-
-def send_discord_message(webhook_url: str, message: str, dry_run: bool, logger: Any) -> None:
-    if dry_run:
-        logger.info("DRY_RUN=true のためDiscord送信はスキップします。")
-        logger.info(f"送信予定メッセージ:\n{message}")
-        return
-
-    try:
-        response = requests.post(webhook_url, json={"content": message}, timeout=10)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        raise DiscordNotifyError(f"Discord Webhook送信に失敗しました: {exc}") from exc
 
 
 def _format_summary_rows(rows: list[dict[str, Any]], cohort: str, limit: int, mode: str) -> list[str]:

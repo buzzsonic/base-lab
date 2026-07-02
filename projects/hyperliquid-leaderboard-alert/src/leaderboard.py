@@ -167,7 +167,9 @@ def _parse_dexly_rows(page_text: str, cohort: str, cohort_label: str, order: str
 
     if rows:
         reverse = order == "desc"
-        rows.sort(key=lambda row: row["pnl_30d"] if row["pnl_30d"] is not None else -math.inf, reverse=reverse)
+        # pnl欠損行は昇順/降順どちらでも末尾に落とす
+        missing_key = -math.inf if reverse else math.inf
+        rows.sort(key=lambda row: row["pnl_30d"] if row["pnl_30d"] is not None else missing_key, reverse=reverse)
     else:
         rows = _fallback_address_rows(normalized, cohort=cohort, cohort_label=cohort_label)
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import requests
+from shared.discord import send_discord_embeds
 
 from .logger import JST
 from .signals import Signal
@@ -27,7 +27,11 @@ def _format_value(signal: Signal) -> str:
     return f"${signal.value:.2f}"
 
 
-def send_signal(signal: Signal, *, coin: str, webhook_url: str | None, dry_run: bool = False) -> None:
+def _send_embed(embed: dict, *, webhook_url: str | None, dry_run: bool, label: str) -> bool:
+    return send_discord_embeds([embed], webhook_url=webhook_url, dry_run=dry_run, label=label)
+
+
+def send_signal(signal: Signal, *, coin: str, webhook_url: str | None, dry_run: bool = False) -> bool:
     now_jst = datetime.now(JST).strftime("%Y/%m/%d %H:%M JST")
     style = STYLE.get(signal.kind, {"color": 0xFFFFFF, "emoji": "🔔", "label": signal.kind})
     embed = {
@@ -42,20 +46,15 @@ def send_signal(signal: Signal, *, coin: str, webhook_url: str | None, dry_run: 
         "footer": {"text": f"Hyperliquid Signal Bot • {now_jst}"},
     }
 
-    if dry_run:
-        print(f"[DRY_RUN] Discord通知予定: {signal.kind} / {signal.direction}")
-        print(embed)
-        return
-    if not webhook_url:
-        print("[WARN] DISCORD_WEBHOOK_URL が未設定です")
-        return
-
-    response = requests.post(webhook_url, json={"embeds": [embed]}, timeout=15)
-    response.raise_for_status()
-    print(f"[OK] Discord通知送信: {signal.kind} / {signal.direction}")
+    return _send_embed(
+        embed,
+        webhook_url=webhook_url,
+        dry_run=dry_run,
+        label=f"{signal.kind} / {signal.direction}",
+    )
 
 
-def send_heartbeat(*, coin: str, price: float, webhook_url: str | None, dry_run: bool = False) -> None:
+def send_heartbeat(*, coin: str, price: float, webhook_url: str | None, dry_run: bool = False) -> bool:
     signal = Signal(
         kind="heartbeat",
         direction="neutral",
@@ -63,7 +62,7 @@ def send_heartbeat(*, coin: str, price: float, webhook_url: str | None, dry_run:
         value=0.0,
         price=price,
     )
-    send_signal(signal, coin=coin, webhook_url=webhook_url, dry_run=dry_run)
+    return send_signal(signal, coin=coin, webhook_url=webhook_url, dry_run=dry_run)
 
 
 def send_no_signal_status(
@@ -73,7 +72,7 @@ def send_no_signal_status(
     checked_at_jst: datetime,
     webhook_url: str | None,
     dry_run: bool = False,
-) -> None:
+) -> bool:
     checked_at = checked_at_jst.strftime("%Y/%m/%d %H:%M JST")
     embed = {
         "title": f"💚 [{coin}] Bot 稼働中",
@@ -87,14 +86,4 @@ def send_no_signal_status(
         "footer": {"text": f"Hyperliquid Signal Bot • {checked_at}"},
     }
 
-    if dry_run:
-        print("[DRY_RUN] Discord通知予定: no_signal")
-        print(embed)
-        return
-    if not webhook_url:
-        print("[WARN] DISCORD_WEBHOOK_URL が未設定です")
-        return
-
-    response = requests.post(webhook_url, json={"embeds": [embed]}, timeout=15)
-    response.raise_for_status()
-    print("[OK] Discord通知送信: no_signal")
+    return _send_embed(embed, webhook_url=webhook_url, dry_run=dry_run, label="no_signal")

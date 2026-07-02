@@ -2,6 +2,24 @@
 
 暗号通貨市場の調査、分析、検知ボットを置くための作業リポジトリです。
 
+## shared
+
+`shared/` は全プロジェクト共通のライブラリです。
+
+- `shared/hyperliquid.py` — Hyperliquid Info APIクライアント（リトライ、429対応込み）
+- `shared/discord.py` — Discord Webhook送信（テキスト/embed、リトライ込み）
+- `shared/envtools.py` — 環境変数の読み込みヘルパー
+- `shared/logging_utils.py` — JSTタイムスタンプ付きロガー
+
+各プロジェクトはリポジトリルートを `PYTHONPATH` に載せて実行します。
+GitHub Actionsでは `PYTHONPATH: ${{ github.workspace }}` を設定済みです。
+ローカルで動かす場合:
+
+```sh
+cd projects/<project-name>
+PYTHONPATH=../.. DRY_RUN=true python -m src.main
+```
+
 ## projects
 
 - `projects/hyperliquid-leaderboard-alert/`

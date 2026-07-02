@@ -44,6 +44,7 @@ jobs:
 
       - name: Run alert batch
         env:
+          PYTHONPATH: ${{ github.workspace }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           ALERT_MODE: leaderboard
           LEADERBOARD_LIMIT: "100"

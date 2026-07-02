@@ -18,6 +18,7 @@ on:
     paths:
       - ".github/workflows/hype-signal-bot.yml"
       - "projects/hype-signal-bot/**"
+      - "shared/**"
   schedule:
     - cron: "*/5 * * * *"
     - cron: "3 */4 * * *"
@@ -62,6 +63,7 @@ jobs:
 
       - name: Run scalp signal check
         env:
+          PYTHONPATH: ${{ github.workspace }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           COIN: HYPE
           DRY_RUN: "false"
@@ -112,6 +114,7 @@ jobs:
 
       - name: Run swing signal check
         env:
+          PYTHONPATH: ${{ github.workspace }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           COIN: HYPE
           DRY_RUN: "false"

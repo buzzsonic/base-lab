@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/hyperliquid-hype-zec-order-monitor.yml"
       - "projects/hyperliquid-hype-zec-order-monitor/**"
+      - "shared/**"
   schedule:
     - cron: "7 * * * *"
 
@@ -54,6 +55,7 @@ jobs:
 
       - name: Run monitor
         env:
+          PYTHONPATH: ${{ github.workspace }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DRY_RUN: "false"
           NOTIFY_EMPTY: "true"

@@ -14,6 +14,7 @@ def run() -> int:
     logger = get_logger()
     settings = load_settings()
     logger.info(f"[SWING] {settings.coin} ブレイクアウトチェック開始")
+    state: dict | None = None
 
     try:
         candles = get_candles(settings.coin, interval="4h", count=30, only_closed=True)
@@ -30,13 +31,15 @@ def run() -> int:
             latest_bar_time = str(candles[-1].get("t", "unknown"))
             breakout_key = f"{signal.direction}:{latest_bar_time}"
             if breakout_key != state.get("last_breakout_key"):
-                send_signal(
+                sent = send_signal(
                     signal,
                     coin=settings.coin,
                     webhook_url=settings.discord_webhook_url,
                     dry_run=settings.dry_run,
                 )
-                state["last_breakout_key"] = breakout_key
+                # 送信失敗時はキーを更新せず、次回実行で再通知を試みる
+                if sent:
+                    state["last_breakout_key"] = breakout_key
                 logger.info(f"[SWING] ブレイクアウト検知: {signal.direction}")
             else:
                 logger.info("[SWING] 同じ4h足のブレイクアウト通知は送信済み")
@@ -46,21 +49,27 @@ def run() -> int:
         now_jst = datetime.now(JST)
         today = now_jst.strftime("%Y-%m-%d")
         if settings.notify_heartbeat and state.get("last_heartbeat_date") != today:
-            send_heartbeat(
+            sent = send_heartbeat(
                 coin=settings.coin,
                 price=price,
                 webhook_url=settings.discord_webhook_url,
                 dry_run=settings.dry_run,
             )
-            state["last_heartbeat_date"] = today
+            if sent:
+                state["last_heartbeat_date"] = today
 
         state["last_run_jst"] = now_jst.isoformat()
-        save_state("swing", state)
         return 0
     except Exception as exc:
         logger.error(f"[SWING] 実行エラー: {exc}")
         traceback.print_exc()
         return 1
+    finally:
+        if state is not None:
+            try:
+                save_state("swing", state)
+            except Exception as exc:
+                logger.error(f"[SWING] 状態保存失敗: {exc}")
 
 
 def main() -> None:
