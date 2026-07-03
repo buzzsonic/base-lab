@@ -23,9 +23,10 @@ on:
           - "true"
           - "false"
   schedule:
+    # リスク通知のみ定期実行。デイリー/ウィークリーのレポートは
+    # hyperliquid-report リポジトリに一本化した(通知の二重送信を防ぐため)。
+    # 必要なら workflow_dispatch で daily/weekly を手動実行できる。
     - cron: "0 * * * *"
-    - cron: "30 14 * * *"
-    - cron: "0 13 * * 0"
 
 permissions:
   contents: read
