@@ -1,0 +1,59 @@
+name: Coin Scout
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 8:00 JST / 20:00 JST
+    - cron: "0 23 * * *"
+    - cron: "0 11 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  run-scan:
+    name: Run coin scout scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: projects/coin-scout
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/coin-scout/requirements.txt
+
+      - name: Restore previous state
+        uses: actions/cache/restore@v4
+        with:
+          path: projects/coin-scout/.state
+          key: coin-scout-state-${{ github.run_id }}
+          restore-keys: |
+            coin-scout-state-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scan
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DRY_RUN: "false"
+        run: python -m src.main
+
+      - name: Save current state
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: projects/coin-scout/.state
+          key: coin-scout-state-${{ github.run_id }}

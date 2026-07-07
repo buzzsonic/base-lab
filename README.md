@@ -28,6 +28,9 @@ PYTHONPATH=../.. DRY_RUN=true python -m src.main
 - `projects/hyperliquid-wallet-report-bot/`
   - 自分のHyperliquidウォレットを監視し、即時リスク通知、デイリー/ウィークリーレポートをDiscordへ通知するGitHub Actionsバッチです。
 
+- `projects/coin-scout/`
+  - 「狙い目コイン」のスクリーニングボット。Hyperliquid上場×CEX出来高$10M+の銘柄を対象に、出来高急増・ファンディング/OIの偏り・新規上場を検知して1日2回(8時/20時JST)Discordへ通知します。
+
 ## secrets
 
 APIキーやWebhook URLなどの秘密情報はコミットしません。GitHub ActionsではRepository Secretsを使います。
