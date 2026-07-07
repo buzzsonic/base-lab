@@ -9,6 +9,8 @@ class Settings:
     dry_run: bool
     # 監視対象フィルタ: Binance/Bybitの24h出来高がこの額(USD)以上の銘柄のみ
     min_cex_volume_usd: float
+    # CoinGecko集計出来高のみで通過させる場合の倍率(全取引所合算で甘くなる分の補正)
+    coingecko_volume_multiplier: float
     # 出来高急増: 24h出来高が直近7日平均の何倍以上で発火するか
     volume_spike_ratio: float
     # 出来高急増と組み合わせる24h価格変動の最低ライン(%)
@@ -33,6 +35,7 @@ def load_settings() -> Settings:
         discord_webhook_url=webhook,
         dry_run=dry_run,
         min_cex_volume_usd=read_float("MIN_CEX_VOLUME_USD", 10_000_000),
+        coingecko_volume_multiplier=read_float("COINGECKO_VOLUME_MULTIPLIER", 2.0),
         volume_spike_ratio=read_float("VOLUME_SPIKE_RATIO", 2.0),
         price_move_min_pct=read_float("PRICE_MOVE_MIN_PCT", 5.0),
         funding_apr_alert_pct=read_float("FUNDING_APR_ALERT_PCT", 30.0),

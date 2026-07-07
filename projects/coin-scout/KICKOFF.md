@@ -60,8 +60,9 @@
 4. **定期実行** — GitHub Actionsで朝・夜のcron設定、状態ファイルの永続化、エラー通知
    → 確認方法: 数日運用して定刻に届くこと・内容が安定していることを確認
 
-## 未確定事項(要確認)
-- [ ] 通知時刻 — 暫定: **朝8:00 / 夜20:00 JST**(日中7〜18時が勝ちやすい時間帯だったため、その前後に置く)
-- [ ] リポジトリ — 暫定: base-labリポジトリ内(`coin-scout/`)にGitHub Actionsワークフローを追加。hyperliquid-reportのように独立リポジトリにする案もあり
-- [ ] Discord通知先 — 暫定: hyperliquid-reportと同じチャンネル。分けたければ別Webhookを用意
-- [ ] 閾値(出来高2倍/ファンディング年率30%/OI+20%/出来高$10M) — 暫定値。マイルストーン2で実データを見て調整
+## 確定した事項(2026-07-07)
+- [x] 通知時刻 — **朝8:00 / 夜20:00 JST**
+- [x] リポジトリ — base-labリポジトリ内(`projects/coin-scout/`)、GitHub Actionsで定期実行
+- [x] Discord通知先 — hyperliquid-reportと同じチャンネル(シークレット `DISCORD_WEBHOOK_URL`)
+- [x] 流動性フィルタ — Binance/Bybit直接$10M+、またはCoinGecko集計$20M+(GitHub Actionsランナーの地域ブロック対策。詳細はREADME)。Coinglassは無料APIキーでは市場系エンドポイントが全て有料限定のため見送り
+- [ ] 検知閾値(出来高2倍/ファンディング年率30%/OI+20%) — 暫定値のまま運用開始。数週間の通知を見て調整

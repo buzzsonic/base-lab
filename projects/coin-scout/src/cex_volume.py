@@ -6,6 +6,7 @@ Hyperliquidの銘柄名との対応:
 - 出来高はUSD建てクオート出来高なのでスケール補正は不要
 """
 
+import time
 from typing import Any
 
 import requests
@@ -15,6 +16,10 @@ import requests
 BINANCE_SPOT_URL = "https://data-api.binance.vision/api/v3/ticker/24hr"
 BINANCE_FUTURES_URL = "https://fapi.binance.com/fapi/v1/ticker/24hr"
 BYBIT_LINEAR_URL = "https://api.bybit.com/v5/market/tickers?category=linear"
+# Binance先物/Bybitは米国IPからブロックされるため、GitHub Actionsランナーでは
+# CoinGeckoの集計出来高(Binance/Bybit含む)が実質的なカバー役になる
+COINGECKO_MARKETS_URL = "https://api.coingecko.com/api/v3/coins/markets"
+COINGECKO_PAGES = 3  # 出来高上位750銘柄まで(それ以下は$10M閾値に届かない)
 
 QUOTE_CURRENCIES = ("USDT", "USDC")
 TIMEOUT_SECONDS = 20
@@ -107,16 +112,49 @@ def fetch_bybit_volumes(logger: Any) -> dict[str, float]:
     return volumes
 
 
+def fetch_coingecko_volumes(logger: Any) -> dict[str, float]:
+    """CoinGeckoの24h集計出来高(USD)をベース通貨→出来高で返す。"""
+    volumes: dict[str, float] = {}
+    for page in range(1, COINGECKO_PAGES + 1):
+        url = (
+            f"{COINGECKO_MARKETS_URL}?vs_currency=usd&order=volume_desc"
+            f"&per_page=250&page={page}"
+        )
+        data = _fetch_json(url, logger)
+        if not isinstance(data, list):
+            break
+        for market in data:
+            if not isinstance(market, dict):
+                continue
+            symbol = str(market.get("symbol") or "").upper()
+            if not symbol:
+                continue
+            try:
+                volume = float(market.get("total_volume") or 0.0)
+            except (TypeError, ValueError):
+                continue
+            _merge_max(volumes, symbol, volume)
+        if page < COINGECKO_PAGES:
+            time.sleep(1.5)
+    return volumes
+
+
 def fetch_cex_volumes(logger: Any) -> dict[str, dict[str, float]]:
     """ベース通貨 → {"binance": vol, "bybit": vol} を返す。取れなかった取引所のキーは持たない。"""
     result: dict[str, dict[str, float]] = {}
     binance = fetch_binance_volumes(logger)
     bybit = fetch_bybit_volumes(logger)
-    logger.info(f"CEX出来高取得: Binance {len(binance)}銘柄, Bybit {len(bybit)}銘柄")
+    coingecko = fetch_coingecko_volumes(logger)
+    logger.info(
+        f"CEX出来高取得: Binance {len(binance)}銘柄, Bybit {len(bybit)}銘柄, "
+        f"CoinGecko {len(coingecko)}銘柄"
+    )
     for base, volume in binance.items():
         result.setdefault(base, {})["binance"] = volume
     for base, volume in bybit.items():
         result.setdefault(base, {})["bybit"] = volume
+    for base, volume in coingecko.items():
+        result.setdefault(base, {})["coingecko"] = volume
     return result
 
 

@@ -5,6 +5,7 @@ from typing import Any
 from shared.hyperliquid import HyperliquidClient
 
 from .cex_volume import fetch_cex_volumes, max_cex_volume, normalize_hl_coin
+from .config import Settings
 
 
 def _to_float(value: Any) -> float | None:
@@ -52,32 +53,42 @@ def fetch_hl_assets(client: HyperliquidClient) -> list[dict[str, Any]]:
 
 def build_watchlist(
     client: HyperliquidClient,
-    min_cex_volume_usd: float,
+    settings: Settings,
     logger: Any,
 ) -> tuple[list[dict[str, Any]], list[str]]:
     """(監視対象リスト, HL全銘柄名リスト) を返す。
 
     全銘柄名リストは新規上場検知の差分比較用(フィルタ前のHL universe)。
+
+    通過条件: Binance/Bybit直接の出来高 >= min_cex_volume_usd、または
+    CoinGecko集計出来高 >= min_cex_volume_usd × multiplier。
+    集計値は全取引所合算で直接値より甘くなるため倍率で補正する
+    (GitHub ActionsランナーではBybit/Binance先物が地域ブロックされ、
+    CoinGeckoが実質的なBybit代替になる)。
     """
     assets = fetch_hl_assets(client)
     logger.info(f"Hyperliquid上場銘柄: {len(assets)}銘柄")
 
     cex_volumes = fetch_cex_volumes(logger)
     if not cex_volumes:
-        raise RuntimeError("Binance/Bybit両方の出来高取得に失敗しました。監視対象を決められません。")
+        raise RuntimeError("CEX出来高の取得にすべて失敗しました。監視対象を決められません。")
+
+    direct_min = settings.min_cex_volume_usd
+    coingecko_min = settings.min_cex_volume_usd * settings.coingecko_volume_multiplier
 
     watchlist: list[dict[str, Any]] = []
     for asset in assets:
-        entry = cex_volumes.get(asset["base"])
-        volume = max_cex_volume(entry)
-        if volume < min_cex_volume_usd:
+        entry = cex_volumes.get(asset["base"]) or {}
+        direct = max((v for k, v in entry.items() if k != "coingecko"), default=0.0)
+        coingecko = entry.get("coingecko", 0.0)
+        if direct < direct_min and coingecko < coingecko_min:
             continue
-        asset["cex_volume_usd"] = volume
-        asset["cex_sources"] = sorted(entry.keys()) if entry else []
+        asset["cex_volume_usd"] = max_cex_volume(entry)
+        asset["cex_sources"] = sorted(entry.keys())
         watchlist.append(asset)
 
     watchlist.sort(key=lambda a: a["cex_volume_usd"], reverse=True)
     logger.info(
-        f"監視対象: {len(watchlist)}銘柄 (CEX24h出来高 >= ${min_cex_volume_usd:,.0f})"
+        f"監視対象: {len(watchlist)}銘柄 (直接>=${direct_min:,.0f} または CoinGecko>=${coingecko_min:,.0f})"
     )
     return watchlist, [a["coin"] for a in assets]

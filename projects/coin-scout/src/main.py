@@ -33,7 +33,7 @@ def run() -> int:
         run_at_jst = datetime.now(JST)
         client = HyperliquidClient(logger=logger)
 
-        watchlist, all_coins = build_watchlist(client, settings.min_cex_volume_usd, logger)
+        watchlist, all_coins = build_watchlist(client, settings, logger)
         baselines = fetch_volume_baselines(
             client, [asset["coin"] for asset in watchlist], settings.baseline_days, logger
         )
