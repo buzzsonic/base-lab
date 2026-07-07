@@ -1,0 +1,60 @@
+name: Spread Logger
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: spread-logger
+  cancel-in-progress: false
+
+jobs:
+  run-logger:
+    name: Run spread logger
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: projects/spread-logger
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/spread-logger/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run spread logger
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DRY_RUN: "false"
+        run: python -m src.main
+
+      - name: Commit and push data/state changes
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ .state/
+          if git diff --cached --quiet; then
+            echo "変更なし。コミットをスキップします。"
+            exit 0
+          fi
+          git commit -m "spread-logger: update data ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
