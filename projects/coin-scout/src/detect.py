@@ -118,11 +118,14 @@ def _evaluate_asset(
             reasons.append(f"出来高急増 {vol_ratio:.1f}倍(7日平均比) + 価格{chg_pct:+.1f}%")
 
     # 2a) ファンディングの偏り
+    # 逆張り示唆はしない: 2026-07のバックテストで極端FRは反転でなく継続シグナルと確定済み
     funding_apr: float | None = None
+    funding_fired = False
     if asset["funding_hourly"] is not None:
         funding_apr = asset["funding_hourly"] * HOURS_PER_YEAR * 100
         if abs(funding_apr) >= settings.funding_apr_alert_pct:
-            side = "ロング過熱(調整警戒/ショート妙味)" if funding_apr > 0 else "ショート過熱(踏み上げ警戒/ロング妙味)"
+            funding_fired = True
+            side = "ロング混雑" if funding_apr > 0 else "ショート混雑"
             reasons.append(f"ファンディング偏り 年率{funding_apr:+.0f}% → {side}")
 
     # 2b) OI急増(前回スキャン比)
@@ -144,6 +147,7 @@ def _evaluate_asset(
         "oi_usd": oi_now,
         "cex_volume_usd": asset.get("cex_volume_usd"),
         "hl_volume_usd": asset["day_ntl_vlm"],
+        "funding_fired": funding_fired,
         "reasons": reasons,
         "score": len(reasons),
     }

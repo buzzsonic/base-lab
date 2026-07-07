@@ -54,6 +54,12 @@ def format_digest(report: dict[str, Any], run_at_jst: datetime) -> str:
     if not report["alerts"]:
         lines.append("本日の該当なし。閾値を超える動きはありませんでした。")
 
+    if any(alert.get("funding_fired") for alert in report["alerts"]):
+        lines.append("")
+        lines.append(
+            "※ 極端なファンディングは反転より継続シグナル寄り(2026-07バックテスト済)。逆張り前提にしないこと"
+        )
+
     if report["new_listings"]:
         lines.append("")
         listed = ", ".join(report["new_listings"])
