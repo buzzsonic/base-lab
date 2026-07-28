@@ -32,13 +32,20 @@
 
 ## 読み方
 
-```bash
-git fetch origin data
-git show origin/data:coin-scout/data/cohorts.jsonl | tail -5
-```
-
-作業ツリーを汚さずに常時参照したいなら worktree を張る。
+`main` 側のリポジトリ直下にある `dataget` を使う。毎回 `fetch` してから読むので**常に最新**。
 
 ```bash
-git worktree add ../base-lab-data data
+./dataget cohorts | tail -5      # コホートL/S(毎時)
+./dataget spread | tail -3       # 実効ドル円ほか(15分毎、当月)
+./dataget spread 2026-08         # 月を指定
+./dataget state                  # 平日FXレートのキャッシュ
+./dataget ls                     # このブランチのファイル一覧
 ```
+
+中身は `git fetch origin data && git show origin/data:<パス>` を1行にまとめただけ。
+
+**worktree は張らないこと。** `git worktree add ../base-lab-data data` で常設フォルダを
+作る手もあるが、自動では更新されないので `pull` を忘れると古いデータで分析してしまう。
+しかもファイルは普通に存在するためエラーが出ず、間違いに気づけない。
+このデータは毎時・15分毎に増えるので、その事故が起きやすい。
+毎回リモートから読む方式なら構造的に起きない。
