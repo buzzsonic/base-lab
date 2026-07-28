@@ -4,3 +4,7 @@ __pycache__/
 .venv/
 .DS_Store
 .state/
+
+# 収集データは data ブランチで管理する(mainには置かない)
+projects/*/data/
+_databranch/

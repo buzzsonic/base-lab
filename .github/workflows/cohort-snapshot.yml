@@ -2,6 +2,9 @@ name: Cohort Snapshot
 
 # cohort-fade 本番検証の"種"。Hyperdash公開コホートL/Sを毎時記録して時系列を貯める。
 # 数週間〜数ヶ月後に検出力のあるバックテストを可能にする(HL fillsは約2週間しか遡れない)。
+#
+# データは main ではなく data ブランチへ積む(1日120コミットでmainの履歴が埋まるため)。
+# 「復元 → 実行 → 書き戻し」の順序を崩すと、追記先が空ファイルになり過去データが消える。
 
 on:
   workflow_dispatch:
@@ -9,7 +12,7 @@ on:
     - cron: "5 * * * *"  # 毎時5分(毎正時の混雑を避ける)
 
 permissions:
-  contents: write  # 収集した時系列をリポジトリに追記コミットするため
+  contents: write  # 収集した時系列を data ブランチに追記コミットするため
 
 concurrency:
   group: cohort-snapshot
@@ -29,6 +32,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Checkout data branch
+        uses: actions/checkout@v6
+        with:
+          ref: data
+          path: _databranch
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -42,20 +51,38 @@ jobs:
           pip install -r research/requirements.txt
           python -m playwright install --with-deps chromium
 
+      # 追記先を前回の状態に戻す。これを飛ばすと毎回1行だけの新規ファイルになる。
+      - name: Restore previous data
+        run: |
+          mkdir -p data
+          cp -a "${GITHUB_WORKSPACE}/_databranch/coin-scout/data/." data/ 2>/dev/null || true
+          echo "復元後の行数: $(wc -l < data/cohorts.jsonl 2>/dev/null || echo 0)"
+
       - name: Take snapshot
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: python research/cohort_snapshot.py --out data/cohorts.jsonl
 
-      - name: Commit snapshot
+      - name: Commit snapshot to data branch
         run: |
+          mkdir -p "${GITHUB_WORKSPACE}/_databranch/coin-scout/data"
+          cp -a data/. "${GITHUB_WORKSPACE}/_databranch/coin-scout/data/"
+          cd "${GITHUB_WORKSPACE}/_databranch"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/cohorts.jsonl
+          git add -A
           if git diff --cached --quiet; then
             echo "変更なし(取得失敗の可能性)。コミットせず終了。"
-          else
-            git commit -m "chore(cohort-snapshot): $(date -u +%Y-%m-%dT%H:%MZ)"
-            git pull --rebase origin "${GITHUB_REF_NAME}"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
+            exit 0
           fi
+          git commit -m "cohort-snapshot: $(date -u +%Y-%m-%dT%H:%MZ)"
+          # spread-logger も同じ data ブランチへ書くので、衝突をリトライで吸収する
+          for i in 1 2 3; do
+            if git pull --rebase origin data && git push origin HEAD:data; then
+              echo "push成功 (試行 $i)"
+              exit 0
+            fi
+            sleep $(( RANDOM % 10 + 5 ))
+          done
+          echo "3回試行しても push できませんでした" >&2
+          exit 1

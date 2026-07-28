@@ -1,5 +1,12 @@
 name: Spread Logger
 
+# 国内4取引所×Hyperliquidの価格・ファンディング乖離を15分毎に記録する。
+# 主目的は週末の実効ドル円(国内BTC現物 ÷ HL BTCパープ)の乖離を貯めること。
+#
+# データは main ではなく data ブランチへ積む(1日96コミットでmainの履歴が埋まるため)。
+# 「復元 → 実行 → 書き戻し」の順序を崩すと、CSVの追記先が空になり過去データが消える。
+# .state は平日FXレートのキャッシュを持っており、これが復元されないと週末の基準が失われる。
+
 on:
   workflow_dispatch:
   schedule:
@@ -26,6 +33,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Checkout data branch
+        uses: actions/checkout@v6
+        with:
+          ref: data
+          path: _databranch
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -38,6 +51,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 追記先と状態を前回に戻す。.state の平日FXレートは週末計算の基準。
+      - name: Restore previous data and state
+        run: |
+          mkdir -p data .state
+          cp -a "${GITHUB_WORKSPACE}/_databranch/spread-logger/data/." data/ 2>/dev/null || true
+          cp -a "${GITHUB_WORKSPACE}/_databranch/spread-logger/.state/." .state/ 2>/dev/null || true
+          echo "復元したCSV: $(ls data/ 2>/dev/null | tr '\n' ' ')"
+          echo "復元した状態: $(ls .state/ 2>/dev/null | tr '\n' ' ')"
+
       - name: Run spread logger
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -45,16 +67,28 @@ jobs:
           DRY_RUN: "false"
         run: python -m src.main
 
-      - name: Commit and push data/state changes
+      - name: Commit data and state to data branch
         if: always()
         run: |
+          mkdir -p "${GITHUB_WORKSPACE}/_databranch/spread-logger/data" "${GITHUB_WORKSPACE}/_databranch/spread-logger/.state"
+          cp -a data/. "${GITHUB_WORKSPACE}/_databranch/spread-logger/data/" 2>/dev/null || true
+          cp -a .state/. "${GITHUB_WORKSPACE}/_databranch/spread-logger/.state/" 2>/dev/null || true
+          cd "${GITHUB_WORKSPACE}/_databranch"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ .state/
+          git add -A
           if git diff --cached --quiet; then
             echo "変更なし。コミットをスキップします。"
             exit 0
           fi
-          git commit -m "spread-logger: update data ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git commit -m "spread-logger: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          # cohort-snapshot も同じ data ブランチへ書くので、衝突をリトライで吸収する
+          for i in 1 2 3; do
+            if git pull --rebase origin data && git push origin HEAD:data; then
+              echo "push成功 (試行 $i)"
+              exit 0
+            fi
+            sleep $(( RANDOM % 10 + 5 ))
+          done
+          echo "3回試行しても push できませんでした" >&2
+          exit 1
