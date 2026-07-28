@@ -1,0 +1,39 @@
+#!/bin/sh
+# data ブランチの収集データを「常に最新の状態で」標準出力に出す。
+#
+# worktree を張らないのは、pull を忘れて古いデータで分析する事故を
+# 構造的に防ぐため。毎回 fetch してから読むので手元に古い実体が残らない。
+#
+#   ./dataget cohorts | tail -5          コホートL/S(毎時)
+#   ./dataget spread | tail -3           実効ドル円ほか(15分毎、当月)
+#   ./dataget spread 2026-08             月を指定
+#   ./dataget state                      spread-loggerの状態(平日FXレート)
+#   ./dataget ls                         data ブランチのファイル一覧
+
+set -e
+REPO=$(cd "$(dirname "$0")" && pwd)
+
+case "${1:-}" in
+  cohorts) FILE="coin-scout/data/cohorts.jsonl" ;;
+  spread)  FILE="spread-logger/data/${2:-$(date +%Y-%m)}.csv" ;;
+  state)   FILE="spread-logger/.state/spread_logger_state.json" ;;
+  ls)      FILE="" ;;
+  *)
+    sed -n '4,12p' "$0" | sed 's/^# \{0,1\}//' >&2
+    exit 1
+    ;;
+esac
+
+git -C "$REPO" fetch -q origin data
+
+if [ -z "$FILE" ]; then
+  git -C "$REPO" ls-tree -r --name-only origin/data
+  exit 0
+fi
+
+if ! git -C "$REPO" cat-file -e "origin/data:$FILE" 2>/dev/null; then
+  echo "data ブランチに $FILE がありません。'$0 ls' で一覧を確認してください。" >&2
+  exit 1
+fi
+
+git -C "$REPO" show "origin/data:$FILE"
