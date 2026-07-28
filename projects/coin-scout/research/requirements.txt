@@ -1,0 +1,3 @@
+# cohort_snapshot.py 専用(本体coin-scoutより重いのでresearchに分離)
+requests>=2.31
+playwright>=1.44
