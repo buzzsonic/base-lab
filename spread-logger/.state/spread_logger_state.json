@@ -1,7 +1,9 @@
 {
-  "alerts": {},
+  "alerts": {
+    "effective_jpy:LTC": "2026-07-30T08:39:14.948821+09:00"
+  },
   "fx": {
-    "fetched_at_jst": "2026-07-30 07:36:08 JST",
+    "fetched_at_jst": "2026-07-30 08:39:14 JST",
     "rate": 163.830599,
     "weekday_ja": "木"
   }
