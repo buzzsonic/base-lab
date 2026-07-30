@@ -1,5 +1,6 @@
 {
   "alerts": {
+    "domestic_cross:DOGE": "2026-07-31T00:08:27.526726+09:00",
     "effective_jpy:BTC": "2026-07-30T20:18:24.692881+09:00",
     "effective_jpy:DOGE": "2026-07-30T20:18:24.692881+09:00",
     "effective_jpy:ETH": "2026-07-30T20:18:24.692881+09:00",
@@ -8,8 +9,8 @@
     "effective_jpy:XRP": "2026-07-30T20:18:24.692881+09:00"
   },
   "fx": {
-    "fetched_at_jst": "2026-07-30 21:58:54 JST",
+    "fetched_at_jst": "2026-07-31 00:08:27 JST",
     "rate": 163.530858,
-    "weekday_ja": "木"
+    "weekday_ja": "金"
   }
 }
