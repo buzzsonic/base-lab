@@ -5,11 +5,11 @@
     "effective_jpy:DOGE": "2026-07-31T03:03:03.942797+09:00",
     "effective_jpy:ETH": "2026-07-31T03:03:03.942797+09:00",
     "effective_jpy:LTC": "2026-07-31T03:03:03.942797+09:00",
-    "effective_jpy:SOL": "2026-07-31T03:03:03.942797+09:00",
+    "effective_jpy:SOL": "2026-07-31T19:14:17.447967+09:00",
     "effective_jpy:XRP": "2026-07-31T03:03:03.942797+09:00"
   },
   "fx": {
-    "fetched_at_jst": "2026-07-31 16:41:45 JST",
+    "fetched_at_jst": "2026-07-31 19:14:17 JST",
     "rate": 160.57454,
     "weekday_ja": "金"
   }
