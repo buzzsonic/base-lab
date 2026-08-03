@@ -6,12 +6,12 @@
     "effective_jpy:DOGE": "2026-08-03T20:40:18.118540+09:00",
     "effective_jpy:ETH": "2026-08-03T20:40:18.118540+09:00",
     "effective_jpy:LTC": "2026-08-03T20:40:18.118540+09:00",
-    "effective_jpy:SOL": "2026-08-03T17:03:47.810948+09:00",
+    "effective_jpy:SOL": "2026-08-04T01:38:25.242065+09:00",
     "effective_jpy:XRP": "2026-08-03T20:40:18.118540+09:00"
   },
   "fx": {
-    "fetched_at_jst": "2026-08-03 23:00:27 JST",
+    "fetched_at_jst": "2026-08-04 01:38:25 JST",
     "rate": 158.015481,
-    "weekday_ja": "月"
+    "weekday_ja": "火"
   }
 }
