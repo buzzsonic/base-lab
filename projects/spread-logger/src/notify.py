@@ -61,6 +61,26 @@ def evaluate_alerts(
                     }
                 )
 
+    for coin, m in metrics.get("pointfarm", {}).items():
+        for venue, label in (("var", "Variational"), ("nado", "Nado")):
+            spread = m.get(f"{venue}_hl_fr_spread_apr_pct")
+            if spread is None or abs(spread) < settings.fr_spread_alert_apr_pct:
+                continue
+            key = f"fr_spread:{venue}:{coin}"
+            if is_alert_in_cooldown(state, key, now_jst, settings.alert_cooldown_hours):
+                continue
+            venue_apr = m.get(f"{venue}_funding_apr_pct")
+            hl_apr = m.get("hl_funding_apr_pct")
+            alerts.append(
+                {
+                    "key": key,
+                    "text": (
+                        f"FR年率差 **{coin}** {label} {spread:+.1f}%pt "
+                        f"({label} {venue_apr:+.1f}% / HL {hl_apr:+.1f}%)"
+                    ),
+                }
+            )
+
     for token, basis in metrics["hl_basis"].items():
         b = basis.get("basis_pct")
         if b is not None and abs(b) >= settings.hl_basis_alert_pct:

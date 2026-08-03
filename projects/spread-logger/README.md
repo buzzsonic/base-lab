@@ -1,7 +1,7 @@
 # spread-logger
 
-国内取引所×Hyperliquidの価格・ファンディングの歪みを15分毎に記録し、閾値超えのみDiscordに通知するボット。
-仕様と経緯は [KICKOFF.md](KICKOFF.md) を参照。
+国内取引所×Hyperliquid×ポイ活DEXの価格・ファンディングの歪みを15分毎に記録し、
+閾値超えのみDiscordに通知するボット。仕様と経緯は [KICKOFF.md](KICKOFF.md) を参照。
 
 ## 何をするか
 
@@ -10,12 +10,14 @@ GitHub Actionsで15分毎に以下を実行する:
 1. **価格取得** — 国内4取引所(bitFlyer/bitbank/GMOコイン/Coincheck)の公開ティッカーAPIから
    BTC/ETH/XRP/SOL/DOGE/LTCのJPYペアのbest bid/askを取得(各取引所の未上場ペアは黙ってスキップ)。
    Hyperliquid info APIからパープのmid/funding、現物(HYPE/UBTC/UETH/USOL)のmidを取得。
+   ポイ活DEX2社(Variational/Nado)からパープのmark・FR・OIを取得。
    USDJPY参照レートを open.er-api.com から取得(週末は平日に保存した最新値=金曜終値を使う)。
 2. **乖離計算**
    - 実効ドル円 = 国内mid ÷ HLパープmid、参照USDJPYからの乖離%
    - 国内取引所間クロス(bestbid > bestaskの最良組み合わせ)
    - HL現物-パープのベーシス%(HYPE/UBTC/UETH/USOL)
    - FR年率換算%(funding_hourly × 24 × 365 × 100)
+   - ポイ活DEX×HLのFR年率差(%pt)と価格乖離%
 3. **CSV追記** — `data/YYYY-MM.csv` に1実行1行(固定スキーマ、初回にヘッダ書き込み)
 4. **Discordアラート** — 閾値超え(`.env.example`参照)のみ通知。同一種別×銘柄は`ALERT_COOLDOWN_HOURS`(既定6時間)クールダウン。
    実行が全滅した場合はエラー通知。事実の報告のみで売買推奨はしない。
@@ -44,6 +46,42 @@ JSON(bid/ask込み)を返す。LTCのみ404 HTMLが返るため非対応と判�
 `spot_meta()`(pair_index → "BASE/QUOTE" の対応表)と `all_mids()`(価格そのもの)を組み合わせて現物midを取得している
 (`src/fetch_hyperliquid.py`)。
 
+## ポイ活DEX(Variational / Nado)の観測
+
+TGE前のポイントファーミングが走っているDEXでは、参加者の目的が「ボリュームを作ること」であって
+利益を出すことではないため、価格・金利に無頓着な建玉が入り続ける。その結果FRが恒常的に歪むのでは、
+という仮説を検証するためのデータを貯める。**まだ検証前の仮説であり、この差分で売買しない。**
+
+観測銘柄は `SPREAD_LOGGER_COINS` + `POINTFARM_EXTRA_COINS`(既定でHYPEを追加)。
+`POINTFARM_ENABLED=false` で丸ごと止められる(その場合も該当列は空欄で残す)。
+
+| | エンドポイント | 認証 | 備考 |
+|---|---|---|---|
+| Variational | `GET /metadata/stats` 1本 | 不要 | 全listing(500超)が1レスポンス。IPあたり10req/10秒 |
+| Nado | gateway `?type=symbols` / `?type=all_products` / `?type=market_price` + archive `POST {"funding_rate":...}` | 不要 | 板とFRはproduct_id単位。既定7銘柄で16リクエスト/実行 |
+
+### FRの単位(ここを間違えると比較が丸ごと壊れる)
+
+3ベニューで単位がバラバラなので、すべて**年率%**に正規化してから比較している。
+
+| ベニュー | APIが返す値 | 年率への変換 |
+|---|---|---|
+| Hyperliquid | 1時間レート | `× 24 × 365 × 100` |
+| Nado | **24時間レート**(公式ドキュメントに「8時間レートFの3倍」と明記) | `× 365 × 100` |
+| Variational | **年率の小数**(下記の実測から判断) | `× 100` |
+
+Variationalの公式ドキュメントは "funding rates are decimals" としか書いておらず期間を明示していない。
+2026-08-03に526マーケットを実測したところ**302本がちょうど 0.1095 に張り付いていた**。これは業界標準の
+金利成分 0.01%/8h を年率換算した値(`0.0001 × 3 × 365 = 0.1095`)と一致する。
+実際にHL・Nado・Variationalの3社とも無風銘柄のFRが年率10.95%に揃うことを確認済みで、この一致を
+根拠に年率と判断した。**Variational側の定義が変わるとFR差が丸ごと無意味になるので、
+値の分布が10.95に寄らなくなっていないか時々確認すること。**
+
+### Nado APIのハマりどころ
+
+`Accept-Encoding` に gzip/br/deflate のいずれかを含めないと gateway が 403 で
+`{"reason": "Invalid compression headers", "block": true}` を返す。`src/fetch_nado.py` で明示している。
+
 ## ローカル実行
 
 ```sh
@@ -62,3 +100,11 @@ PYTHONPATH=../.. DRY_RUN=true python -m src.main
 
 coin-scout等と異なり、このプロジェクトは `.state/` と `data/` をGitにコミットして永続化する
 (プロジェクト直下の `.gitignore` でルートの `.state/` 除外を打ち消している)。
+ただし積み先は `main` ではなく orphan の `data` ブランチ(1日96コミットでmainが埋まるため)。
+ワークフローの「復元 → 実行 → 書き戻し」の順序を崩すと過去データが消える。
+
+## CSVスキーマの変更について
+
+列が増えた場合、`append_row` が既存の月次CSVを新ヘッダで書き直す(増えた列は空欄で埋める)。
+月の途中で観測項目を足しても1ファイルのまま追記が続く。列が**減る**変更(銘柄を外した等)は
+自動移行せず警告を出して追記するため、その場合は手でファイルを分けること。

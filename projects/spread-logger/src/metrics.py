@@ -1,4 +1,5 @@
-"""乖離指標の計算: 実効ドル円 / 国内取引所間クロス / HL現物-パープのベーシス / FR年率換算。"""
+"""乖離指標の計算: 実効ドル円 / 国内取引所間クロス / HL現物-パープのベーシス / FR年率換算 /
+ポイ活DEX(Variational・Nado)とHLのFR差・価格差。"""
 
 from itertools import permutations
 from typing import Any
@@ -78,12 +79,71 @@ def compute_hl_basis(spot_mid: float | None, perp_mid: float | None) -> float | 
     return (spot_mid - perp_mid) / perp_mid * 100
 
 
+def compute_price_dev_pct(venue_price: float | None, hl_perp_mid: float | None) -> float | None:
+    """ポイ活DEXの価格がHLパープからどれだけ乖離しているか% = (venue - hl) / hl * 100。"""
+    if venue_price is None or hl_perp_mid in (None, 0):
+        return None
+    return (venue_price - hl_perp_mid) / hl_perp_mid * 100
+
+
+def compute_fr_spread(venue_apr_pct: float | None, hl_apr_pct: float | None) -> float | None:
+    """FR年率の差(ベニュー - HL)。正ならベニュー側のロングがHLより高い金利を払っている。
+
+    ポイ活勢は「ボリュームを作る」のが目的で価格・金利に無頓着なため、この差が恒常的に
+    開くかどうかが検証したい仮説そのもの。判断はせず差の記録だけ行う。
+    """
+    if venue_apr_pct is None or hl_apr_pct is None:
+        return None
+    return venue_apr_pct - hl_apr_pct
+
+
+def build_pointfarm_metrics(
+    pointfarm_coins: tuple[str, ...],
+    hl_perp: dict[str, dict[str, float | None]],
+    variational: dict[str, dict[str, float | None]],
+    nado: dict[str, dict[str, float | None]],
+) -> dict[str, Any]:
+    """ポイ活DEX2社×HLの比較指標をコイン名→{...}で返す。"""
+    result: dict[str, Any] = {}
+    for coin in pointfarm_coins:
+        hl_ctx = hl_perp.get(coin, {})
+        hl_mid = hl_ctx.get("mid")
+        hl_apr = compute_funding_apr(hl_ctx.get("funding_hourly"))
+
+        var = variational.get(coin, {})
+        nad = nado.get(coin, {})
+        var_apr = var.get("funding_apr_pct")
+        nado_apr = nad.get("funding_apr_pct")
+
+        result[coin] = {
+            "hl_perp_mid": hl_mid,
+            "hl_funding_apr_pct": hl_apr,
+            "var_mark": var.get("mark"),
+            "var_funding_apr_pct": var_apr,
+            "var_oi_skew_pct": var.get("oi_skew_pct"),
+            "var_volume_24h": var.get("volume_24h"),
+            "var_spread_bps": var.get("spread_bps"),
+            "var_hl_dev_pct": compute_price_dev_pct(var.get("mark"), hl_mid),
+            "var_hl_fr_spread_apr_pct": compute_fr_spread(var_apr, hl_apr),
+            "nado_mid": nad.get("mid"),
+            "nado_oracle": nad.get("oracle"),
+            "nado_open_interest": nad.get("open_interest"),
+            "nado_funding_apr_pct": nado_apr,
+            "nado_hl_dev_pct": compute_price_dev_pct(nad.get("mid"), hl_mid),
+            "nado_hl_fr_spread_apr_pct": compute_fr_spread(nado_apr, hl_apr),
+        }
+    return result
+
+
 def build_metrics(
     coins: tuple[str, ...],
     domestic: dict[str, dict[str, dict[str, float]]],
     hl_perp: dict[str, dict[str, float | None]],
     hl_spot_mids: dict[str, float],
     usdjpy_ref: float | None,
+    pointfarm_coins: tuple[str, ...] = (),
+    variational: dict[str, dict[str, float | None]] | None = None,
+    nado: dict[str, dict[str, float | None]] | None = None,
 ) -> dict[str, Any]:
     per_coin: dict[str, Any] = {}
     for coin in coins:
@@ -117,4 +177,8 @@ def build_metrics(
             "basis_pct": compute_hl_basis(spot_mid, perp_mid),
         }
 
-    return {"per_coin": per_coin, "hl_basis": hl_basis}
+    pointfarm = build_pointfarm_metrics(
+        pointfarm_coins, hl_perp, variational or {}, nado or {}
+    )
+
+    return {"per_coin": per_coin, "hl_basis": hl_basis, "pointfarm": pointfarm}

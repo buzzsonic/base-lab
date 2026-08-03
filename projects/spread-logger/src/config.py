@@ -13,6 +13,11 @@ HL_SPOT_BASIS_TARGETS = {
     "USOL": "SOL",
 }
 
+# ポイ活(TGE前のポイントファーミング)が走っているDEXでも観測する追加銘柄。
+# SPREAD_LOGGER_COINS(国内取引所に上場している銘柄)に無くても、HL・Variational・Nadoの
+# 3ベニュー全てに板があるものはFR比較の対象になる。HYPEはHL側の出来高が厚く基準として有用。
+POINTFARM_EXTRA_COINS = ("HYPE",)
+
 FX_REFERENCE_URL = "https://open.er-api.com/v6/latest/USD"
 
 
@@ -29,8 +34,21 @@ class Settings:
     funding_apr_alert_pct: float
     # HL現物-パープのベーシス(%)の絶対値がこれ以上で発火
     hl_basis_alert_pct: float
+    # ポイ活DEX(Variational/Nado)の観測を行うか
+    pointfarm_enabled: bool
+    # ポイ活DEXとHLのFR年率差(%)の絶対値がこれ以上で発火
+    fr_spread_alert_apr_pct: float
     # 同一アラート種別×銘柄のクールダウン(時間)
     alert_cooldown_hours: float
+
+    @property
+    def pointfarm_coins(self) -> tuple[str, ...]:
+        """ポイ活DEXで観測する銘柄(重複を除き、coinsの順序を保つ)。"""
+        seen = list(self.coins)
+        for coin in POINTFARM_EXTRA_COINS:
+            if coin not in seen:
+                seen.append(coin)
+        return tuple(seen)
 
 
 def _parse_coins(raw: str) -> tuple[str, ...]:
@@ -56,5 +74,7 @@ def load_settings() -> Settings:
         domestic_cross_alert_pct=read_float("DOMESTIC_CROSS_ALERT_PCT", 0.3),
         funding_apr_alert_pct=read_float("FUNDING_APR_ALERT_PCT", 30.0),
         hl_basis_alert_pct=read_float("HL_BASIS_ALERT_PCT", 1.0),
+        pointfarm_enabled=read_bool("POINTFARM_ENABLED", True),
+        fr_spread_alert_apr_pct=read_float("FR_SPREAD_ALERT_APR_PCT", 10.0),
         alert_cooldown_hours=read_float("ALERT_COOLDOWN_HOURS", 6.0),
     )
