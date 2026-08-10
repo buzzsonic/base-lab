@@ -41,7 +41,14 @@ DEFAULT_OUT = Path(__file__).resolve().parents[2] / "data" / "maker_fills"
 
 
 class Writer:
-    """1時間ごとにgzip NDJSONを切り替えて書く。"""
+    """1時間ごとにgzip NDJSONを切り替えて書く。
+
+    定期的にflushするのが要点。gzipは既定でバッファに溜め込むため、放置すると
+    プロセスが落ちた時に最大1時間分が消え、途中経過も覗けない。
+    数日回す前提のコレクターでこれは許容できない。
+    """
+
+    FLUSH_EVERY = 200
 
     def __init__(self, out_dir: Path) -> None:
         self.out_dir = out_dir
@@ -49,6 +56,7 @@ class Writer:
         self.key = ""
         self.handle: gzip.GzipFile | None = None
         self.rows = 0
+        self._since_flush = 0
 
     def _ensure(self, ts_ms: int) -> None:
         key = datetime.fromtimestamp(ts_ms / 1000, timezone.utc).strftime("%Y%m%d%H")
@@ -58,12 +66,17 @@ class Writer:
             self.handle.close()
         self.key = key
         self.handle = gzip.open(self.out_dir / f"bbo_trades_{key}Z.ndjson.gz", "at", encoding="utf-8")
+        self._since_flush = 0
 
     def write(self, record: dict) -> None:
         self._ensure(record["recv_ms"])
         assert self.handle is not None
         self.handle.write(json.dumps(record, separators=(",", ":")) + "\n")
         self.rows += 1
+        self._since_flush += 1
+        if self._since_flush >= self.FLUSH_EVERY:
+            self.handle.flush()
+            self._since_flush = 0
 
     def close(self) -> None:
         if self.handle is not None:
