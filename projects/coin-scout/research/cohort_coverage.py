@@ -7,6 +7,13 @@
 使い方:
     python cohort_coverage.py --file data/cohorts.jsonl            # 表示のみ
     python cohort_coverage.py --file data/cohorts.jsonl --notify   # 閾値割れならDiscord通知
+    python cohort_coverage.py --file ... --fail-on-shortfall       # 閾値割れを異常終了で返す
+
+終了コードの約束:
+    0 = 点検が正常に完了した(カバー率が低くても、通知を出せていれば0)
+    1 = 点検そのものが失敗した(ファイルが無い/Webhook未設定/送信失敗)
+CIでは欠測の報告経路をDiscordに一本化し、ワークフローの赤は「監視自体の故障」だけを意味させる。
+両者を同じ赤にすると、監視が壊れたのか収集が遅れているのかを区別できなくなるため。
 """
 
 from __future__ import annotations
@@ -52,6 +59,11 @@ def main() -> int:
     ap.add_argument("--window", type=int, default=WINDOW_HOURS)
     ap.add_argument("--min-coverage", type=float, default=MIN_COVERAGE)
     ap.add_argument("--notify", action="store_true")
+    ap.add_argument(
+        "--fail-on-shortfall",
+        action="store_true",
+        help="カバー率が基準を下回ったら終了コード1で返す(手元での確認用)",
+    )
     args = ap.parse_args()
 
     if not args.file.exists():
@@ -87,11 +99,13 @@ def main() -> int:
     if args.notify:
         webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
         if not webhook:
-            print("DISCORD_WEBHOOK_URL が未設定のため通知しません", file=sys.stderr)
-            return 1
+            print("DISCORD_WEBHOOK_URL が未設定のため通知できません", file=sys.stderr)
+            return 1  # 通知経路が死んでいる = 監視の故障なので異常終了
         send_discord_message(webhook, message, dry_run=False, logger=_Log())
         print("Discord通知を送信しました")
-    return 1
+
+    # 欠測は「通知すべき事象」であって「監視の故障」ではない。既定では正常終了する。
+    return 1 if args.fail_on_shortfall else 0
 
 
 if __name__ == "__main__":
