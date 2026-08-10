@@ -1,0 +1,48 @@
+name: Cohort Coverage Check
+
+# cohort-snapshot の「取れているつもりで取れていない」を検出する監視。
+#
+# 2026-08-10: 毎時5分設定・全runがsuccessにもかかわらず、時単位カバー率は52%しかなかった。
+# ワークフローの成否だけを見ていると気づけないため、データ側から欠測を見る監視を分離した。
+# ここが鳴ったら cohort-snapshot の cron 頻度か収集経路を疑う。
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "40 */6 * * *"  # 6時間ごと(通知が多すぎない頻度)
+
+jobs:
+  check:
+    name: Check hourly coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    defaults:
+      run:
+        working-directory: projects/coin-scout
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Checkout data branch
+        uses: actions/checkout@v6
+        with:
+          ref: data
+          path: _databranch
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Check coverage and notify on shortfall
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python research/cohort_coverage.py \
+            --file "${GITHUB_WORKSPACE}/_databranch/coin-scout/data/cohorts.jsonl" \
+            --notify
