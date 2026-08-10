@@ -33,20 +33,30 @@ MAKER_FEE_BPS = 1.5   # HL標準メイカー手数料 0.015%(リベートでは�
 
 
 def load(paths: list[str]) -> dict[str, dict[str, list]]:
-    """coin -> {"bbo": [...], "trade": [...]} に読み分ける。"""
+    """coin -> {"bbo": [...], "trade": [...]} に読み分ける。
+
+    収集中のファイルは gzip の終端マーカーがまだ無く、最後まで読むと EOFError になる。
+    収集を止めずに途中経過を見たいので、読めたところまでを採用して打ち切る。
+    プロセスを強制終了した場合も最終ファイルは同じ状態になるため、この処理は常に要る。
+    """
     out: dict[str, dict[str, list]] = {}
     for path in sorted(paths):
-        with gzip.open(path, "rt", encoding="utf-8") as handle:
-            for line in handle:
-                try:
-                    r = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                coin = r.get("coin")
-                if not coin:
-                    continue
-                bucket = out.setdefault(coin, {"bbo": [], "trade": []})
-                bucket["bbo" if r["t"] == "bbo" else "trade"].append(r)
+        rows = 0
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as handle:
+                for line in handle:
+                    try:
+                        r = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue  # flush境界で行が切れることがある
+                    coin = r.get("coin")
+                    if not coin:
+                        continue
+                    bucket = out.setdefault(coin, {"bbo": [], "trade": []})
+                    bucket["bbo" if r["t"] == "bbo" else "trade"].append(r)
+                    rows += 1
+        except EOFError:
+            print(f"  ※ {Path(path).name} は収集中(または未終端)。{rows:,}行まで読んで継続")
     return out
 
 
