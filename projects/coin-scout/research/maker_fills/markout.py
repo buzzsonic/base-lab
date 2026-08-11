@@ -110,7 +110,14 @@ def simulate(bbo: list[dict], trades: list[dict]) -> list[dict]:
 
 
 def markouts(fills: list[dict], bbo: list[dict]) -> dict[tuple[str, int], np.ndarray]:
-    """約定ごとに各ホライズンのマークアウト(bps)を出す。dir=+1が買い、-1が売り。"""
+    """約定ごとに各ホライズンのマークアウト(bps)を出す。dir=+1が買い、-1が売り。
+
+    重要: マークアウトには**半スプレッドが最初から乗っている**。
+    買いは必ず mid より下(bid)で約定するので、価格が1ミリも動かなくても
+    (mid - bid) ぶんプラスに出る。これはメイカーの取り分そのものなので損益としては正しいが、
+    「価格が有利に動いた」と読み違えないよう、h=0 の半スプレッドも併せて出して分解する。
+    ドリフト = markout(h) - 半スプレッド。逆選択があればドリフトはマイナスになる。
+    """
     if not bbo or not fills:
         return {}
     times = np.array([b["recv_ms"] for b in bbo])
@@ -118,6 +125,10 @@ def markouts(fills: list[dict], bbo: list[dict]) -> dict[tuple[str, int], np.nda
 
     out: dict[tuple[str, int], list[float]] = {}
     for f in fills:
+        # h=0 相当: 約定時点の mid と約定価格の差 = 取れた半スプレッド
+        out.setdefault((f["queue"], 0), []).append(
+            f["dir"] * (f["mid"] - f["px"]) / f["mid"] * 1e4
+        )
         for h in HORIZONS_MS:
             idx = np.searchsorted(times, f["ts"] + h)
             if idx >= len(times):
@@ -144,6 +155,7 @@ def main() -> int:
 
     span_ms = 0
     all_mo: dict[tuple[str, int], list[float]] = {}
+    per_coin: dict[str, dict[tuple[str, int], np.ndarray]] = {}
     print(f"{'銘柄':<9}{'BBO':>8}{'約定':>8}{'front約定':>10}{'back約定':>9}")
     for coin in sorted(data):
         if coin not in wanted:
@@ -156,7 +168,9 @@ def main() -> int:
         nf = sum(1 for f in fills if f["queue"] == "front")
         nb = sum(1 for f in fills if f["queue"] == "back")
         print(f"{coin:<9}{len(bbo):>8,}{len(trades):>8,}{nf:>10,}{nb:>9,}")
-        for key, arr in markouts(fills, bbo).items():
+        mo = markouts(fills, bbo)
+        per_coin[coin] = mo
+        for key, arr in mo.items():
             all_mo.setdefault(key, []).extend(arr.tolist())
 
     print(f"\n収集時間: {span_ms/3600000:.2f}時間")
@@ -167,20 +181,38 @@ def main() -> int:
     print("\n" + "=" * 78)
     print("パッシブ約定後のマークアウト(bps、プラス=メイカー有利)")
     print("=" * 78)
-    print(f"{'行列位置':<8}{'経過':>8}{'約定数':>9}{'平均':>9}{'中央値':>9}{'手数料1.5bps後':>15}{'勝率':>8}")
+    print(f"{'行列位置':<8}{'経過':>8}{'約定数':>9}{'平均':>9}{'半スプ':>8}{'ドリフト':>9}"
+          f"{'手数料後':>10}{'標準誤差':>9}")
     for queue in ("front", "back"):
+        half = np.array(all_mo.get((queue, 0), []))
+        half_mean = half.mean() if half.size else float("nan")
         for h in HORIZONS_MS:
             arr = np.array(all_mo.get((queue, h), []))
             if arr.size == 0:
                 continue
-            net = arr.mean() - MAKER_FEE_BPS
-            label = f"{h//1000}秒"
-            print(f"{queue:<8}{label:>8}{arr.size:>9,}{arr.mean():>9.2f}{np.median(arr):>9.2f}"
-                  f"{net:>15.2f}{(arr > 0).mean():>8.0%}")
+            se = arr.std(ddof=1) / np.sqrt(arr.size)
+            print(f"{queue:<8}{f'{h//1000}秒':>8}{arr.size:>9,}{arr.mean():>9.2f}{half_mean:>8.2f}"
+                  f"{arr.mean()-half_mean:>9.2f}{arr.mean()-MAKER_FEE_BPS:>10.2f}{se:>9.2f}")
         print()
 
-    print("読み方: back の手数料後がマイナスなら、最良気配に置くだけの単純なメイカーは負ける。")
-    print("      その場合H3は『指値を置けば取れる』ではなくなり、シグナルで逆選択を避ける設計が要る。")
+    print("読み方:")
+    print("  半スプ   = 約定した瞬間に取れている取り分(価格が動かなくても得られる)")
+    print("  ドリフト = そこからの価格変化。**逆選択があればマイナス**になる")
+    print("  手数料後 = マークアウト - メイカー手数料1.5bps。これがプラスでないと成立しない")
+    print("  標準誤差の2倍を超える差でなければ、まだ何も言えない")
+
+    # 1銘柄が全体を持ち上げていないかを確認する。KAITOのように出来高が突出した銘柄が
+    # 混ざると、全体平均がその1銘柄の性質になってしまう。
+    print("\n" + "=" * 78)
+    print("銘柄別(back・60秒・手数料後bps) — 特定銘柄だけで持っていないかの確認")
+    print("=" * 78)
+    print(f"{'銘柄':<9}{'back約定':>9}{'手数料後':>10}{'標準誤差':>9}")
+    for coin in sorted(per_coin):
+        arr = per_coin[coin].get(("back", 60_000))
+        if arr is None or arr.size < 2:
+            continue
+        se = arr.std(ddof=1) / np.sqrt(arr.size)
+        print(f"{coin:<9}{arr.size:>9,}{arr.mean()-MAKER_FEE_BPS:>10.2f}{se:>9.2f}")
     return 0
 
 
