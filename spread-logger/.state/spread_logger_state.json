@@ -1,6 +1,6 @@
 {
   "alerts": {
-    "domestic_cross:DOGE": "2026-08-19T18:00:12.474282+09:00",
+    "domestic_cross:DOGE": "2026-08-21T17:24:46.742056+09:00",
     "domestic_cross:ETH": "2026-08-20T02:39:49.593245+09:00",
     "domestic_cross:LTC": "2026-08-19T20:57:21.876800+09:00",
     "domestic_cross:SOL": "2026-08-21T16:13:42.975282+09:00",
@@ -31,7 +31,7 @@
     "funding_apr:SOL": "2026-08-21T12:15:48.599930+09:00"
   },
   "fx": {
-    "fetched_at_jst": "2026-08-21 16:55:46 JST",
+    "fetched_at_jst": "2026-08-21 17:24:46 JST",
     "rate": 158.826537,
     "weekday_ja": "金"
   }
