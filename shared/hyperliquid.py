@@ -198,6 +198,13 @@ class HyperliquidClient:
             raise HyperliquidApiError(f"fundingHistory の応答形式が不正です: coin={coin}")
         return data
 
+    def recent_trades(self, coin: str) -> list[dict[str, Any]]:
+        """直近約定を返す。side はAPI表記の B/A を保持し、呼出側で定義を明示する。"""
+        data = self.post_info({"type": "recentTrades", "coin": coin})
+        if not isinstance(data, list):
+            raise HyperliquidApiError(f"recentTrades の応答形式が不正です: coin={coin}")
+        return [item for item in data if isinstance(item, dict)]
+
     def user_fills(self, address: str) -> list[dict[str, Any]]:
         data = self.post_info({"type": "userFills", "user": address, "aggregateByTime": True})
         if not isinstance(data, list):

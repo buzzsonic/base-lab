@@ -42,6 +42,9 @@ def fetch_hl_assets(client: HyperliquidClient) -> list[dict[str, Any]]:
                 "prev_day_px": _to_float(ctx.get("prevDayPx")),
                 "day_ntl_vlm": _to_float(ctx.get("dayNtlVlm")),
                 "funding_hourly": _to_float(ctx.get("funding")),
+                "funding_raw": _to_float(ctx.get("funding")),
+                "funding_interval_hours": 1.0,
+                "open_interest_coin": abs(oi_coin) if oi_coin is not None else None,
                 "open_interest_usd": (
                     abs(oi_coin * mark_px) if oi_coin is not None and mark_px is not None else None
                 ),

@@ -1,4 +1,4 @@
-"""検知ロジック3本柱: 出来高・価格の急変動 / ファンディング・OIの偏り / 新規上場。"""
+"""朝夜ダイジェスト用の観測ロジック。方向優位性は判定しない。"""
 
 import time
 from datetime import datetime, timedelta
@@ -77,7 +77,7 @@ def build_report(
         if signals["reasons"]:
             alerts.append(signals)
 
-    # スコア(発火シグナル数)→ 変動の大きさで並べる
+    # 観測条件数→変動の大きさで並べる。勝ちやすさ・方向スコアではない。
     alerts.sort(key=lambda a: (a["score"], abs(a["chg_pct"] or 0.0)), reverse=True)
 
     new_listings: list[str] = []
@@ -117,16 +117,14 @@ def _evaluate_asset(
         ):
             reasons.append(f"出来高急増 {vol_ratio:.1f}倍(7日平均比) + 価格{chg_pct:+.1f}%")
 
-    # 2a) ファンディングの偏り
-    # 逆張り示唆はしない: 2026-07のバックテストで極端FRは反転でなく継続シグナルと確定済み
+    # 2a) Funding水準。年率は比較用の単純換算で、方向や収益性は示さない。
     funding_apr: float | None = None
     funding_fired = False
     if asset["funding_hourly"] is not None:
         funding_apr = asset["funding_hourly"] * HOURS_PER_YEAR * 100
         if abs(funding_apr) >= settings.funding_apr_alert_pct:
             funding_fired = True
-            side = "ロング混雑" if funding_apr > 0 else "ショート混雑"
-            reasons.append(f"ファンディング偏り 年率{funding_apr:+.0f}% → {side}")
+            reasons.append(f"Funding絶対水準 年率単純換算{funding_apr:+.0f}%（方向仮説は未検証）")
 
     # 2b) OI急増(前回スキャン比)
     oi_change_pct: float | None = None
@@ -135,7 +133,7 @@ def _evaluate_asset(
     if oi_now and isinstance(oi_prev, (int, float)) and oi_prev > 0 and oi_now >= MIN_OI_USD_FOR_CHANGE:
         oi_change_pct = (oi_now / oi_prev - 1) * 100
         if oi_change_pct >= settings.oi_change_alert_pct:
-            reasons.append(f"OI急増 {oi_change_pct:+.0f}%(前回比) → 新規資金の流入")
+            reasons.append(f"ドル建てOI {oi_change_pct:+.0f}%(前回比、価格変動分を含む参考値)")
 
     return {
         "coin": coin,

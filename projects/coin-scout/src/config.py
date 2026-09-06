@@ -23,6 +23,17 @@ class Settings:
     max_alerts: int
     # 出来高ベースライン計算に使う日数(当日を除く)
     baseline_days: int
+    # 観測ログ・状態変化通知
+    observation_interval_minutes: int
+    comparison_tolerance_minutes: int
+    funding_reference_days: int
+    state_alerts_enabled: bool
+    state_alert_cooldown_minutes: int
+    state_alert_min_anomaly: float
+    state_alert_top_n: int
+    logic_version: str
+    collector_max_coins: int
+    trade_sample_coins_per_run: int
 
 
 def load_settings() -> Settings:
@@ -42,4 +53,14 @@ def load_settings() -> Settings:
         oi_change_alert_pct=read_float("OI_CHANGE_ALERT_PCT", 20.0),
         max_alerts=read_int("MAX_ALERTS", 8),
         baseline_days=read_int("BASELINE_DAYS", 7),
+        observation_interval_minutes=read_int("OBSERVATION_INTERVAL_MINUTES", 5),
+        comparison_tolerance_minutes=read_int("COMPARISON_TOLERANCE_MINUTES", 3),
+        funding_reference_days=read_int("FUNDING_REFERENCE_DAYS", 14),
+        state_alerts_enabled=read_bool("STATE_ALERTS_ENABLED", False),
+        state_alert_cooldown_minutes=read_int("STATE_ALERT_COOLDOWN_MINUTES", 60),
+        state_alert_min_anomaly=read_float("STATE_ALERT_MIN_ANOMALY", 55.0),
+        state_alert_top_n=read_int("STATE_ALERT_TOP_N", 3),
+        logic_version=read_str("LOGIC_VERSION", "observability-v2.0"),
+        collector_max_coins=read_int("COLLECTOR_MAX_COINS", 0),
+        trade_sample_coins_per_run=read_int("TRADE_SAMPLE_COINS_PER_RUN", 3),
     )
