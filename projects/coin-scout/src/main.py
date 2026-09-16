@@ -1,6 +1,8 @@
 import sys
 import traceback
 from datetime import datetime
+from pathlib import Path
+import os
 
 from shared.discord import DiscordNotifyError, send_discord_message
 from shared.envtools import ConfigError
@@ -11,6 +13,8 @@ from .config import load_settings
 from .detect import build_report, fetch_volume_baselines
 from .notify import format_digest, format_error_message
 from .state import load_state, save_state
+from .health import collection_health
+from .observation_store import load_collector_state
 from .universe import build_watchlist
 
 
@@ -35,11 +39,15 @@ def run() -> int:
 
         watchlist, all_coins = build_watchlist(client, settings, logger)
         baselines = fetch_volume_baselines(
-            client, [asset["coin"] for asset in watchlist], settings.baseline_days, logger
+            client, [asset["coin"] for asset in watchlist
+                     if (asset.get("day_ntl_vlm") or 0) >= settings.min_hl_volume_usd], settings.baseline_days, logger
         )
         previous_state = load_state(logger=logger)
 
-        report = build_report(watchlist, all_coins, baselines, previous_state, settings)
+        now_ms = int(datetime.now(JST).timestamp() * 1000)
+        report = build_report(watchlist, all_coins, baselines, previous_state, settings, now_ms)
+        health_path = Path(os.environ.get("COLLECTOR_HEALTH_STATE_PATH", ".state/collector_state.json"))
+        report["collection_health"] = collection_health(load_collector_state(health_path), now_ms, settings)
         logger.info(
             f"検知結果: 発火{report['total_fired']}銘柄, 新規上場{len(report['new_listings'])}銘柄"
         )
@@ -58,7 +66,8 @@ def run() -> int:
             for asset in watchlist
             if asset["open_interest_usd"]
         }
-        save_state(all_coins=all_coins, oi_usd=current_oi, run_at_jst=run_at_jst, logger=logger)
+        save_state(all_coins=all_coins, oi_usd=current_oi, run_at_jst=run_at_jst, logger=logger,
+                   oi_coin={a["coin"]: a["open_interest_coin"] for a in watchlist if a.get("open_interest_coin") is not None})
         logger.info("処理完了")
         return 0
     except ConfigError as exc:

@@ -1,7 +1,8 @@
 """朝夜ダイジェスト用の観測ロジック。方向優位性は判定しない。"""
 
 import time
-from datetime import datetime, timedelta
+import math
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from shared.hyperliquid import HyperliquidApiError, HyperliquidClient
@@ -40,17 +41,19 @@ def fetch_volume_baselines(
             time.sleep(0.2)
 
         daily_notionals: list[tuple[int, float]] = []
+        today_utc_ms = (end_ms // 86_400_000) * 86_400_000
         for candle in candles:
             try:
                 open_ms = int(candle["t"])
                 notional = float(candle["v"]) * float(candle["c"])
             except (KeyError, TypeError, ValueError):
                 continue
-            daily_notionals.append((open_ms, notional))
+            if open_ms < today_utc_ms and math.isfinite(notional) and notional > 0:
+                daily_notionals.append((open_ms, notional))
 
         daily_notionals.sort()
-        # 最後の足は進行中の当日分なので除外し、直近baseline_days日で平均する
-        full_days = daily_notionals[:-1][-baseline_days:]
+        # UTC当日の未確定足を時刻で除外（APIが確定足のみ返しても末尾を落とさない）
+        full_days = daily_notionals[-baseline_days:]
         if len(full_days) < MIN_BASELINE_DAYS:
             continue
         average = sum(notional for _, notional in full_days) / len(full_days)
@@ -67,85 +70,73 @@ def build_report(
     baselines: dict[str, float],
     previous_state: dict[str, Any] | None,
     settings: Settings,
+    now_ms: int | None = None,
 ) -> dict[str, Any]:
-    previous_coins = set(previous_state["coins"]) if previous_state else None
-    previous_oi = previous_state["oi_usd"] if previous_state else {}
-
-    alerts: list[dict[str, Any]] = []
+    now_ms = int(time.time() * 1000) if now_ms is None else now_ms
+    previous_state = previous_state or {}
+    previous_coins = set(previous_state["coins"]) if "coins" in previous_state else None
+    previous_at = previous_state.get("observed_at_ms")
+    if previous_at is None and previous_state.get("generated_at_jst"):
+        try:
+            stamp = datetime.strptime(previous_state["generated_at_jst"], "%Y-%m-%d %H:%M:%S JST")
+            previous_at = stamp.replace(tzinfo=timezone(timedelta(hours=9))).timestamp() * 1000
+        except (TypeError, ValueError):
+            pass
+    gap_hours = (now_ms - previous_at) / 3_600_000 if isinstance(previous_at, (int, float)) else None
+    comparable = gap_hours is not None and 1 <= gap_hours <= settings.digest_max_comparison_hours
+    # 旧ドル建てstateから数量は推測しない。移行初回は比較不足を表示する。
+    previous_oi = previous_state.get("oi_coin", {}) if comparable else {}
+    alerts = []
+    funding_only = 0
+    excluded = 0
+    missing_oi = 0
+    missing_baselines = 0
     for asset in watchlist:
-        signals = _evaluate_asset(asset, baselines, previous_oi, settings)
-        if signals["reasons"]:
-            alerts.append(signals)
-
-    # 観測条件数→変動の大きさで並べる。勝ちやすさ・方向スコアではない。
-    alerts.sort(key=lambda a: (a["score"], abs(a["chg_pct"] or 0.0)), reverse=True)
-
-    new_listings: list[str] = []
-    if previous_coins is not None:
-        new_listings = sorted(set(all_coins) - previous_coins)
-
+        if (asset.get("day_ntl_vlm") or 0) < settings.min_hl_volume_usd:
+            excluded += 1
+            continue
+        row = _evaluate_asset(asset, baselines, previous_oi, settings)
+        missing_oi += row["oi_change_pct"] is None
+        missing_baselines += row["vol_ratio"] is None
+        if row["reasons"]:
+            alerts.append(row)
+        elif row["funding_fired"]:
+            funding_only += 1
+    alerts.sort(key=lambda a: (a["score"], abs(a["oi_change_pct"] or 0), abs(a["chg_pct"] or 0)), reverse=True)
     return {
-        "alerts": alerts[: settings.max_alerts],
-        "total_fired": len(alerts),
-        "new_listings": new_listings,
-        "watchlist_size": len(watchlist),
+        "alerts": alerts[:settings.max_alerts], "total_fired": len(alerts),
+        "new_listings": sorted(set(all_coins) - previous_coins) if previous_coins is not None else [],
+        "watchlist_size": len(watchlist), "eligible_size": len(watchlist) - excluded,
+        "liquidity_excluded": excluded, "funding_only_count": funding_only,
+        "missing_oi_count": missing_oi, "missing_baseline_count": missing_baselines,
+        "comparison_hours": gap_hours if comparable else None,
+        "baseline_days": settings.baseline_days,
     }
 
 
-def _evaluate_asset(
-    asset: dict[str, Any],
-    baselines: dict[str, float],
-    previous_oi: dict[str, Any],
-    settings: Settings,
-) -> dict[str, Any]:
+def _evaluate_asset(asset, baselines, previous_oi, settings):
     coin = asset["coin"]
-    reasons: list[str] = []
-
-    chg_pct: float | None = None
-    if asset["mark_px"] and asset["prev_day_px"]:
-        chg_pct = (asset["mark_px"] / asset["prev_day_px"] - 1) * 100
-
-    # 1) 出来高急増 + 価格変動
-    vol_ratio: float | None = None
+    reasons = []
+    chg_pct = (asset["mark_px"] / asset["prev_day_px"] - 1) * 100 if asset["mark_px"] and asset["prev_day_px"] else None
     baseline = baselines.get(coin)
-    if baseline and asset["day_ntl_vlm"]:
-        vol_ratio = asset["day_ntl_vlm"] / baseline
-        if (
-            vol_ratio >= settings.volume_spike_ratio
-            and chg_pct is not None
-            and abs(chg_pct) >= settings.price_move_min_pct
-        ):
-            reasons.append(f"出来高急増 {vol_ratio:.1f}倍(7日平均比) + 価格{chg_pct:+.1f}%")
-
-    # 2a) Funding水準。年率は比較用の単純換算で、方向や収益性は示さない。
-    funding_apr: float | None = None
-    funding_fired = False
-    if asset["funding_hourly"] is not None:
-        funding_apr = asset["funding_hourly"] * HOURS_PER_YEAR * 100
-        if abs(funding_apr) >= settings.funding_apr_alert_pct:
-            funding_fired = True
-            reasons.append(f"Funding絶対水準 年率単純換算{funding_apr:+.0f}%（方向仮説は未検証）")
-
-    # 2b) OI急増(前回スキャン比)
-    oi_change_pct: float | None = None
-    oi_now = asset["open_interest_usd"]
-    oi_prev = previous_oi.get(coin)
-    if oi_now and isinstance(oi_prev, (int, float)) and oi_prev > 0 and oi_now >= MIN_OI_USD_FOR_CHANGE:
-        oi_change_pct = (oi_now / oi_prev - 1) * 100
-        if oi_change_pct >= settings.oi_change_alert_pct:
-            reasons.append(f"ドル建てOI {oi_change_pct:+.0f}%(前回比、価格変動分を含む参考値)")
-
-    return {
-        "coin": coin,
-        "mark_px": asset["mark_px"],
-        "chg_pct": chg_pct,
-        "vol_ratio": vol_ratio,
-        "funding_apr": funding_apr,
-        "oi_change_pct": oi_change_pct,
-        "oi_usd": oi_now,
-        "cex_volume_usd": asset.get("cex_volume_usd"),
-        "hl_volume_usd": asset["day_ntl_vlm"],
-        "funding_fired": funding_fired,
-        "reasons": reasons,
-        "score": len(reasons),
-    }
+    vol_ratio = asset["day_ntl_vlm"] / baseline if baseline and asset["day_ntl_vlm"] is not None else None
+    volume_fired = vol_ratio is not None and vol_ratio >= settings.volume_spike_ratio and chg_pct is not None and abs(chg_pct) >= settings.price_move_min_pct
+    if volume_fired:
+        reasons.append(f"24h出来高 {vol_ratio:.1f}倍（過去最大{settings.baseline_days}確定日平均との概算比較）＋価格{chg_pct:+.1f}%/24h")
+    funding = asset.get("funding_hourly")
+    funding_apr = funding * HOURS_PER_YEAR * 100 if funding is not None else None
+    funding_fired = funding_apr is not None and abs(funding_apr) >= settings.funding_apr_alert_pct
+    oi_now = asset.get("open_interest_usd")
+    qty = asset.get("open_interest_coin")
+    prev = previous_oi.get(coin)
+    oi_change = (qty / prev - 1) * 100 if qty is not None and isinstance(prev, (int, float)) and prev > 0 else None
+    oi_fired = oi_change is not None and abs(oi_change) >= settings.oi_change_alert_pct and (oi_now or 0) >= MIN_OI_USD_FOR_CHANGE
+    if oi_fired:
+        reasons.append(f"数量OI {oi_change:+.1f}%（前回実測比）")
+    # Funding単独では候補を作らず、選ばれた銘柄の補足情報として表示する。
+    return {"coin": coin, "mark_px": asset["mark_px"], "chg_pct": chg_pct,
+            "vol_ratio": vol_ratio, "funding_apr": funding_apr, "funding_hourly": funding,
+            "oi_change_pct": oi_change, "oi_usd": oi_now,
+            "cex_volume_usd": asset.get("cex_volume_usd"), "hl_volume_usd": asset["day_ntl_vlm"],
+            "funding_fired": funding_fired, "reasons": reasons,
+            "score": int(volume_fired) + int(oi_fired)}

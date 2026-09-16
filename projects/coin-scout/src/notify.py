@@ -29,49 +29,34 @@ def format_usd_millions(value: float | None) -> str:
 
 
 def format_digest(report: dict[str, Any], run_at_jst: datetime) -> str:
-    header = (
-        f"🔎 **coin-scout 市場異常スキャン** "
-        f"{run_at_jst.strftime('%m/%d')}({WEEKDAYS_JA[run_at_jst.weekday()]}) "
-        f"{run_at_jst.strftime('%H:%M')} JST"
-    )
-    sub = f"監視{report['watchlist_size']}銘柄(HL上場 ∩ CEX出来高$10M+)中 {report['total_fired']}銘柄が発火"
-
-    lines = [header, sub, ""]
-
+    from .health import health_text
+    lines = [f"🔎 **Coin Scout 観測ダイジェスト** {run_at_jst:%m/%d %H:%M} JST",
+             f"候補{report['watchlist_size']} / HL流動性条件通過{report['eligible_size']} / 注目{report['total_fired']}銘柄",
+             "注目順位＝観測条件。売買方向・勝率ではありません",
+             health_text(report.get("collection_health"))]
+    gap = report.get("comparison_hours")
+    lines.append(f"数量OI比較: {gap:.1f}時間前の実測" if gap is not None else "数量OI比較: 有効な前回時刻なし")
+    lines.append(f"比較不足: 数量OI {report['missing_oi_count']}銘柄 / 出来高基準 {report['missing_baseline_count']}銘柄")
+    lines.append(f"Funding単独{report['funding_only_count']}銘柄は候補外 / HL薄商い{report['liquidity_excluded']}銘柄は除外")
+    footer = "\n※ 出来高は24h値と日足終値×数量の概算平均の比較。Fundingは1時間率。注文の約定可能性・利益は未評価"
+    shown = 0
     for alert in report["alerts"]:
-        chg = f"{alert['chg_pct']:+.1f}%" if alert["chg_pct"] is not None else "-"
-        conditions = f"観測条件{alert['score']}件"
-        lines.append(f"**{alert['coin']}** {format_price(alert['mark_px'])} ({chg}/24h) / {conditions}")
-        for reason in alert["reasons"]:
-            lines.append(f"・{reason}")
-        context = (
-            f"　HL出来高 {format_usd_millions(alert['hl_volume_usd'])}"
-            f" / OI {format_usd_millions(alert['oi_usd'])}"
-            f" / CEX出来高 {format_usd_millions(alert['cex_volume_usd'])}"
-        )
-        lines.append(context)
-
+        chg = _pct(alert["chg_pct"])
+        funding = f"{alert['funding_hourly'] * 100:+.4f}%/時" if alert.get("funding_hourly") is not None else "不足"
+        block = (f"\n**{alert['coin']}** {format_price(alert['mark_px'])} / {chg}/24h\n"
+                 + "\n".join("・" + r for r in alert["reasons"])
+                 + f"\nHL出来高 {format_usd_millions(alert['hl_volume_usd'])} / OI {format_usd_millions(alert['oi_usd'])} / Funding {funding}")
+        if len("\n".join(lines) + block + footer) > MESSAGE_LIMIT - 160:
+            break
+        lines.append(block); shown += 1
     if not report["alerts"]:
-        lines.append("本日の該当なし。閾値を超える動きはありませんでした。")
-
-    if any(alert.get("funding_fired") for alert in report["alerts"]):
-        lines.append("")
-        lines.append("※ Funding年率は1時間率の単純換算。固定利回り・方向優位性・参加者の捕まりを示しません")
-
+        lines.append("取得できた条件では候補なし。比較不足の項目は未判定です")
+    if report["total_fired"] > shown:
+        lines.append(f"他{report['total_fired'] - shown}銘柄は表示枠外")
     if report["new_listings"]:
-        lines.append("")
-        listed = ", ".join(report["new_listings"])
-        lines.append(f"🆕 HL新規上場: **{listed}**")
-        lines.append("⚠️ 上場直後・イベント系は2025年の主要損失源(ALPACA/LUCE等)。触るならサイズ最小で")
-
-    if report["total_fired"] > len(report["alerts"]):
-        lines.append("")
-        lines.append(f"(他{report['total_fired'] - len(report['alerts'])}銘柄も発火。上位のみ表示)")
-
-    message = "\n".join(lines)
-    if len(message) > MESSAGE_LIMIT:
-        message = message[:MESSAGE_LIMIT] + "\n…(文字数上限のため省略)"
-    return message
+        names = ", ".join(report["new_listings"][:8])
+        lines.append(f"新規観測銘柄: {names}（前回との差分。上場時刻は未確認）")
+    return "\n".join(lines) + footer
 
 
 def format_error_message(error: str, run_at_jst: datetime) -> str:
@@ -95,15 +80,17 @@ def format_state_change_digest(
         if row.get("decision")!="fired" or score is None:continue
         key=row["symbol"];facts=tuple(row.get("observed_facts",[]));band=int(score//10)
         previous=previous_alerts.get(key,{})
-        cooldown=now_ms-int(previous.get("notified_at_ms",0)) < settings.state_alert_cooldown_minutes*60_000
-        changed=facts!=tuple(previous.get("facts",[])) or abs(band-int(previous.get("band",-99)))>=2
-        if cooldown and not changed:continue
+        cooldown=bool(previous) and now_ms-int(previous.get("notified_at_ms",0)) < settings.state_alert_cooldown_minutes*60_000
+        elapsed = now_ms - int(previous.get("notified_at_ms", 0))
+        escalated = elapsed >= 15 * 60_000 and band >= int(previous.get("band", -99)) + 2
+        if cooldown and not escalated:continue
         candidates.append(row)
     candidates.sort(key=lambda row:(row["features"].get("anomaly_score") or 0,row["features"].get("data_completeness_pct") or 0),reverse=True)
     candidates=candidates[:settings.state_alert_top_n]
     if not candidates:return None,updates
     lines=["🔬 **coin-scout 観測状態の重要変化**","異常度順（勝ちやすさ・方向予測ではありません）",""]
     for row in candidates:
+        block_start = len(lines)
         f=row["features"];flow=f.get("trade_imbalance_5m") or {};pos=f.get("high_low") or {}
         lines.append(f"**{row['symbol']}** / {row['observed_at_utc']} / 異常度 {f['anomaly_score']:.1f} / 充足度 {f['data_completeness_pct']:.0f}%")
         lines.append("観測: "+"、".join(row["observed_facts"]))
@@ -112,10 +99,13 @@ def format_state_change_digest(
         funding_z=f.get("funding_robust_z"); funding_text="蓄積中" if funding_z is None else f"robust-z {funding_z:+.2f} (n={f.get('funding_reference_samples')})"
         flow_text="取得不足" if not flow.get("coverage_complete") else f"{(flow.get('normalized_imbalance') or 0):+.2f} (B=買い手主導/A=売り手主導)"
         lines.append(f"Funding {funding_text} / 5m約定偏り {flow_text}")
-        lines.append(f"1h高値から {_pct(pos.get('from_high_pct'))} / 1h安値から {_pct(pos.get('from_low_pct'))}")
+        lines.append(f"1h観測点高値から {_pct(pos.get('from_high_pct'))} / 観測点安値から {_pct(pos.get('from_low_pct'))}")
         missing="、".join(row.get("missing_fields",[])) or "なし";lines.append(f"鮮度 {row.get('freshness_seconds') if row.get('freshness_seconds') is not None else '不明'}秒 / 欠測: {missing}")
         lines.append("次の観察: 数量OIと約定偏りの継続、高値・安値更新、欠測解消を次回実測で確認")
         lines.append("")
+        if len("\n".join(lines)) > MESSAGE_LIMIT:
+            del lines[block_start:]
+            break
         updates[row["symbol"]]={"notified_at_ms":now_ms,"facts":row["observed_facts"],"band":int(f["anomaly_score"]//10),"event_id":row["event_id"]}
     message="\n".join(lines)
-    return (message[:MESSAGE_LIMIT]+("\n…" if len(message)>MESSAGE_LIMIT else "")),updates
+    return (message if updates else None), updates

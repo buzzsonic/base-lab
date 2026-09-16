@@ -31,6 +31,8 @@ class Settings:
     state_alert_cooldown_minutes: int
     state_alert_min_anomaly: float
     state_alert_top_n: int
+    min_hl_volume_usd: float
+    digest_max_comparison_hours: float
     logic_version: str
     collector_max_coins: int
     trade_sample_coins_per_run: int
@@ -60,7 +62,9 @@ def load_settings() -> Settings:
         state_alert_cooldown_minutes=read_int("STATE_ALERT_COOLDOWN_MINUTES", 60),
         state_alert_min_anomaly=read_float("STATE_ALERT_MIN_ANOMALY", 55.0),
         state_alert_top_n=read_int("STATE_ALERT_TOP_N", 3),
-        logic_version=read_str("LOGIC_VERSION", "observability-v2.0"),
+        min_hl_volume_usd=read_float("MIN_HL_VOLUME_USD", 1_000_000),
+        digest_max_comparison_hours=read_float("DIGEST_MAX_COMPARISON_HOURS", 30),
+        logic_version=read_str("LOGIC_VERSION", "observability-v2.1"),
         collector_max_coins=read_int("COLLECTOR_MAX_COINS", 0),
         trade_sample_coins_per_run=read_int("TRADE_SAMPLE_COINS_PER_RUN", 3),
     )

@@ -44,8 +44,8 @@ def _facts(features):
     if z is not None and abs(z)>=3:facts.append("Fundingが銘柄自身の過去分布から乖離")
     pos=features.get("high_low") or {};normal=pos.get("observed_mean_abs_change_pct")
     if pos.get("path_samples",0)>=4 and normal:
-        if pos.get("high_age_minutes",0)>=15 and abs(pos.get("from_high_pct",0))>=normal:facts.append(f"直近1時間高値を{pos['high_age_minutes']:.0f}分未更新（高値から{pos['from_high_pct']:+.2f}%）")
-        if pos.get("low_age_minutes",0)>=15 and abs(pos.get("from_low_pct",0))>=normal:facts.append(f"直近1時間安値を{pos['low_age_minutes']:.0f}分未更新（安値から{pos['from_low_pct']:+.2f}%）")
+        if pos.get("high_age_minutes",0)>=15 and abs(pos.get("from_high_pct",0))>=normal:facts.append(f"直近1時間の観測点高値を{pos['high_age_minutes']:.0f}分未更新（高値から{pos['from_high_pct']:+.2f}%）")
+        if pos.get("low_age_minutes",0)>=15 and abs(pos.get("from_low_pct",0))>=normal:facts.append(f"直近1時間の観測点安値を{pos['low_age_minutes']:.0f}分未更新（安値から{pos['from_low_pct']:+.2f}%）")
     if not facts:facts.append("組合せ観測条件に大きな変化なし")
     return facts
 
@@ -75,6 +75,31 @@ def _features(asset, history, trades, funding_history, now_ms, settings, trade_s
     return features,missing
 
 
+def alert_decision(features, asset, gap_minutes, settings):
+    """スコアより先に時系列・流動性を点検。欠測の再正規化で通知しない。"""
+    required = ("price_change_5m_pct", "price_change_15m_pct",
+                "oi_qty_change_5m_pct", "oi_qty_change_15m_pct")
+    reasons = []
+    if any(features.get(k) is None for k in required):
+        reasons.append("5分・15分の価格/数量OI比較不足")
+    if features.get("core_data_completeness_pct", 0) < 75:
+        reasons.append("中核時系列の充足度不足")
+    if gap_minutes is None or not 0 < gap_minutes <= settings.observation_interval_minutes + settings.comparison_tolerance_minutes:
+        reasons.append("収集間隔が許容範囲外")
+    if (asset.get("day_ntl_vlm") or 0) < settings.min_hl_volume_usd:
+        reasons.append("HL出来高が通知下限未満")
+    if reasons:
+        return "insufficient", reasons
+    # Fundingや単一の値動きだけで発火させない。値動きと建玉変化を併記できる場合に限定。
+    price = abs(features["price_change_15m_pct"])
+    oi = abs(features["oi_qty_change_15m_pct"])
+    if price < 1 or oi < 3 or (asset.get("open_interest_usd") or 0) < 5_000_000:
+        return "not_fired", ["15分価格1%・数量OI3%・OI額$5Mの複合条件未達"]
+    if features.get("anomaly_score") is None or features["anomaly_score"] < settings.state_alert_min_anomaly:
+        return "not_fired", ["異常度閾値未満"]
+    return "fired", ["時系列充足・流動性・複合観測条件を満たす"]
+
+
 def run() -> int:
     logger=get_logger("coin-scout-collector");settings=load_settings();state=load_collector_state();now_ms=int(time.time()*1000)
     client=HyperliquidClient(request_sleep_seconds=.03,logger=logger); observations=[]
@@ -98,10 +123,9 @@ def run() -> int:
             if run_gap_minutes is not None and run_gap_minutes>settings.observation_interval_minutes+settings.comparison_tolerance_minutes:missing.append(f"前回から{run_gap_minutes:.1f}分の収集間隔")
             source_time=None;freshness=None;missing.append("metaAndAssetCtxsはデータ元時刻を提供しない")
             eid=event_id("hyperliquid",coin,now_ms,settings.logic_version);facts=_facts(features)
-            fired=features["anomaly_score"] is not None and features["anomaly_score"]>=settings.state_alert_min_anomaly and features["data_completeness_pct"]>=60
-            decision="fired" if fired else ("insufficient" if features["core_data_completeness_pct"]<75 else "not_fired")
-            reasons=facts if fired else ((["中核時系列の充足度不足"]+missing) if decision=="insufficient" else ["異常度閾値未満"]+missing)
-            row={"event_id":eid,"observed_at_ms":now_ms,"observed_at_utc":datetime.fromtimestamp(now_ms/1000,timezone.utc).isoformat(),"source_at_ms":source_time,"source_timestamp_status":"not_provided_by_metaAndAssetCtxs","symbol":coin,"exchange":"hyperliquid","price":asset["mark_px"],"open_interest_coin":asset["open_interest_coin"],"open_interest_usd":asset["open_interest_usd"],"funding_raw":asset["funding_raw"],"funding_interval_hours":1.0,"funding_hourly":asset["funding_hourly"],"volume_24h_usd":asset["day_ntl_vlm"],"features":features,"observed_facts":facts,"decision":decision,"decision_reasons":reasons,"missing_fields":missing,"freshness_seconds":freshness,"interval_coverage":{"scheduled_minutes":settings.observation_interval_minutes,"actual_gap_minutes":run_gap_minutes,"interpolated":False},"logic_version":settings.logic_version,"config":{"comparison_tolerance_minutes":settings.comparison_tolerance_minutes,"funding_reference_days":settings.funding_reference_days,"state_alert_min_anomaly":settings.state_alert_min_anomaly,"state_alert_cooldown_minutes":settings.state_alert_cooldown_minutes,"trade_sample_coins_per_run":settings.trade_sample_coins_per_run,"anomaly_weights":{"price":30,"oi_quantity":25,"funding":15,"taker_flow":20}},"errors":errors}
+            decision, reasons = alert_decision(features, asset, run_gap_minutes, settings)
+            reasons = reasons + missing
+            row={"event_id":eid,"observed_at_ms":now_ms,"observed_at_utc":datetime.fromtimestamp(now_ms/1000,timezone.utc).isoformat(),"source_at_ms":source_time,"source_timestamp_status":"not_provided_by_metaAndAssetCtxs","symbol":coin,"exchange":"hyperliquid","price":asset["mark_px"],"open_interest_coin":asset["open_interest_coin"],"open_interest_usd":asset["open_interest_usd"],"funding_raw":asset["funding_raw"],"funding_interval_hours":1.0,"funding_hourly":asset["funding_hourly"],"volume_24h_usd":asset["day_ntl_vlm"],"features":features,"observed_facts":facts,"decision":decision,"decision_reasons":reasons,"missing_fields":missing,"freshness_seconds":freshness,"interval_coverage":{"scheduled_minutes":settings.observation_interval_minutes,"actual_gap_minutes":run_gap_minutes,"interpolated":False},"logic_version":settings.logic_version,"config":{"comparison_tolerance_minutes":settings.comparison_tolerance_minutes,"funding_reference_days":settings.funding_reference_days,"state_alert_min_anomaly":settings.state_alert_min_anomaly,"state_alert_cooldown_minutes":settings.state_alert_cooldown_minutes,"trade_sample_coins_per_run":settings.trade_sample_coins_per_run,"notification_gate":{"price_15m_pct":1,"oi_15m_pct":3,"min_oi_usd":5_000_000,"min_hl_volume_usd":settings.min_hl_volume_usd},"anomaly_weights":{"price":30,"oi_quantity":25,"funding":15,"taker_flow":20}},"errors":errors}
             observations.append(row)
             compact={"event_id":eid,"observed_at_ms":now_ms,"price":asset["mark_px"],"open_interest_coin":asset["open_interest_coin"],"decision":decision}
             if not any(existing.get("event_id")==eid for existing in history.setdefault(coin,[])):history[coin].append(compact)

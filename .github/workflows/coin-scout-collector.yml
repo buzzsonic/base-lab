@@ -47,7 +47,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DRY_RUN: "false"
           STATE_ALERTS_ENABLED: "true"
-          LOGIC_VERSION: "observability-v2.0"
+          LOGIC_VERSION: "observability-v2.1"
         run: python -m src.collector
       - name: Persist immutable logs and state to data branch
         if: always()

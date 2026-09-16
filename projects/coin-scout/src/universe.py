@@ -1,5 +1,6 @@
 """監視対象リストの構築: Hyperliquid上場銘柄 ∩ CEX(Binance/Bybit)出来高フィルタ。"""
 
+import math
 from typing import Any
 
 from shared.hyperliquid import HyperliquidClient
@@ -12,7 +13,8 @@ def _to_float(value: Any) -> float | None:
     if value in (None, "", "null"):
         return None
     try:
-        return float(value)
+        number = float(value)
+        return number if math.isfinite(number) else None
     except (TypeError, ValueError):
         return None
 

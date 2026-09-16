@@ -11,7 +11,7 @@ def nearest_prior(
     history: list[dict[str, Any]], now_ms: int, minutes: int, tolerance_minutes: int
 ) -> tuple[dict[str, Any] | None, float | None]:
     target = now_ms - minutes * 60_000
-    candidates = [row for row in history if isinstance(row.get("observed_at_ms"), int)]
+    candidates = [row for row in history if isinstance(row.get("observed_at_ms"), int) and row["observed_at_ms"] < now_ms]
     if not candidates:
         return None, None
     row = min(candidates, key=lambda item: abs(item["observed_at_ms"] - target))
@@ -22,7 +22,7 @@ def nearest_prior(
 
 
 def pct_change(current: float | None, previous: float | None) -> float | None:
-    if current is None or previous in (None, 0):
+    if current is None or previous is None or previous <= 0 or not math.isfinite(current) or not math.isfinite(previous):
         return None
     return (current / previous - 1.0) * 100.0
 

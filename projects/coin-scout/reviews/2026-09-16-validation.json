@@ -1,0 +1,21 @@
+{
+  "observed_at_ms": 1789570064296,
+  "watched": 78,
+  "comparison_hours": 10.31501361111111,
+  "old_candidates": 6,
+  "new_candidates": 2,
+  "funding_only_excluded": 1,
+  "hl_liquidity_excluded": 16,
+  "missing_oi": 0,
+  "missing_baselines": 0,
+  "message_length": 513,
+  "health": {
+    "status": "delayed",
+    "age_minutes": 29.464816666666668,
+    "covered_hours": 6,
+    "expected_hours": 24
+  },
+  "short_decisions": {
+    "insufficient": 78
+  }
+}

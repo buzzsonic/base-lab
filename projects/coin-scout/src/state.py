@@ -32,9 +32,12 @@ def save_state(
     run_at_jst: datetime,
     logger: Any,
     path: Path = DEFAULT_STATE_PATH,
+    oi_coin: dict[str, float] | None = None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
+        "observed_at_ms": int(run_at_jst.timestamp() * 1000),
+        "oi_coin": oi_coin or {},
         "generated_at_jst": run_at_jst.strftime("%Y-%m-%d %H:%M:%S JST"),
         "coins": sorted(all_coins),
         "oi_usd": {coin: round(value, 2) for coin, value in sorted(oi_usd.items())},

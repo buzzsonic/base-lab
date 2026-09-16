@@ -7,6 +7,10 @@ on:
     - cron: "0 23 * * *"
     - cron: "0 11 * * *"
 
+concurrency:
+  group: coin-scout-digest
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -24,6 +28,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Read collector health
+        uses: actions/checkout@v6
+        with:
+          ref: data
+          path: _collector_health
+          sparse-checkout: coin-scout/.state
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -34,10 +45,10 @@ jobs:
       - name: Restore previous state
         uses: actions/cache/restore@v4
         with:
-          path: projects/coin-scout/.state
-          key: coin-scout-state-${{ github.run_id }}
+          path: projects/coin-scout/.state/scout_state.json
+          key: coin-scout-digest-v21-${{ github.run_id }}
           restore-keys: |
-            coin-scout-state-
+            coin-scout-digest-v21-
 
       - name: Install dependencies
         run: |
@@ -49,11 +60,12 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DRY_RUN: "false"
+          COLLECTOR_HEALTH_STATE_PATH: ${{ github.workspace }}/_collector_health/coin-scout/.state/collector_state.json
         run: python -m src.main
 
       - name: Save current state
         if: success()
         uses: actions/cache/save@v4
         with:
-          path: projects/coin-scout/.state
-          key: coin-scout-state-${{ github.run_id }}
+          path: projects/coin-scout/.state/scout_state.json
+          key: coin-scout-digest-v21-${{ github.run_id }}
