@@ -1,4 +1,5 @@
 from typing import Any
+import time
 
 from .models import AccountSnapshot, Fill, Position
 
@@ -40,7 +41,7 @@ def parse_snapshot(payload: dict[str, Any]) -> AccountSnapshot:
         )
 
     return AccountSnapshot(
-        time_ms=int(state.get("time") or 0),
+        time_ms=int(state.get("time") or time.time() * 1000),
         account_value=_float(margin.get("accountValue")),
         withdrawable=_float(state.get("withdrawable")),
         total_ntl_pos=_float(margin.get("totalNtlPos")),
@@ -75,4 +76,3 @@ def _float(value: Any) -> float:
         return float(value or 0)
     except (TypeError, ValueError):
         return 0.0
-

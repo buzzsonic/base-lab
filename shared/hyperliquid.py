@@ -206,24 +206,33 @@ class HyperliquidClient:
         return [item for item in data if isinstance(item, dict)]
 
     def user_fills(self, address: str) -> list[dict[str, Any]]:
-        data = self.post_info({"type": "userFills", "user": address, "aggregateByTime": True})
+        data = self.post_info({"type": "userFills", "user": address, "aggregateByTime": False})
         if not isinstance(data, list):
             raise HyperliquidApiError("userFills の応答形式が不正です。")
         return data
 
     def user_fills_by_time(self, address: str, start_ms: int, end_ms: int) -> list[dict[str, Any]]:
-        data = self.post_info(
-            {
-                "type": "userFillsByTime",
-                "user": address,
-                "startTime": start_ms,
-                "endTime": end_ms,
-                "aggregateByTime": True,
-            }
-        )
-        if not isinstance(data, list):
-            raise HyperliquidApiError("userFillsByTime の応答形式が不正です。")
-        return data
+        rows: list[dict[str, Any]] = []
+        cursor = start_ms
+        for _ in range(100):
+            data = self.post_info({"type": "userFillsByTime", "user": address, "startTime": cursor,
+                                   "endTime": end_ms, "aggregateByTime": False})
+            if not isinstance(data, list):
+                raise HyperliquidApiError("userFillsByTime の応答形式が不正です。")
+            rows.extend(item for item in data if isinstance(item, dict))
+            if len(data) < 2000:
+                break
+            cursor = max(int(item.get("time") or cursor) for item in data) + 1
+            if cursor >= end_ms:
+                break
+            time.sleep(max(self.request_sleep_seconds, 0.2))
+        seen, unique = set(), []
+        for item in rows:
+            key = str(item.get("tid") or "") or f"{item.get('hash')}|{item.get('oid')}|{item.get('time')}|{item.get('sz')}"
+            if key not in seen:
+                seen.add(key)
+                unique.append(item)
+        return unique
 
     def fetch_wallet_snapshot(self, address: str) -> dict[str, Any]:
         state = self.clearinghouse_state(address)

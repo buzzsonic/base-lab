@@ -1,17 +1,18 @@
 import argparse
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from .analytics import build_period_stats, daily_window, evaluate_risk, score_daily, score_weekly, weekly_window
 from .config import ConfigError, Settings, load_config
-from .formatter import format_daily_report, format_risk_message, format_weekly_report, write_report
+from .formatter import format_behavior_risk_message, format_daily_report, format_risk_message, format_weekly_report, write_report
 from .hyperliquid_client import HyperliquidApiError, HyperliquidClient
 from .logger import JST, get_logger
 from .notifier import DiscordNotifyError, send_discord_message
 from .parser import parse_fills, parse_snapshot
 from .sample_data import SAMPLE_FILLS, SAMPLE_SNAPSHOT
 from .storage import WalletStore
+from .risk_engine import aggregate_level, equity_stats, evaluate_behavior, reconstruct_cycles, LEVELS
 
 
 def run(argv: list[str] | None = None) -> int:
@@ -83,23 +84,37 @@ def run_snapshot(settings: Settings, store: WalletStore, sample: bool, logger: o
 def run_risk(settings: Settings, store: WalletStore, sample: bool, logger: object) -> int:
     now_jst = datetime.now(JST)
     window = daily_window(now_jst=now_jst, cutoff_hour=settings.daily_cutoff_hour_jst)
-    payload, fills = fetch_payload(settings, sample=sample, start_ms=window.start_ms, end_ms=window.end_ms, logger=logger)
+    history_start = int((now_jst - timedelta(days=14)).timestamp() * 1000)
+    payload, fills = fetch_payload(settings, sample=sample, start_ms=history_start, end_ms=window.end_ms, logger=logger)
     snapshot = parse_snapshot(payload)
     parsed_fills = parse_fills(fills)
     store.save_snapshot(snapshot, payload)
     store.save_fills(parsed_fills)
 
-    fills_today = store.fills_between(window.start_ms, window.end_ms)
-    risk = evaluate_risk(snapshot=snapshot, fills_today=fills_today, settings=settings)
-    if not risk["flags"]:
+    history_fills = store.fills_between(history_start, window.end_ms)
+    fills_today = [f for f in history_fills if f.time_ms >= window.start_ms]
+    cycles = reconstruct_cycles(history_fills)
+    store.replace_trades(cycles)
+    snapshots = store.snapshot_range(window.start_ms, snapshot.time_ms)
+    eq = equity_stats(snapshot, snapshots, window.start_ms, fills_today)
+    store.update_daily_stats({"day_jst": window.label, "start_equity": eq["start"], "end_equity": eq["current"],
+        "peak_equity": eq["peak"], "low_equity": eq["low"], "max_drawdown_pct": eq["drawdown_pct"],
+        "realized_pnl": eq["realized"], "unrealized_pnl": eq["unrealized"], "updated_at_ms": snapshot.time_ms})
+    events = evaluate_behavior(snapshot, history_fills, cycles, eq, settings)
+    inserted_events = store.save_risk_events(events)
+    legacy_risk = evaluate_risk(snapshot=snapshot, fills_today=fills_today, settings=settings)
+    if not events and not legacy_risk["flags"]:
         logger.info("即時リスク通知対象なし")
         return 0
-
-    message = format_risk_message(snapshot=snapshot, risk=risk)
+    level = aggregate_level(events)
+    if level == "GREEN" and legacy_risk["flags"]:
+        level = "ORANGE" if legacy_risk["severity"] >= 20 else "YELLOW"
+    message = format_behavior_risk_message(snapshot, events, eq, level) if events else format_risk_message(snapshot, legacy_risk)
     now_ms = int(datetime.now(JST).timestamp() * 1000)
+    reason_key = "|".join(sorted(f"{e['risk_type']}:{e.get('coin') or '*'}" for e in events)) or legacy_risk["risk_key"]
     if not store.should_notify_risk(
-        risk_key=risk["risk_key"],
-        severity=risk["severity"],
+        risk_key=reason_key,
+        severity=LEVELS.get(level, 0) * 10,
         now_ms=now_ms,
         cooldown_minutes=settings.risk_cooldown_minutes,
     ):
@@ -107,7 +122,8 @@ def run_risk(settings: Settings, store: WalletStore, sample: bool, logger: objec
         return 0
 
     send_discord_message(settings.discord_webhook_url, message, settings.dry_run, logger)
-    store.record_risk_notification(risk["risk_key"], risk["severity"], now_ms, message)
+    store.record_risk_notification(reason_key, LEVELS.get(level, 0) * 10, now_ms, message)
+    logger.info(f"risk events: total={len(events)}, new={inserted_events}, level={level}")
     return 0
 
 

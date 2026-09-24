@@ -93,7 +93,7 @@ jobs:
           HYPERLIQUID_WALLET_ADDRESS: ${{ secrets.HYPERLIQUID_WALLET_ADDRESS }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DRY_RUN: ${{ steps.resolve.outputs.dry_run }}
-          RISK_COOLDOWN_MINUTES: "60"
+          RISK_COOLDOWN_MINUTES: "15"
         run: python -m src.main "${{ steps.resolve.outputs.mode }}"
 
       - name: Save state and reports

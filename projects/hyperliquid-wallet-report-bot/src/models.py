@@ -31,6 +31,29 @@ class Fill:
     liquidation: bool
     raw: dict[str, Any]
 
+    @property
+    def side(self) -> str:
+        return str(self.raw.get("side") or "")
+
+    @property
+    def start_position(self) -> float:
+        try:
+            return float(self.raw.get("startPosition") or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @property
+    def end_position(self) -> float:
+        return self.start_position + self.sz if self.side == "B" else self.start_position - self.sz
+
+    @property
+    def tid(self) -> str:
+        return str(self.raw.get("tid") or "")
+
+    @property
+    def oid(self) -> str:
+        return str(self.raw.get("oid") or "")
+
 
 @dataclass(frozen=True)
 class AccountSnapshot:
@@ -56,4 +79,3 @@ class ClosedTrade:
     notional: float
     liquidation: bool
     direction: str
-

@@ -30,6 +30,12 @@ class Settings:
     risk_max_account_leverage: float
     risk_max_margin_usage_pct: float
     risk_daily_loss_pct: float
+    max_loss_per_trade: float
+    max_daily_loss: float
+    size_up_multiplier: float
+    revenge_trade_minutes: int
+    same_coin_window_minutes: int
+    same_coin_trade_count: int
     db_path: Path
     reports_dir: Path
 
@@ -74,6 +80,12 @@ def load_config(db_path: str | None = None, reports_dir: str | None = None, dry_
         risk_max_account_leverage=_read_float("RISK_MAX_ACCOUNT_LEVERAGE", 6),
         risk_max_margin_usage_pct=_read_float("RISK_MAX_MARGIN_USAGE_PCT", 90),
         risk_daily_loss_pct=_read_float("RISK_DAILY_LOSS_PCT", 5),
+        max_loss_per_trade=_read_float("MAX_LOSS_PER_TRADE", 30),
+        max_daily_loss=_read_float("MAX_DAILY_LOSS", 60),
+        size_up_multiplier=_read_float("SIZE_UP_MULTIPLIER", 1.5),
+        revenge_trade_minutes=_read_int("REVENGE_TRADE_MINUTES", 30),
+        same_coin_window_minutes=_read_int("SAME_COIN_WINDOW_MINUTES", 120),
+        same_coin_trade_count=_read_int("SAME_COIN_TRADE_COUNT", 5),
         db_path=Path(db_path or _read_str("WALLET_REPORT_DB_PATH", ".state/wallet_report.sqlite")),
         reports_dir=Path(reports_dir or _read_str("WALLET_REPORTS_DIR", "reports")),
     )

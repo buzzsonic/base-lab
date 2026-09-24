@@ -56,6 +56,33 @@ CREATE TABLE IF NOT EXISTS risk_notifications (
   last_severity REAL NOT NULL,
   last_message TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS trades (
+  trade_id TEXT PRIMARY KEY, coin TEXT NOT NULL, direction TEXT NOT NULL,
+  opened_at INTEGER NOT NULL, closed_at INTEGER, initial_entry REAL NOT NULL,
+  avg_entry REAL NOT NULL, max_position_notional REAL NOT NULL,
+  max_position_size REAL NOT NULL, realized_pnl REAL NOT NULL, fees REAL NOT NULL,
+  duration_minutes REAL, number_of_adds INTEGER NOT NULL,
+  number_of_partial_closes INTEGER NOT NULL, mae REAL, mfe REAL,
+  behavior_json TEXT NOT NULL DEFAULT '[]'
+);
+CREATE INDEX IF NOT EXISTS idx_trades_closed ON trades(closed_at);
+
+CREATE TABLE IF NOT EXISTS risk_events (
+  event_key TEXT PRIMARY KEY, time_ms INTEGER NOT NULL, risk_type TEXT NOT NULL,
+  coin TEXT, level TEXT NOT NULL, detail TEXT NOT NULL, metrics_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_risk_events_time ON risk_events(time_ms);
+
+CREATE TABLE IF NOT EXISTS bot_state (
+  key TEXT PRIMARY KEY, value_json TEXT NOT NULL, updated_at_ms INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS daily_stats (
+  day_jst TEXT PRIMARY KEY, start_equity REAL, end_equity REAL, peak_equity REAL,
+  low_equity REAL, max_drawdown_pct REAL, realized_pnl REAL, unrealized_pnl REAL,
+  updated_at_ms INTEGER NOT NULL
+);
 """
 
 
@@ -181,6 +208,63 @@ class WalletStore:
         # Re-notify when risk materially worsens inside the cooldown window.
         return severity > float(row["last_severity"]) + 2
 
+    def latest_snapshot_before(self, time_ms: int) -> sqlite3.Row | None:
+        return self.conn.execute(
+            "SELECT * FROM snapshots WHERE time_ms <= ? ORDER BY time_ms DESC, id DESC LIMIT 1", (time_ms,)
+        ).fetchone()
+
+    def snapshot_range(self, start_ms: int, end_ms: int) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT * FROM snapshots WHERE time_ms >= ? AND time_ms <= ? ORDER BY time_ms, id", (start_ms, end_ms)
+        ).fetchall()
+
+    def replace_trades(self, trades: list[dict[str, Any]]) -> None:
+        self.conn.executemany(
+            """
+            INSERT INTO trades (trade_id, coin, direction, opened_at, closed_at, initial_entry, avg_entry,
+              max_position_notional, max_position_size, realized_pnl, fees, duration_minutes,
+              number_of_adds, number_of_partial_closes, mae, mfe, behavior_json)
+            VALUES (:trade_id,:coin,:direction,:opened_at,:closed_at,:initial_entry,:avg_entry,
+              :max_position_notional,:max_position_size,:realized_pnl,:fees,:duration_minutes,
+              :number_of_adds,:number_of_partial_closes,:mae,:mfe,:behavior_json)
+            ON CONFLICT(trade_id) DO UPDATE SET closed_at=excluded.closed_at, avg_entry=excluded.avg_entry,
+              max_position_notional=excluded.max_position_notional, max_position_size=excluded.max_position_size,
+              realized_pnl=excluded.realized_pnl, fees=excluded.fees, duration_minutes=excluded.duration_minutes,
+              number_of_adds=excluded.number_of_adds, number_of_partial_closes=excluded.number_of_partial_closes,
+              mae=excluded.mae, mfe=excluded.mfe, behavior_json=excluded.behavior_json
+            """, trades,
+        )
+        self.conn.commit()
+
+    def closed_trades(self, start_ms: int = 0) -> list[dict[str, Any]]:
+        return [dict(row) for row in self.conn.execute(
+            "SELECT * FROM trades WHERE closed_at IS NOT NULL AND closed_at >= ? ORDER BY closed_at", (start_ms,)
+        ).fetchall()]
+
+    def save_risk_events(self, events: list[dict[str, Any]]) -> int:
+        before = self.conn.total_changes
+        self.conn.executemany(
+            "INSERT OR IGNORE INTO risk_events(event_key,time_ms,risk_type,coin,level,detail,metrics_json) "
+            "VALUES(:event_key,:time_ms,:risk_type,:coin,:level,:detail,:metrics_json)", events,
+        )
+        self.conn.commit()
+        return self.conn.total_changes - before
+
+    def update_daily_stats(self, row: dict[str, Any]) -> None:
+        self.conn.execute(
+            """INSERT INTO daily_stats(day_jst,start_equity,end_equity,peak_equity,low_equity,max_drawdown_pct,
+              realized_pnl,unrealized_pnl,updated_at_ms)
+              VALUES(:day_jst,:start_equity,:end_equity,:peak_equity,:low_equity,:max_drawdown_pct,
+              :realized_pnl,:unrealized_pnl,:updated_at_ms)
+              ON CONFLICT(day_jst) DO UPDATE SET end_equity=excluded.end_equity,
+              peak_equity=MAX(daily_stats.peak_equity,excluded.peak_equity),
+              low_equity=MIN(daily_stats.low_equity,excluded.low_equity),
+              max_drawdown_pct=MAX(daily_stats.max_drawdown_pct,excluded.max_drawdown_pct),
+              realized_pnl=excluded.realized_pnl,unrealized_pnl=excluded.unrealized_pnl,
+              updated_at_ms=excluded.updated_at_ms""", row,
+        )
+        self.conn.commit()
+
     def record_risk_notification(self, risk_key: str, severity: float, now_ms: int, message: str) -> None:
         self.conn.execute(
             """
@@ -197,5 +281,9 @@ class WalletStore:
 
 
 def fill_key(fill: Fill) -> str:
+    if fill.tid:
+        return f"tid:{fill.tid}"
+    raw_hash = str(fill.raw.get("hash") or "")
+    if raw_hash and raw_hash != "0x" + "0" * 64:
+        return f"hash:{raw_hash}:{fill.oid}:{fill.time_ms}:{fill.sz:.12g}"
     return f"{fill.time_ms}|{fill.coin}|{fill.direction}|{fill.px:.12g}|{fill.sz:.12g}|{fill.closed_pnl:.12g}|{fill.fee:.12g}"
-

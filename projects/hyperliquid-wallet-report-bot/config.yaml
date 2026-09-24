@@ -1,0 +1,16 @@
+timezone: Asia/Tokyo
+risk:
+  max_loss_per_trade: 30
+  max_daily_loss: 60
+  max_peak_drawdown_pct: 10
+  position_ratio: {yellow: 2, orange: 3, red: 5, critical: 7}
+  one_percent_equity_risk: {orange: 5, red: 8, critical: 10}
+  revenge_trade_minutes: 30
+  size_up_multiplier: 1.5
+  same_coin_window_minutes: 120
+  same_coin_trade_count: 5
+discord:
+  cooldown_minutes: 15
+
+# 現在は既存運用との互換性を優先し、実行時設定は同名の環境変数を正本とする。
+# このファイルは閾値一覧。READMEの対応表に従って.env/GitHub Secretsへ設定する。

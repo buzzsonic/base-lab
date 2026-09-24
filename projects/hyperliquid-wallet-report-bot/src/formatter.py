@@ -10,6 +10,33 @@ from .models import AccountSnapshot, Position
 DISCORD_LIMIT = 1900
 
 
+def format_behavior_risk_message(snapshot: AccountSnapshot, events: list[dict[str, Any]], equity: dict[str, float], level: str) -> str:
+    icons = {"YELLOW": "🟡", "ORANGE": "🟠", "RED": "🔴", "CRITICAL": "🚨"}
+    lines = [f"{icons.get(level, '⚠️')} RISK ALERT: {level}", ""]
+    if snapshot.positions:
+        for pos in snapshot.positions:
+            ratio = account_ratio(pos.position_value, snapshot.account_value)
+            one_pct = pos.position_value * .01
+            lines.extend([
+                f"{pos.coin} {pos.side}",
+                f"資産 ${snapshot.account_value:,.2f} / 建玉 ${pos.position_value:,.0f} / 口座比 {ratio:.2f}x",
+                f"1%逆行時 -${one_pct:,.2f} = 資産の-{(one_pct / snapshot.account_value * 100 if snapshot.account_value else 0):.1f}%",
+                f"含み損益 {format_signed_usd(pos.unrealized_pnl)}",
+            ])
+    else:
+        lines.append("現在ポジションなし")
+    lines.extend([
+        f"本日開始 ${equity['start']:,.2f} / 本日ピーク ${equity['peak']:,.2f}",
+        f"ピークDD -{equity['drawdown_pct']:.1f}% / 利益吐き出し {equity['giveback_pct']:.1f}%",
+        "", "検出:",
+    ])
+    for item in sorted(events, key=lambda e: (e["level"], e["risk_type"]), reverse=True)[:8]:
+        coin = f" {item['coin']}" if item.get("coin") else ""
+        lines.append(f"- [{item['level']}] {item['risk_type']}{coin}: {item['detail']}")
+    lines.extend(["", "推奨ルール: 新規追加しない。損失後30分は同一銘柄へ再エントリーしない。想定損失を設定上限内へ戻す。"])
+    return "\n".join(lines)[:DISCORD_LIMIT]
+
+
 def format_risk_message(snapshot: AccountSnapshot, risk: dict[str, Any]) -> str:
     if not snapshot.positions:
         return "【Hyperliquid Risk】現在ポジションなし。即時リスク通知対象なし。"
@@ -251,4 +278,3 @@ def format_minutes(minutes: float) -> str:
     hours = int(minutes // 60)
     rest = int(minutes % 60)
     return f"{hours}時間{rest}分"
-
