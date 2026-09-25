@@ -13,6 +13,7 @@ from .parser import parse_fills, parse_snapshot
 from .sample_data import SAMPLE_FILLS, SAMPLE_SNAPSHOT
 from .storage import WalletStore
 from .risk_engine import aggregate_level, equity_stats, evaluate_behavior, reconstruct_cycles, LEVELS
+from .dashboard import build_dashboard
 
 
 def run(argv: list[str] | None = None) -> int:
@@ -34,6 +35,8 @@ def run(argv: list[str] | None = None) -> int:
                 return run_weekly(settings=settings, store=store, sample=args.sample, date_text=args.date, logger=logger)
             if args.mode == "snapshot":
                 return run_snapshot(settings=settings, store=store, sample=args.sample, logger=logger)
+            if args.mode == "dashboard":
+                return run_dashboard(settings=settings, store=store, sample=args.sample, logger=logger)
             raise ConfigError(f"unsupported mode: {args.mode}")
         finally:
             store.close()
@@ -47,7 +50,7 @@ def run(argv: list[str] | None = None) -> int:
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Hyperliquid wallet report bot")
-    parser.add_argument("mode", choices=["discord-test", "risk", "daily", "weekly", "snapshot"], help="実行モード")
+    parser.add_argument("mode", choices=["discord-test", "risk", "daily", "weekly", "snapshot", "dashboard"], help="実行モード")
     parser.add_argument("--dry-run", action="store_true", default=None, help="Discord送信せずログに表示する")
     parser.add_argument("--sample", action="store_true", help="Hyperliquid APIを使わずサンプルデータで実行する")
     parser.add_argument("--date", help="daily/weeklyの基準日 YYYY-MM-DD")
@@ -76,9 +79,27 @@ def run_snapshot(settings: Settings, store: WalletStore, sample: bool, logger: o
     snapshot = parse_snapshot(payload)
     parsed_fills = parse_fills(fills)
     snapshot_id = store.save_snapshot(snapshot, payload)
+    store.save_market_contexts(snapshot.time_ms, payload.get("market"))
     inserted = store.save_fills(parsed_fills)
     logger.info(f"snapshot saved: id={snapshot_id}, positions={len(snapshot.positions)}, new_fills={inserted}")
+    refresh_dashboard(settings, store, snapshot.time_ms, logger)
     return 0
+
+
+def run_dashboard(settings: Settings, store: WalletStore, sample: bool, logger: object) -> int:
+    if sample:
+        run_snapshot(settings, store, sample=True, logger=logger)
+        parsed = parse_fills(SAMPLE_FILLS)
+        store.replace_trades(reconstruct_cycles(parsed))
+    rows = store.all_snapshot_rows()
+    as_of_ms = int(rows[-1]["time_ms"]) if rows else int(datetime.now(JST).timestamp() * 1000)
+    refresh_dashboard(settings, store, as_of_ms, logger)
+    return 0
+
+
+def refresh_dashboard(settings: Settings, store: WalletStore, as_of_ms: int, logger: object) -> None:
+    path = build_dashboard(store, settings.reports_dir / "dashboard" / "index.html", as_of_ms)
+    logger.info(f"dashboard saved: {path}")
 
 
 def run_risk(settings: Settings, store: WalletStore, sample: bool, logger: object) -> int:
@@ -89,6 +110,7 @@ def run_risk(settings: Settings, store: WalletStore, sample: bool, logger: objec
     snapshot = parse_snapshot(payload)
     parsed_fills = parse_fills(fills)
     store.save_snapshot(snapshot, payload)
+    store.save_market_contexts(snapshot.time_ms, payload.get("market"))
     store.save_fills(parsed_fills)
 
     history_fills = store.fills_between(history_start, window.end_ms)
@@ -102,16 +124,20 @@ def run_risk(settings: Settings, store: WalletStore, sample: bool, logger: objec
         "realized_pnl": eq["realized"], "unrealized_pnl": eq["unrealized"], "updated_at_ms": snapshot.time_ms})
     events = evaluate_behavior(snapshot, history_fills, cycles, eq, settings)
     inserted_events = store.save_risk_events(events)
+    # Historical behavior remains available in the dashboard, but only a recent
+    # event or a current-state risk may trigger an immediate Discord alert.
+    active_events = [event for event in events if event["time_ms"] >= snapshot.time_ms - 10 * 60_000]
     legacy_risk = evaluate_risk(snapshot=snapshot, fills_today=fills_today, settings=settings)
-    if not events and not legacy_risk["flags"]:
+    refresh_dashboard(settings, store, snapshot.time_ms, logger)
+    if not active_events and not legacy_risk["flags"]:
         logger.info("即時リスク通知対象なし")
         return 0
-    level = aggregate_level(events)
+    level = aggregate_level(active_events)
     if level == "GREEN" and legacy_risk["flags"]:
         level = "ORANGE" if legacy_risk["severity"] >= 20 else "YELLOW"
-    message = format_behavior_risk_message(snapshot, events, eq, level) if events else format_risk_message(snapshot, legacy_risk)
+    message = format_behavior_risk_message(snapshot, active_events, eq, level) if active_events else format_risk_message(snapshot, legacy_risk)
     now_ms = int(datetime.now(JST).timestamp() * 1000)
-    reason_key = "|".join(sorted(f"{e['risk_type']}:{e.get('coin') or '*'}" for e in events)) or legacy_risk["risk_key"]
+    reason_key = "|".join(sorted(f"{e['risk_type']}:{e.get('coin') or '*'}" for e in active_events)) or legacy_risk["risk_key"]
     if not store.should_notify_risk(
         risk_key=reason_key,
         severity=LEVELS.get(level, 0) * 10,
@@ -123,7 +149,7 @@ def run_risk(settings: Settings, store: WalletStore, sample: bool, logger: objec
 
     send_discord_message(settings.discord_webhook_url, message, settings.dry_run, logger)
     store.record_risk_notification(reason_key, LEVELS.get(level, 0) * 10, now_ms, message)
-    logger.info(f"risk events: total={len(events)}, new={inserted_events}, level={level}")
+    logger.info(f"risk events: total={len(events)}, active={len(active_events)}, new={inserted_events}, level={level}")
     return 0
 
 
@@ -134,6 +160,7 @@ def run_daily(settings: Settings, store: WalletStore, sample: bool, date_text: s
     snapshot = parse_snapshot(payload)
     parsed_fills = parse_fills(fills)
     store.save_snapshot(snapshot, payload)
+    store.save_market_contexts(snapshot.time_ms, payload.get("market"))
     store.save_fills(parsed_fills)
     period_fills = store.fills_between(window.start_ms, window.end_ms)
     stats = build_period_stats(period_fills, snapshot)
@@ -142,6 +169,8 @@ def run_daily(settings: Settings, store: WalletStore, sample: bool, date_text: s
     message = format_daily_report(window=window, snapshot=snapshot, stats=stats, risk=risk, score=score)
     report_path = settings.reports_dir / "daily" / f"{window.label}_daily_report.md"
     write_report(report_path, message)
+    store.replace_trades(reconstruct_cycles(store.fills_between(0, window.end_ms)))
+    refresh_dashboard(settings, store, snapshot.time_ms, logger)
     logger.info(f"daily report saved: {report_path}")
     send_discord_message(settings.discord_webhook_url, message, settings.dry_run, logger)
     return 0
@@ -159,6 +188,7 @@ def run_weekly(settings: Settings, store: WalletStore, sample: bool, date_text: 
     snapshot = parse_snapshot(payload)
     parsed_fills = parse_fills(fills)
     store.save_snapshot(snapshot, payload)
+    store.save_market_contexts(snapshot.time_ms, payload.get("market"))
     store.save_fills(parsed_fills)
     period_fills = store.fills_between(window.start_ms, window.end_ms)
     stats = build_period_stats(period_fills, snapshot)
@@ -167,6 +197,8 @@ def run_weekly(settings: Settings, store: WalletStore, sample: bool, date_text: 
     message = format_weekly_report(window=window, snapshot=snapshot, stats=stats, risk=risk, score=score)
     report_path = settings.reports_dir / "weekly" / f"{window.label.replace('..', '_')}_weekly_report.md"
     write_report(report_path, message)
+    store.replace_trades(reconstruct_cycles(store.fills_between(0, window.end_ms)))
+    refresh_dashboard(settings, store, snapshot.time_ms, logger)
     logger.info(f"weekly report saved: {report_path}")
     send_discord_message(settings.discord_webhook_url, message, settings.dry_run, logger)
     return 0

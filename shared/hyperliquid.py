@@ -242,7 +242,9 @@ class HyperliquidClient:
         orders = self.frontend_open_orders(address)
         time.sleep(0.15)
         fills = self.user_fills(address)
-        return {"state": state, "mids": mids, "orders": orders, "fills": fills}
+        time.sleep(0.15)
+        market = self.meta_and_asset_ctxs()
+        return {"state": state, "mids": mids, "orders": orders, "fills": fills, "market": market}
 
     def _retry_wait_seconds(self, response: requests.Response, attempt: int) -> float:
         retry_after = response.headers.get("Retry-After")

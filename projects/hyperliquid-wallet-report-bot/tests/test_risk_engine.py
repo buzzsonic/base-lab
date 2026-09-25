@@ -5,6 +5,7 @@ from pathlib import Path
 from src.models import AccountSnapshot, Fill
 from src.risk_engine import equity_stats, reconstruct_cycles
 from src.storage import WalletStore
+from src.dashboard import build_dashboard
 
 
 def fill(t, coin, side, start, size, px, pnl=0, tid=None):
@@ -40,6 +41,19 @@ class RiskEngineTests(unittest.TestCase):
         snap = AccountSnapshot(4000,250,250,0,0,[],[])
         eq = equity_stats(snap,[{"account_value":v} for v in (300,550,920,250)],0,[])
         self.assertEqual(round(eq["drawdown_pct"],1),72.8)
+
+    def test_dashboard_contains_bybit_style_views_and_real_trade(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "risk.db"; output = Path(d) / "dashboard" / "index.html"
+            rows = [fill(1000,"UNI","B",0,10,9), fill(2000,"UNI","A",10,10,10,10)]
+            store = WalletStore(path); store.save_fills(rows); store.replace_trades(reconstruct_cycles(rows))
+            store.save_market_contexts(1000, ({"universe":[{"name":"UNI"}]}, [{"dayNtlVlm":"2500000"}]))
+            build_dashboard(store, output, 2000); store.close()
+            text = output.read_text(encoding="utf-8")
+            self.assertIn("勝敗分析", text)
+            self.assertIn("Entry時24h出来高別", text)
+            self.assertIn('"coin":"UNI"', text)
+            self.assertIn('"volume24h":2500000.0', text)
 
 
 if __name__ == "__main__": unittest.main()

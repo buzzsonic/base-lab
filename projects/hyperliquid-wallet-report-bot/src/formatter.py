@@ -12,28 +12,35 @@ DISCORD_LIMIT = 1900
 
 def format_behavior_risk_message(snapshot: AccountSnapshot, events: list[dict[str, Any]], equity: dict[str, float], level: str) -> str:
     icons = {"YELLOW": "🟡", "ORANGE": "🟠", "RED": "🔴", "CRITICAL": "🚨"}
-    lines = [f"{icons.get(level, '⚠️')} RISK ALERT: {level}", ""]
+    names = {"SIZE_UP_AFTER_WIN": "勝ち後サイズ急増", "REVENGE_TRADE": "損失後ドテン",
+             "LOSS_AVERAGING": "含み損で追加", "PROFIT_PYRAMIDING": "利益中に急増",
+             "DAILY_PROFIT_GIVEBACK": "利益吐き出し", "PEAK_DRAWDOWN": "ピークDD",
+             "SAME_COIN_OVERTRADE": "同一銘柄を回転", "CONSECUTIVE_LOSSES": "連敗",
+             "LIQUIDATION_TOO_CLOSE": "清算接近", "OVERSIZED_POSITION": "建玉過大",
+             "DAILY_LOSS_LIMIT": "日次損失上限"}
+    counts: dict[tuple[str, str | None], int] = {}
+    levels: dict[tuple[str, str | None], str] = {}
+    for event in events:
+        key = (event["risk_type"], event.get("coin"))
+        counts[key] = counts.get(key, 0) + 1
+        levels[key] = event["level"]
+    position_label = " / ".join(f"{p.coin} {p.side}" for p in snapshot.positions) or "ポジションなし"
+    lines = [f"{icons.get(level, '⚠️')} {level}｜{position_label}", ""]
     if snapshot.positions:
         for pos in snapshot.positions:
             ratio = account_ratio(pos.position_value, snapshot.account_value)
             one_pct = pos.position_value * .01
             lines.extend([
-                f"{pos.coin} {pos.side}",
-                f"資産 ${snapshot.account_value:,.2f} / 建玉 ${pos.position_value:,.0f} / 口座比 {ratio:.2f}x",
-                f"1%逆行時 -${one_pct:,.2f} = 資産の-{(one_pct / snapshot.account_value * 100 if snapshot.account_value else 0):.1f}%",
-                f"含み損益 {format_signed_usd(pos.unrealized_pnl)}",
+                f"💰 ${snapshot.account_value:,.0f}｜📦 ${pos.position_value:,.0f}（{ratio:.1f}x）",
+                f"⚡ 1%逆行 -${one_pct:,.2f}（-{(one_pct / snapshot.account_value * 100 if snapshot.account_value else 0):.1f}%）｜📈 {format_signed_usd(pos.unrealized_pnl)}",
             ])
-    else:
-        lines.append("現在ポジションなし")
     lines.extend([
-        f"本日開始 ${equity['start']:,.2f} / 本日ピーク ${equity['peak']:,.2f}",
-        f"ピークDD -{equity['drawdown_pct']:.1f}% / 利益吐き出し {equity['giveback_pct']:.1f}%",
-        "", "検出:",
+        f"🏁 開始 ${equity['start']:,.0f}｜最高 ${equity['peak']:,.0f}｜DD -{equity['drawdown_pct']:.1f}%", "",
     ])
-    for item in sorted(events, key=lambda e: (e["level"], e["risk_type"]), reverse=True)[:8]:
-        coin = f" {item['coin']}" if item.get("coin") else ""
-        lines.append(f"- [{item['level']}] {item['risk_type']}{coin}: {item['detail']}")
-    lines.extend(["", "推奨ルール: 新規追加しない。損失後30分は同一銘柄へ再エントリーしない。想定損失を設定上限内へ戻す。"])
+    for key, count in sorted(counts.items(), key=lambda item: item[1], reverse=True)[:6]:
+        kind, coin = key; mark = icons.get(levels[key], "⚠️"); suffix = f" ×{count}" if count > 1 else ""
+        lines.append(f"{mark} {names.get(kind, kind)}{f'（{coin}）' if coin else ''}{suffix}")
+    lines.extend(["", "🛑 追加しない｜サイズ縮小｜損失上限を確認"])
     return "\n".join(lines)[:DISCORD_LIMIT]
 
 
@@ -41,72 +48,42 @@ def format_risk_message(snapshot: AccountSnapshot, risk: dict[str, Any]) -> str:
     if not snapshot.positions:
         return "【Hyperliquid Risk】現在ポジションなし。即時リスク通知対象なし。"
 
-    lines = ["【Hyperliquid Risk Alert】"]
+    lines = ["🟠 ORANGE｜" + " / ".join(f"{p.coin} {p.side}" for p in snapshot.positions), ""]
     for pos in snapshot.positions:
         ratio = account_ratio(pos.position_value, snapshot.account_value)
+        one_pct = pos.position_value * .01
         lines.extend(
             [
-                f"{pos.coin} {pos.side} {format_number(abs(pos.szi))}枚",
-                f"建値 {format_price(pos.entry_px)} / 現在 {format_price(pos.mid_px)} / 含み損益 {format_signed_usd(pos.unrealized_pnl)}",
-                f"口座 {format_usd(snapshot.account_value)} / 建玉 {format_usd(pos.position_value)} / 口座比 {ratio:.1f}倍",
-                f"レバ {pos.leverage_type or 'unknown'} {format_number(pos.leverage_value)}x / 清算 {format_price(pos.liquidation_px)} / 距離 {format_pct(pos.liquidation_distance_pct)}",
+                f"💰 {format_usd(snapshot.account_value)}｜📦 {format_usd(pos.position_value)}（{ratio:.1f}x）",
+                f"⚡ 1%逆行 -${one_pct:.2f}（-{(one_pct / snapshot.account_value * 100 if snapshot.account_value else 0):.1f}%）｜📈 {format_signed_usd(pos.unrealized_pnl)}",
             ]
         )
-    lines.append(f"証拠金使用率: {risk['margin_usage_pct']:.1f}% / 注文: {len(snapshot.open_orders)}件")
+    lines.append("")
     if risk["flags"]:
-        lines.append("危険理由:")
         for item in risk["flags"][:6]:
-            lines.append(f"- {item['detail']}")
-    lines.append("判断: 追加禁止。ストップ未設定なら先に保護、清算距離が近いなら縮小/クローズ優先。")
+            lines.append(f"🟠 {item['detail']}")
+    lines.append("")
+    lines.append("🛑 追加しない｜保護注文を確認｜必要なら縮小")
     return "\n".join(lines)
 
 
 def format_daily_report(window: PeriodWindow, snapshot: AccountSnapshot, stats: dict[str, Any], risk: dict[str, Any], score: dict[str, Any]) -> str:
-    title = "【警告】Hyperliquid Daily Report" if score["total"] < 50 else "【Hyperliquid Daily Report】"
+    title = "🔴 DAILY REPORT" if stats["net_pnl"] < 0 else "🟢 DAILY REPORT"
+    best = stats["coin_summary"][0] if stats["coin_summary"] else None
+    worst = stats["coin_summary"][-1] if stats["coin_summary"] else None
     lines = [
         title,
-        f"対象: {window.start_jst.strftime('%Y-%m-%d %H:%M')} - {window.end_jst.strftime('%H:%M')} JST",
-        f"今日の評価: {score['total']}/100 (PnL {score['pnl_score']}/50 / リスク {score['risk_score']}/50)",
+        f"{window.label}｜評価 {score['total']}/100", "",
+        f"💰 純損益 {format_signed_usd(stats['net_pnl'])}｜手数料 -${stats['fees']:.2f}",
+        f"🎯 {stats['wins']}勝{stats['losses']}敗｜勝率 {stats['win_rate']:.0f}%｜PF {format_pf(stats['profit_factor'])}",
+        f"📊 平均利益 {format_signed_usd(stats['avg_win'])}｜平均損失 {format_signed_usd(stats['avg_loss'])}",
         "",
-        "■ 現在ポジション判断",
+        f"🏆 最大貢献 {best['label']} {format_signed_usd(best['net_pnl'])}" if best else "🏆 取引なし",
+        f"📉 最大損失 {worst['label']} {format_signed_usd(worst['net_pnl'])}" if worst else "",
+        "", "⚠️ 現在",
     ]
-    lines.extend(format_position_judgement(snapshot, risk))
-    lines.extend(
-        [
-            "",
-            "■ 今日の成績",
-            f"実現損益: {format_signed_usd(stats['realized_pnl'])}",
-            f"手数料: -${stats['fees']:.2f}",
-            f"概算ネット: {format_signed_usd(stats['net_pnl'])}",
-            f"現在含み損益: {format_signed_usd(stats['unrealized_pnl'])}",
-            "",
-            f"約定数: {stats['fill_count']}回",
-            f"ラウンドトリップ: {stats['round_trips']}回",
-            f"勝敗: {stats['wins']}勝{stats['losses']}敗",
-            f"勝率: {stats['win_rate']:.1f}%",
-            f"平均利益: {format_signed_usd(stats['avg_win'])}",
-            f"平均損失: {format_signed_usd(stats['avg_loss'])}",
-            f"PF: {format_pf(stats['profit_factor'])}",
-            "",
-            "■ ロング/ショート別",
-        ]
-    )
-    lines.extend(format_summary_rows(stats["side_summary"], include_hold=True))
-    lines.append("")
-    lines.append("■ 銘柄別")
-    lines.extend(format_summary_rows(stats["coin_summary"], include_hold=True))
-    lines.append("")
-    lines.append("■ 保有時間別")
-    lines.extend(format_summary_rows(stats["duration_summary"], include_hold=False))
-    lines.append("")
-    lines.append("■ ポジションサイズ別")
-    lines.extend(format_summary_rows(stats["size_summary"], include_hold=False))
-    lines.append("")
-    lines.append("■ 減点項目")
-    lines.extend(format_risk_flags(risk))
-    lines.append("")
-    lines.append("■ 明日のルール")
-    lines.extend(build_next_rules(risk, stats, limit=3))
+    lines.extend(format_position_judgement(snapshot, risk)[:2])
+    lines.extend(["", "🛑 明日のルール"] + build_next_rules(risk, stats, limit=3))
     return trim_for_discord("\n".join(lines))
 
 
@@ -114,34 +91,20 @@ def format_weekly_report(window: PeriodWindow, snapshot: AccountSnapshot, stats:
     positive = [row for row in stats["pattern_summary"] if row["net_pnl"] > 0][:3]
     negative = list(reversed([row for row in stats["pattern_summary"] if row["net_pnl"] < 0][-3:]))
     lines = [
-        "【Hyperliquid Weekly Report】",
-        f"対象: {window.start_jst.strftime('%Y-%m-%d %H:%M')} - {window.end_jst.strftime('%Y-%m-%d %H:%M')} JST",
-        f"今週の評価: {score['total']}/100 (PnL {score['pnl_score']}/40 / 再現性 {score['reproducibility_score']}/30 / リスク {score['risk_score']}/30)",
-        "",
-        "■ 週間成績",
-        f"実現損益: {format_signed_usd(stats['realized_pnl'])}",
-        f"手数料: -${stats['fees']:.2f}",
-        f"概算ネット: {format_signed_usd(stats['net_pnl'])}",
-        f"約定数: {stats['fill_count']}回",
-        f"ラウンドトリップ: {stats['round_trips']}回",
-        f"勝敗: {stats['wins']}勝{stats['losses']}敗",
-        f"勝率: {stats['win_rate']:.1f}%",
-        f"平均利益: {format_signed_usd(stats['avg_win'])}",
-        f"平均損失: {format_signed_usd(stats['avg_loss'])}",
-        f"PF: {format_pf(stats['profit_factor'])}",
-        "",
-        "■ 勝ちパターン",
+        "📅 WEEKLY REPORT",
+        f"{window.start_jst.strftime('%m/%d')}–{window.end_jst.strftime('%m/%d')}｜評価 {score['total']}/100", "",
+        f"💰 純損益 {format_signed_usd(stats['net_pnl'])}｜手数料 -${stats['fees']:.2f}",
+        f"🎯 {stats['wins']}勝{stats['losses']}敗｜勝率 {stats['win_rate']:.0f}%｜PF {format_pf(stats['profit_factor'])}",
+        f"📊 平均利益 {format_signed_usd(stats['avg_win'])}｜平均損失 {format_signed_usd(stats['avg_loss'])}",
+        "", "🟢 勝ちパターン",
     ]
     lines.extend(format_pattern_rows(positive))
     lines.append("")
-    lines.append("■ 負けパターン")
+    lines.append("🔴 負けパターン")
     lines.extend(format_pattern_rows(negative))
     lines.append("")
-    lines.append("■ 銘柄別")
-    lines.extend(format_summary_rows(stats["coin_summary"], include_hold=False))
-    lines.append("")
-    lines.append("■ 来週のルール")
-    lines.extend(build_next_rules(risk, stats, limit=5))
+    lines.append("🛑 来週の3ルール")
+    lines.extend(build_next_rules(risk, stats, limit=3))
     return trim_for_discord("\n".join(lines))
 
 

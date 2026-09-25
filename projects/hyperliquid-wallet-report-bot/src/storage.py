@@ -83,6 +83,12 @@ CREATE TABLE IF NOT EXISTS daily_stats (
   low_equity REAL, max_drawdown_pct REAL, realized_pnl REAL, unrealized_pnl REAL,
   updated_at_ms INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS market_snapshots (
+  time_ms INTEGER NOT NULL, coin TEXT NOT NULL, day_ntl_vlm REAL,
+  PRIMARY KEY(time_ms, coin)
+);
+CREATE INDEX IF NOT EXISTS idx_market_coin_time ON market_snapshots(coin, time_ms);
 """
 
 
@@ -171,6 +177,33 @@ class WalletStore:
         self.conn.commit()
         return self.conn.total_changes - before
 
+    def save_market_contexts(self, time_ms: int, market: Any) -> int:
+        if not isinstance(market, (list, tuple)) or len(market) != 2:
+            return 0
+        meta, contexts = market
+        universe = meta.get("universe", []) if isinstance(meta, dict) else []
+        rows = []
+        for index, asset in enumerate(universe):
+            if not isinstance(asset, dict) or index >= len(contexts) or not isinstance(contexts[index], dict):
+                continue
+            value = contexts[index].get("dayNtlVlm")
+            try:
+                volume = float(value) if value is not None else None
+            except (TypeError, ValueError):
+                volume = None
+            rows.append((time_ms, str(asset.get("name") or ""), volume))
+        before = self.conn.total_changes
+        self.conn.executemany("INSERT OR IGNORE INTO market_snapshots(time_ms,coin,day_ntl_vlm) VALUES(?,?,?)", rows)
+        self.conn.commit()
+        return self.conn.total_changes - before
+
+    def market_volume_near(self, coin: str, time_ms: int, tolerance_ms: int = 10 * 60_000) -> float | None:
+        row = self.conn.execute(
+            "SELECT day_ntl_vlm,time_ms FROM market_snapshots WHERE coin=? AND time_ms BETWEEN ? AND ? "
+            "ORDER BY ABS(time_ms-?) LIMIT 1", (coin, time_ms - tolerance_ms, time_ms + tolerance_ms, time_ms)
+        ).fetchone()
+        return float(row["day_ntl_vlm"]) if row is not None and row["day_ntl_vlm"] is not None else None
+
     def fills_between(self, start_ms: int, end_ms: int) -> list[Fill]:
         rows = self.conn.execute(
             """
@@ -217,6 +250,21 @@ class WalletStore:
         return self.conn.execute(
             "SELECT * FROM snapshots WHERE time_ms >= ? AND time_ms <= ? ORDER BY time_ms, id", (start_ms, end_ms)
         ).fetchall()
+
+    def daily_stats_rows(self) -> list[dict[str, Any]]:
+        return [dict(row) for row in self.conn.execute(
+            "SELECT * FROM daily_stats ORDER BY day_jst"
+        ).fetchall()]
+
+    def risk_event_rows(self, start_ms: int = 0) -> list[dict[str, Any]]:
+        return [dict(row) for row in self.conn.execute(
+            "SELECT * FROM risk_events WHERE time_ms >= ? ORDER BY time_ms", (start_ms,)
+        ).fetchall()]
+
+    def all_snapshot_rows(self) -> list[dict[str, Any]]:
+        return [dict(row) for row in self.conn.execute(
+            "SELECT * FROM snapshots ORDER BY time_ms, id"
+        ).fetchall()]
 
     def replace_trades(self, trades: list[dict[str, Any]]) -> None:
         self.conn.executemany(

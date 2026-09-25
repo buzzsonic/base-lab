@@ -5,6 +5,7 @@ Hyperliquidの自分のウォレットを読み取り、Discord向けに次の�
 - 即時リスク通知: 危険ポジションだけ短く通知
 - デイリーレポート: 23:00 JST締め、23:30 JST通知
 - ウィークリーレポート: 日曜22:00 JST通知
+- Bybit風HTML分析: 期間切替、資産曲線、ランキング、決済明細、勝敗特徴
 
 売買や資金移動は行いません。秘密情報は `.env` または GitHub Secrets に置き、コードには書きません。
 
@@ -74,7 +75,15 @@ python3 -m src.main risk --dry-run
 python3 -m src.main daily --dry-run
 python3 -m src.main weekly --dry-run
 python3 -m src.main discord-test --dry-run
+python3 -m src.main dashboard --dry-run
 ```
+
+HTML分析画面は `reports/dashboard/index.html` に生成されます。`risk`、`snapshot`、
+`daily`、`weekly` の各実行後にも自動更新されます。表示期間は7/30/60/90/180日・全期間。
+概要、決済注文の詳細、勝敗分析を切り替えられます。
+
+勝敗分析は方向、保有時間、追加あり/なしを実測cycleから比較します。Entry時24時間出来高は
+監視開始後の市場snapshotだけを使用する設計で、未取得の過去取引は「欠測」と表示します。
 
 リアルタイム監視はMacで60秒おきに実行するのを推奨します。まず手動dry-runを確認し、
 `.env` の `DRY_RUN=false` は文面と通知先を確認してから設定してください。

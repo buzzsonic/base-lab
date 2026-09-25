@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "discord-test, risk, daily, weekly, or snapshot"
+        description: "discord-test, risk, daily, weekly, snapshot, or dashboard"
         required: true
         default: "risk"
         type: choice
@@ -13,6 +13,7 @@ on:
           - daily
           - weekly
           - snapshot
+          - dashboard
           - discord-test
       dry_run:
         description: "Do not send Discord messages"
