@@ -1,0 +1,44 @@
+name: Yobun Hoihoi Weekly Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Do not send Discord"
+        required: false
+        default: true
+        type: boolean
+  schedule:
+    # Monday 00:00 JST
+    - cron: "0 15 * * 0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: youbun-hoihoi-weekly
+  cancel-in-progress: false
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: projects/hyperliquid-youbun-hoihoi
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: projects/hyperliquid-youbun-hoihoi/requirements.txt
+      - run: pip install -r requirements.txt
+      - name: Unit tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -v
+      - name: Guard production activation
+        run: |
+          echo "Weekly production mutation/send remains gated until 7-day observation and data-branch integration pass."
+          echo "No stale snapshot depletion decision will be made by this skeleton."

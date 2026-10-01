@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-10-01T14:39:15.841766+00:00",
+  "sample_version": "sample_20261001",
+  "quality": {
+    "wallets": 100,
+    "duplicates": 0,
+    "inactive": 15,
+    "bot_suspected": 38,
+    "mm_suspected": 9,
+    "arbitrage_suspected": 1,
+    "farm_suspected": 1,
+    "capped_fill_histories": 63,
+    "large_share": 0.03,
+    "leaderboard_only_share": 0.63,
+    "sources": {
+      "public_trade_stream": 37,
+      "official_leaderboard": 63
+    },
+    "frequency_bands": {
+      "medium": 30,
+      "high": 48,
+      "low": 22
+    },
+    "size_bands": {
+      "small": 30,
+      "medium": 52,
+      "unknown": 15,
+      "large": 3
+    },
+    "symbol_profiles": {
+      "alt_core": 45,
+      "btc_eth_core": 38,
+      "unknown": 15,
+      "small_alt_core": 2
+    },
+    "activity_time_bands": {
+      "jst_18_23": 24,
+      "jst_06_11": 18,
+      "unknown": 15,
+      "jst_12_17": 20,
+      "jst_00_05": 23
+    },
+    "active_days_bands": {
+      "4_10": 28,
+      "1_3": 27,
+      "none": 15,
+      "11_plus": 30
+    },
+    "leaderboard_rank_bands": {
+      "not_ranked": 37,
+      "top_1pct": 12,
+      "bottom_50pct": 11,
+      "mid_40pct": 23,
+      "top_10pct": 17
+    }
+  },
+  "candidate_wallets": 100,
+  "discovery_pool_wallets": 200,
+  "active_sample_wallets": 0,
+  "pool_quality": {
+    "wallets": 200,
+    "duplicates": 0,
+    "inactive": 29,
+    "bot_suspected": 103,
+    "mm_suspected": 36,
+    "arbitrage_suspected": 4,
+    "farm_suspected": 2,
+    "capped_fill_histories": 163,
+    "large_share": 0.015,
+    "leaderboard_only_share": 0.5,
+    "sources": {
+      "public_trade_stream": 100,
+      "official_leaderboard": 100
+    },
+    "frequency_bands": {
+      "high": 127,
+      "low": 36,
+      "medium": 37
+    },
+    "size_bands": {
+      "small": 51,
+      "unknown": 27,
+      "medium": 119,
+      "large": 3
+    },
+    "symbol_profiles": {
+      "alt_core": 114,
+      "unknown": 27,
+      "btc_eth_core": 57,
+      "small_alt_core": 2
+    },
+    "activity_time_bands": {
+      "jst_06_11": 22,
+      "unknown": 27,
+      "jst_00_05": 40,
+      "jst_18_23": 86,
+      "jst_12_17": 25
+    },
+    "active_days_bands": {
+      "1_3": 49,
+      "none": 27,
+      "4_10": 50,
+      "11_plus": 74
+    },
+    "leaderboard_rank_bands": {
+      "not_ranked": 100,
+      "bottom_50pct": 16,
+      "mid_40pct": 46,
+      "top_10pct": 26,
+      "top_1pct": 12
+    }
+  },
+  "observation_policy": "minimum 7 days; no same-run promotion"
+}
