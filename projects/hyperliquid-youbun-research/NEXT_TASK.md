@@ -5,9 +5,9 @@
 ## 0. Discord Webhook更新と実送信確認
 
 - 目的: GitHub共有運用とpush後通知を有効にする。
-- 作業: 専用GitHub Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を参照するworkflowをmainへ反映後、`Youbun Research Completion Notification`を手動起動する。
+- 作業: 専用GitHub Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を使う通知のHTTPステータスを値非表示で確認し、Discord側のWebhookを必要に応じて再発行・更新する。
 - 完了条件: workflow run成功、Discord受信確認。Webhook値は表示・保存しない。
-- 現状: PR #2はmainへmerge済み。旧共通Secretを使ったrun `36871273127`はDiscord HTTPErrorで失敗。専用Secretは登録済みで、workflow側の参照切替を進行中。
+- 現状: PR #4で専用Secret参照へ切替済み。run `36873062707`もHTTPErrorで失敗したため、Secret名ではなくWebhook値またはDiscord側の状態が原因。
 
 ## 1. 完結61episodeの層別目視検証
 

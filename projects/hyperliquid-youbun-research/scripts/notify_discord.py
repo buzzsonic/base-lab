@@ -42,7 +42,11 @@ def send(message: str, webhook: str, retries: int = 2) -> None:
             last_error = exc
             if attempt + 1 < retries:
                 time.sleep(3)
-    raise RuntimeError(f"Discord notification failed: {type(last_error).__name__}")
+    if isinstance(last_error, HTTPError):
+        detail = f"HTTP {last_error.code} {last_error.reason}"
+    else:
+        detail = type(last_error).__name__
+    raise RuntimeError(f"Discord notification failed: {detail}")
 
 
 def main() -> int:
