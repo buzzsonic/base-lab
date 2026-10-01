@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Send Discord completion notification
         env:
-          YOUBUN_DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          YOUBUN_DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_YOUBUNKUN }}
         run: |
           python3 projects/hyperliquid-youbun-research/scripts/notify_discord.py \
             --status "${{ inputs.status }}" \

@@ -20,3 +20,10 @@
 - 理由: 通知時点でGitHubが共有正本になっていることを保証するため。
 - 影響範囲: `scripts/notify_discord.py`と養分くんプロジェクトの終了手順。
 - 未解決事項: `YOUBUN_DISCORD_WEBHOOK_URL`の安全な設定。
+
+## 2026-10-01 Discord Webhookを養分くん専用Secretへ分離する
+
+- 決定内容: GitHub ActionsはRepository Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を参照し、実行時だけ`YOUBUN_DISCORD_WEBHOOK_URL`へ渡す。
+- 理由: 既存プロジェクトの共通Secretを上書きせず、通知先と障害範囲を分離するため。
+- 影響範囲: `Youbun Research Completion Notification`のみ。既存のDiscord通知workflowは変更しない。
+- 未解決事項: main反映後のworkflow成功とDiscord受信確認。
