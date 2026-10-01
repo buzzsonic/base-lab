@@ -2,12 +2,12 @@
 
 作業開始時は `PROJECT_CONTEXT.md`、`CURRENT_STATUS.md`、本ファイル、`DECISIONS.md` を先に読む。
 
-## 0. 運用branchのmergeとDiscord実送信確認
+## 0. Discord Webhook更新と実送信確認
 
 - 目的: GitHub共有運用とpush後通知を有効にする。
-- 作業: `codex/youbun-ops-setup`をレビューしてdefault branchへmerge後、`Youbun Research Completion Notification`を手動起動する。
+- 作業: GitHub Secret `DISCORD_WEBHOOK_URL`を有効なWebhookへ更新後、`Youbun Research Completion Notification`を手動起動する。
 - 完了条件: workflow run成功、Discord受信確認。Webhook値は表示・保存しない。
-- 現状: 専用branchへのpush済み。default branchにworkflowがないためdispatchは404。
+- 現状: PR #2はmainへmerge済み。run `36871273127`はDiscord HTTPErrorで失敗し、通知未送信。
 
 ## 1. 完結61episodeの層別目視検証
 
