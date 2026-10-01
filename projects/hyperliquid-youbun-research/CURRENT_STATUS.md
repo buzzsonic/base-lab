@@ -28,6 +28,7 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 - `python3 -m unittest discover -s tests -v`
 - 7 tests passed（再構成5件、Discord通知文2件）
 - Discord通知スクリプトはdry-run成功。Webhook値は未設定・未表示・未保存。
+- GitHub Actions用の手動完了通知workflowを追加。既存Secret `DISCORD_WEBHOOK_URL`の存在を値非表示で確認。
 
 ## Known Limitations
 
@@ -40,7 +41,7 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 
 ## Blockers
 
-- `YOUBUN_DISCORD_WEBHOOK_URL` が未設定のためDiscord実送信は未検証。
+- ローカル`YOUBUN_DISCORD_WEBHOOK_URL`は未設定。通知workflowはdefault branchへmerge後に実送信可能。
 - TWAP endpoint上限到達口座は完全な履歴を取得できず、行動分析対象外。
 
 ## Next
