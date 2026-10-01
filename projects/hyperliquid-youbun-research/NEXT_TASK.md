@@ -9,7 +9,11 @@
 - 最終成功run: `36873755127`。
 - Discord関連の追加修正は不要。研究品質確認を優先する。
 
-## 1. 完結61episodeの層別目視検証【最優先】
+## 1. 完結61episodeの層別目視検証（完了）
+
+結果: 全61episodeの自動照合61/61 PASS、層別20episodeの匿名化レビュー20/20 PASS、重大差異0。
+
+成果物: `reviews/episode-quality-2026-10-02/README.md` と `episode_review.csv`。
 
 目的: 再構成済みepisodeが、FOMO・Late Long/Short・ナンピン等の行動分類の土台として十分正確か確認する。
 
@@ -58,10 +62,11 @@ episodeごとに以下をraw fillと突合する。
 
 目視結果をMarkdownレポートへ保存する。
 
-### 品質ゲート
-- 重大差異0 → 次工程へ進行可
-- 重大差異あり → 再構成ロジックを修正し、再テスト・再目視
-- 説明可能な微差は根拠と許容誤差を明記
+### 品質ゲート結果
+- 重大差異0
+- 再構成ロジックの修正なし
+- 数量許容誤差1e-8、価格・PnL・fee・Fundingは1e-6以内で全件一致
+- 次工程へ進行可
 
 ## 2. 今回は行動分類を開始しない
 
@@ -76,10 +81,11 @@ episodeごとに以下をraw fillと突合する。
 
 61 episodeの再構成品質ゲート通過前に進めない。
 
-## 3. 品質ゲート通過後の次工程
+## 3. 次工程【最優先】
 
-層別目視がPASSした場合のみ、次に以下へ進む。
 1. TWAP / Funding / builder fee会計照合の最終確認
+   - eligible 10口座ではTWAP追加0件。TWAP上限2,000件の1口座は引き続き除外し、fixtureと除外理由を会計レポートに残す。
+   - Funding帰属が発生したepisode数・金額、builderFee非zero episode数・fee包含関係を全61件で集計する。
 2. 5分市場系列coverage定量化
 3. coverage十分なepisodeへのpast-only市場特徴量付与
 
