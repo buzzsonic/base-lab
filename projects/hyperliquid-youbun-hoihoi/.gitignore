@@ -1,0 +1,6 @@
+outputs/*/raw-cache/
+outputs/smoke/
+outputs/repoc/
+outputs/final/
+__pycache__/
+*.pyc

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "observation_days": 7,
+  "activity": {"lookback_days": 30, "min_perp_fills": 3},
+  "sampling": {
+    "poc_wallets": 200,
+    "pool_multiplier": 2,
+    "max_leaderboard_share": 0.60,
+    "max_whale_share": 0.20,
+    "max_bot_suspected_share": 0.25,
+    "refill_trigger_fraction": 0.15
+  },
+  "classification": {
+    "small_median_notional": 250.0,
+    "large_median_notional": 10000.0,
+    "high_frequency_fills_30d": 500,
+    "low_frequency_fills_30d": 20,
+    "high_leverage": 8.0,
+    "low_leverage": 2.0,
+    "bot_fills_per_active_day": 100.0,
+    "bot_median_interval_seconds": 60.0,
+    "mm_maker_ratio": 0.85,
+    "farm_max_median_notional": 50.0,
+    "farm_min_symbols": 8,
+    "major_ratio": 0.70,
+    "small_alt_notional_cutoff": 10000000.0
+  },
+  "depletion": {
+    "window_days": 7,
+    "near_fraction": 0.50,
+    "rapid_fraction": 0.70,
+    "withdrawal_match_tolerance": 0.25
+  },
+  "api": {"min_request_interval_seconds": 1.25, "retries": 6}
+}
