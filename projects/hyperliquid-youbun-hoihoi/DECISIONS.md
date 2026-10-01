@@ -34,3 +34,9 @@
 - 理由: 時価総額の公式履歴は取得できず、現在の市場流動性を再現可能な公開proxyとして使うため。
 - 影響: 小型アルト分類は市場状況で変化し、過去時点の厳密な時価総額分類ではない。
 - 未解決: `metaAndAssetCtxs`のsnapshot versionをsample versionへ固定する。
+
+## 2026-10-02 Issue #8 完了通知
+
+- 決定: Issue #8 の層化再PoCを `main@91a873b` へ反映し、養分ホイホイ専用Discord webhookで完了通知する。
+- 実績: GitHub Actions run `36928323512` の送信jobはsuccess。
+- 影響: Issue #8の品質改善は完了扱いとするが、1,000-wallet拡大のHOLD判断は維持する。
