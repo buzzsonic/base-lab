@@ -32,4 +32,4 @@
 
 Discord Webhookは`YOUBUN_DISCORD_WEBHOOK_URL`環境変数からのみ読む。URLや秘密情報をファイル、ログ、commit、通知本文へ含めない。
 
-ローカルWebhookがない場合は、default branchへworkflow導入後、`Youbun Research Completion Notification`を`gh workflow run`で起動し、既存GitHub Secret `DISCORD_WEBHOOK_URL`を利用する。workflowが未mergeなら実送信待ちを明記し、成功と偽らない。
+ローカルWebhookがない場合は、default branchへworkflow導入後、`Youbun Research Completion Notification`を`gh workflow run`で起動し、養分くん専用GitHub Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を利用する。workflowが未mergeなら実送信待ちを明記し、成功と偽らない。
