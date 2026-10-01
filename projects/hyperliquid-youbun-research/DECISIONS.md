@@ -26,4 +26,4 @@
 - 決定内容: GitHub ActionsはRepository Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を参照し、実行時だけ`YOUBUN_DISCORD_WEBHOOK_URL`へ渡す。
 - 理由: 既存プロジェクトの共通Secretを上書きせず、通知先と障害範囲を分離するため。
 - 影響範囲: `Youbun Research Completion Notification`のみ。既存のDiscord通知workflowは変更しない。
-- 未解決事項: main反映後のworkflow成功とDiscord受信確認。
+- 検証結果: PR #6でUser-Agentを明示し、workflow run `36873558111`が成功。専用Secret経由の通知経路を有効化済み。

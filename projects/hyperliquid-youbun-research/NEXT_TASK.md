@@ -2,12 +2,12 @@
 
 作業開始時は `PROJECT_CONTEXT.md`、`CURRENT_STATUS.md`、本ファイル、`DECISIONS.md` を先に読む。
 
-## 0. Discord Webhook更新と実送信確認
+## 0. Discord Webhook更新と実送信確認（完了）
 
 - 目的: GitHub共有運用とpush後通知を有効にする。
-- 作業: Discordの `HTTP 403 Forbidden` 対策として明示的なUser-Agentを付けて再送し、失敗時のみWebhookを再発行・更新する。
+- 作業: 専用Secret参照と明示的なUser-Agentを設定して手動通知を実行した。
 - 完了条件: workflow run成功、Discord受信確認。Webhook値は表示・保存しない。
-- 現状: PR #4で専用Secret参照へ切替済み。PR #5後のrun `36873349619`で `HTTP 403 Forbidden` と判明。
+- 結果: workflow run `36873558111`成功。GitHub ActionsからDiscordへの送信成功を確認。
 
 ## 1. 完結61episodeの層別目視検証
 
