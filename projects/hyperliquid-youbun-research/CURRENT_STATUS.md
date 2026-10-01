@@ -1,10 +1,10 @@
 # CURRENT_STATUS
 
-更新日: 2026-10-01 JST
+更新日: 2026-10-02 JST
 
 ## Current Phase
 
-PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目視検証段階。
+PoCデータ品質検証。行動分類前のepisode層別目視検証段階。
 
 ## Completed
 
@@ -15,24 +15,23 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 - TWAP/Funding取得とepisode時間窓へのFunding帰属
 - startPosition連続性ゲートを追加
 - 過去分析とリアルタイム観測のdata contractを分離
+- ChatGPT/Codex/GitHub/Discord共有運用を構築
+- 養分くん専用Discord通知を実送信確認済み
 
 ## Latest Work
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
-- 次の目視検証母集団は10口座・完結61episode。
-- ChatGPT/Codex/GitHub/Discord共有運用の状態ファイルと通知スクリプトを追加。
+- 目視検証母集団は10口座・完結61episode。
+- 養分行動分類はまだ開始していない。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
 - 7 tests passed（再構成5件、Discord通知文2件）
-- Discord通知スクリプトはdry-run成功。Webhook値は未設定・未表示・未保存。
-- GitHub Actions用の手動完了通知workflowを追加。養分くん専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`の存在を値非表示で確認。
-- PR #2をmainへmergeし、通知workflow run `36871273127`を実行。Secretはworkflowへ渡ったがDiscordがHTTPErrorを返し、実送信は失敗。成功通知は送っていない。
-- PR #4で専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`へ切替済み。run `36873062707`でもSecretは渡ったがDiscordがHTTPErrorを返し、通知は未送信。
-- PR #5で安全なHTTP診断を追加。run `36873349619`で `HTTP 403 Forbidden` を確認し、Secret名・未設定ではなくDiscord側のリクエスト拒否と特定。
-- PR #6で明示的なUser-Agentを追加。run `36873558111`が成功し、専用Secret経由でDiscordへの送信を確認。
+- 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
+- Discord 403は解消済み。
+- 最終成功通知run: `36873755127`。
 
 ## Known Limitations
 
@@ -41,13 +40,16 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 - leaderboardには高頻度whale、spot中心、期間内無活動口座が混ざる。
 - 清算0件は存在しないという意味ではなく、今回の標本では未観測。
 - REST APIにはweight-based rate limitがある。
-- WebSocketではfills、funding、liquidation user event、L2、BBO、trades、account stateを今後取得可能。
-
-## Blockers
-
-- ローカル`YOUBUN_DISCORD_WEBHOOK_URL`は未設定。
 - TWAP endpoint上限到達口座は完全な履歴を取得できず、行動分析対象外。
+
+## Current Gate
+
+行動分類へ進む前に、完結61episodeから層別サンプルを抽出し、raw fillと再構成episodeを照合する。
+
+重大差異0、または修正後の再検証完了を品質ゲートとする。
 
 ## Next
 
-完結61episodeから層別目視サンプルを作り、fill列・追加・部分決済・反転・PnL・fee・Fundingを原データと照合する。その後、5分市場系列coverageを定量化する。
+勝敗、Long/Short、追加、部分決済、反転、保有時間、fill数で最低20episodeを層別抽出し、entry/exit数量、closedPnl、fee、builderFee、Funding、時刻順序、zero-to-zero境界を原fillと照合する。
+
+この品質ゲート通過前はFOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類へ進まない。
