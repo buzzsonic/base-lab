@@ -27,3 +27,11 @@
 - 理由: 既存プロジェクトの共通Secretを上書きせず、通知先と障害範囲を分離するため。
 - 影響範囲: `Youbun Research Completion Notification`のみ。既存のDiscord通知workflowは変更しない。
 - 検証結果: PR #6でUser-Agentを明示し、workflow run `36873558111`が成功。専用Secret経由の通知経路を有効化済み。
+
+## 2026-10-02 episode再構成の層別目視ゲートを通過する
+
+- 決定内容: eligible 10口座・完結61episodeの全件自動照合と、全口座・全主要層を含む20episodeレビューで重大差異0のため、再構成ゲートをPASSとする。
+- 根拠: entry/exit境界、方向、数量、平均価格、追加、部分決済、反転、closedPnl、fee、Funding、builderFee包含、同一時刻順序をraw fillから独立再計算した。
+- 許容誤差: 数量1e-8、価格・PnL・fee・Funding 1e-6。
+- 影響範囲: 次はTWAP/Funding/builder fee会計照合の最終確認へ進む。行動分類はまだ開始しない。
+- 制約: 目視サンプルは20/61。過去cross-margin状態と清算距離は対象外。eligible口座のTWAP追加は0件で、TWAP上限口座は除外を継続する。

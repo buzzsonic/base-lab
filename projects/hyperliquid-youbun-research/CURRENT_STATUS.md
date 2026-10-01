@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。行動分類前のepisode層別目視検証段階。
+PoCデータ品質検証。episode層別目視ゲートを通過し、TWAP/Funding/builder fee会計照合の最終確認段階。
 
 ## Completed
 
@@ -17,18 +17,21 @@ PoCデータ品質検証。行動分類前のepisode層別目視検証段階。
 - 過去分析とリアルタイム観測のdata contractを分離
 - ChatGPT/Codex/GitHub/Discord共有運用を構築
 - 養分くん専用Discord通知を実送信確認済み
+- eligible 10口座・完結61episodeの境界・数量・価格・PnL・fee・Fundingを独立再計算し、61/61一致
+- 勝敗、Long/Short、追加、部分決済、反転、保有時間、fill数を跨ぐ20episodeを匿名化レビューし、20/20 PASS
 
 ## Latest Work
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
-- 目視検証母集団は10口座・完結61episode。
+- 層別レビューは10口座をすべて含み、勝敗10/10、Long/Short 10/10、反転境界2/2を確認した。
+- 非zero builderFeeを含む3サンプルで、builderFeeをfeeへ再加算しないことを確認した。
 - 養分行動分類はまだ開始していない。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 7 tests passed（再構成5件、Discord通知文2件）
+- 10 tests passed（再構成5件、Discord通知文2件、episodeレビュー3件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36873755127`。
@@ -42,14 +45,14 @@ PoCデータ品質検証。行動分類前のepisode層別目視検証段階。
 - REST APIにはweight-based rate limitがある。
 - TWAP endpoint上限到達口座は完全な履歴を取得できず、行動分析対象外。
 
-## Current Gate
+## Passed Gate
 
-行動分類へ進む前に、完結61episodeから層別サンプルを抽出し、raw fillと再構成episodeを照合する。
+完結61episodeの全件自動照合と、20episodeの層別目視レビューで重大差異0。
 
-重大差異0、または修正後の再検証完了を品質ゲートとする。
+成果物: `reviews/episode-quality-2026-10-02/README.md` と `episode_review.csv`。
 
 ## Next
 
-勝敗、Long/Short、追加、部分決済、反転、保有時間、fill数で最低20episodeを層別抽出し、entry/exit数量、closedPnl、fee、builderFee、Funding、時刻順序、zero-to-zero境界を原fillと照合する。
+TWAP/Funding/builder fee会計照合を最終確認する。今回のeligible口座には非zero TWAP追加がないため、TWAP上限口座を除外する設計とfixtureを明示し、FundingとbuilderFeeは実サンプルのcoverageを集計する。
 
-この品質ゲート通過前はFOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類へ進まない。
+その後に5分市場系列coverageを定量化する。FOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類はまだ開始しない。
