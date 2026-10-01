@@ -40,3 +40,11 @@
 - 決定: Issue #8 の層化再PoCを `main@91a873b` へ反映し、養分ホイホイ専用Discord webhookで完了通知する。
 - 実績: GitHub Actions run `36928323512` の送信jobはsuccess。
 - 影響: Issue #8の品質改善は完了扱いとするが、1,000-wallet拡大のHOLD判断は維持する。
+
+## 2026-10-02 専用public Trades discovery collector
+
+- 決定: 公式WebSocket `trades` をJST 00/06/12/18時台に短時間収集し、major・alt・small_altを別枠で選ぶ。小型アルトは日付と時間帯で決定論的にローテーションする。
+- 保存: raw JSONLとcoverage manifestを `date/window/run` partitionへ保存し、Actions artifactは30日保持する。
+- 品質: market別trade/message数、group coverage、unique wallet数、missing、reconnect、malformed、error typeをmanifestへ残す。
+- 境界: data branchへの自動commitは永続化統合テスト前なので有効化しない。売買、署名、秘密情報は扱わない。
+- 実績: 15秒local smokeでmajor 2、alt 8、small_alt 12の全22市場を観測し、295 unique wallets、reconnect 0、malformed 0だった。

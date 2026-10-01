@@ -4,7 +4,7 @@
 
 1. 公式leaderboard全体を月間出来高×現equityの16層へ分け、PnL順ではなく決定論的hashで層別抽出する。
 2. 公式WebSocket `trades` の凍結済みpublic captureから、最初に観測したbuyer/sellerを成績非参照で時点抽出する。PoCでは既存actor-event-dbの公開Trades rawを再利用し、出所ファイルを保存する。
-3. 本運用では専用の短時間Trades collectorと公式node fills / explorer blockの低頻度取り込みを追加する。S3はRequester Pays、月次程度、欠測保証なしなので必須経路にしない。
+3. 専用の短時間Trades collectorをJST 00/06/12/18時台に実行し、主要・アルト・小型アルトを別枠で収集する。各runはrawとcoverage manifestを日付/time-band partitionへ保存する。公式node fills / explorer blockの低頻度取り込みは次段階とする。S3はRequester Pays、月次程度、欠測保証なしなので必須経路にしない。
 
 PoCは1と2を50:50でround-robinし、単一ソース上限60%。重複時はprovenanceを連結する。
 

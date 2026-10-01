@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-更新: 2026-10-02 JST（Issue #8 層化再PoC・main反映・Discord通知完了）
+更新: 2026-10-02 JST（専用public Trades discovery collector実装・local smoke完了）
 
 | item | state |
 |---|---|
@@ -13,9 +13,10 @@
 | farm suspected | 1 |
 | latest snapshot | NOT RUN |
 | latest weekly run | NOT RUN（再PoCのみ） |
+| latest discovery smoke | 15秒、22市場/22観測、295 unique wallets、reconnect 0、malformed 0 |
 | last successful GitHub Action | `36928323512`（専用Discord完了通知、success） |
-| known issues | userFills 2,000件capは63%。小型アルト中心は2%。既存public Trades captureの時点・銘柄coverageは限定的 |
-| current blockers | 7日観察期間未経過。専用discovery collector未実装。1,000-wallet拡大は引き続き保留 |
+| known issues | userFills 2,000件capは63%。小型アルト中心は2%。collectorの4時間帯連続coverageは未検証 |
+| current blockers | 7日観察期間未経過。userFills増分checkpoint未実装。1,000-wallet拡大は引き続き保留 |
 
 ## Issue #8 再PoC結果
 

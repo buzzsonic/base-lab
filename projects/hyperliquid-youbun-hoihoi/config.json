@@ -31,5 +31,12 @@
     "rapid_fraction": 0.70,
     "withdrawal_match_tolerance": 0.25
   },
-  "api": {"min_request_interval_seconds": 1.25, "retries": 6}
+  "api": {"min_request_interval_seconds": 1.25, "retries": 6},
+  "discovery_collector": {
+    "duration_seconds": 300,
+    "alt_markets_per_run": 8,
+    "small_alt_markets_per_run": 12,
+    "stale_feed_seconds": 45,
+    "reconnect_delay_seconds": 3
+  }
 }
