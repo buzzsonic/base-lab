@@ -2,42 +2,96 @@
 
 作業開始時は `PROJECT_CONTEXT.md`、`CURRENT_STATUS.md`、本ファイル、`DECISIONS.md` を先に読む。
 
-## 0. Discord Webhook更新と実送信確認（完了）
+## 0. Discord通知（完了）
 
-- 目的: GitHub共有運用とpush後通知を有効にする。
-- 作業: 専用Secret参照と明示的なUser-Agentを設定して手動通知を実行した。
-- 完了条件: workflow run成功、Discord受信確認。Webhook値は表示・保存しない。
-- 結果: workflow run `36873558111`成功。GitHub ActionsからDiscordへの送信成功を確認。
+- 養分くん専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
+- 403対策済み。
+- 最終成功run: `36873755127`。
+- Discord関連の追加修正は不要。研究品質確認を優先する。
 
-## 1. 完結61episodeの層別目視検証
+## 1. 完結61episodeの層別目視検証【最優先】
 
-- 目的: 再構成が行動ラベルの土台として正しいことを確認する。
-- 作業: 勝敗、Long/Short、追加、部分決済、反転、保有時間、fill数で層別し、原fillとepisodeを並べた匿名化レビュー表を作る。
-- 完了条件: 選定方法、確認件数、差異、除外理由を記録し、重大差異0または修正・再検証済み。
-- テスト: entry/exit数量、closedPnl、fee、Funding、時刻順序をrawと照合する。
+目的: 再構成済みepisodeが、FOMO・Late Long/Short・ナンピン等の行動分類の土台として十分正確か確認する。
 
-## 2. TWAP / Funding / builder feeの会計照合を完成
+### 対象
+- 10口座
+- 完結61 episode
 
-- 目的: episode純損益と費用の二重計上・欠落を防ぐ。
-- 作業: TWAP統合、Funding時間窓帰属、`fee`と`builderFee`の関係をサンプルで確認する。
-- 完了条件: 対象episodeで数量・PnL・fee差分が許容誤差内。TWAP上限口座は明示除外。
-- テスト: fixtureと実データreconciliation表。
+### 層別
+偏りなく、以下を跨ぐサンプルを選ぶ。
+- 勝ち / 負け
+- Long / Short
+- 追加あり / なし
+- 部分決済あり / なし
+- 反転あり / なし
+- 保有時間 短 / 中 / 長
+- fill数 少 / 中 / 多
 
-## 3. 5分市場系列coverage確認
+最低20 episodeを層別抽出する。必要なら重大差異が収束するまで追加確認する。
 
-- 目的: episode特徴量を計算できる期間を確定する。
-- 作業: coin/time別にOHLCV、mark、OI、Fundingの必要窓と実取得窓を比較する。
-- 完了条件: coverage率と欠測理由をepisodeごとに保存する。
-- テスト: coverage不足では特徴量が0ではなくNULLになること。
+### 原fillとの照合項目
+episodeごとに以下をraw fillと突合する。
+- entry / exit時刻
+- side
+- entry / exit数量
+- 平均entry / exit価格
+- 追加ポジション
+- 部分決済
+- 反転
+- closedPnl
+- fee
+- builderFee
+- Funding帰属
+- zero-to-zero境界
+- fill時系列順序
 
-## 4. 市場特徴量付与
+### 成果物
+匿名化したレビュー表を作り、最低限以下を記録する。
+- episode ID
+- 層別属性
+- raw値
+- reconstructed値
+- 差分
+- PASS / WARN / FAIL
+- 差異理由
+- 修正有無
 
-品質ゲート通過episodeだけにpast-only特徴量を付与する。未来情報をentryラベルへ使用しない。
+目視結果をMarkdownレポートへ保存する。
 
-## 後続（まだ開始しない）
+### 品質ゲート
+- 重大差異0 → 次工程へ進行可
+- 重大差異あり → 再構成ロジックを修正し、再テスト・再目視
+- 説明可能な微差は根拠と許容誤差を明記
 
-FOMO、Late Long/Short、ナンピン、Revenge、Trapped、crowding分類。品質ゲート通過前に「負ける」「逆指標」と結論づけない。
+## 2. 今回は行動分類を開始しない
+
+以下はまだ実装・判定しない。
+- FOMO
+- Late Long / Short
+- ナンピン
+- Revenge
+- Trapped
+- Crowding
+- 「養分は逆指標」等の結論
+
+61 episodeの再構成品質ゲート通過前に進めない。
+
+## 3. 品質ゲート通過後の次工程
+
+層別目視がPASSした場合のみ、次に以下へ進む。
+1. TWAP / Funding / builder fee会計照合の最終確認
+2. 5分市場系列coverage定量化
+3. coverage十分なepisodeへのpast-only市場特徴量付与
+
+行動分類はその後。
 
 ## 作業終了時
 
-`CURRENT_STATUS.md`と本ファイルを更新し、必要なら`DECISIONS.md`へ追記する。テスト成功後、対象プロジェクトだけcommit/pushし、push成功後だけDiscord通知する。
+- `CURRENT_STATUS.md` を更新
+- `NEXT_TASK.md` を更新
+- 必要なら `DECISIONS.md` に追記
+- テスト実行
+- 対象プロジェクトのみcommit/push
+- push成功後のみ養分くん専用Discordへ完了通知
+
+既存の養分ホイホイには変更を加えない。
