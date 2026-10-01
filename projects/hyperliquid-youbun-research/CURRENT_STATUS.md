@@ -29,7 +29,7 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 - 7 tests passed（再構成5件、Discord通知文2件）
 - Discord通知スクリプトはdry-run成功。Webhook値は未設定・未表示・未保存。
 - GitHub Actions用の手動完了通知workflowを追加。既存Secret `DISCORD_WEBHOOK_URL`の存在を値非表示で確認。
-- branch push後にworkflow dispatchを試行したが、workflowがdefault branch未導入のためGitHub API 404。Discordへ成功通知は送っていない。
+- PR #2をmainへmergeし、通知workflow run `36871273127`を実行。Secretはworkflowへ渡ったがDiscordがHTTPErrorを返し、実送信は失敗。成功通知は送っていない。
 
 ## Known Limitations
 
@@ -42,8 +42,8 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 
 ## Blockers
 
-- ローカル`YOUBUN_DISCORD_WEBHOOK_URL`は未設定。通知workflowはdefault branchへmerge後に実送信可能。
-- `codex/youbun-ops-setup`をdefault branchへmergeするまでGitHub Actions経由の通知は起動不能。
+- GitHub Secret `DISCORD_WEBHOOK_URL`は存在するが、現在のWebhookはHTTPエラーを返す。URLを表示せず、Discord側で有効なWebhookへ更新が必要。
+- ローカル`YOUBUN_DISCORD_WEBHOOK_URL`は未設定。
 - TWAP endpoint上限到達口座は完全な履歴を取得できず、行動分析対象外。
 
 ## Next
