@@ -9,6 +9,7 @@ from pathlib import Path
 from hoihoi.classify import classify_wallet, depletion_status
 from hoihoi.discovery import leaderboard_candidates, merge_sources, normalize_wallet, trade_stream_candidates
 from hoihoi.pipeline import small_alt_universe, stratified_select
+from hoihoi.notify import build_message
 
 
 CONFIG = {
@@ -125,6 +126,19 @@ class StratificationTests(unittest.TestCase):
         meta = [{"universe": [{"name": "BTC"}, {"name": "TINY"}, {"name": "BIGALT"}]},
                 [{"dayNtlVlm": "10"}, {"dayNtlVlm": "100"}, {"dayNtlVlm": "2000000"}]]
         self.assertEqual(small_alt_universe(meta, 1_000_000), {"TINY"})
+
+
+class NotificationTests(unittest.TestCase):
+    def test_message_is_hoihoi_specific(self):
+        message = build_message("success", "Issue #8", "13 tests", "branch@sha", "collector")
+        self.assertIn("🪤 養分ホイホイ｜Codex作業完了", message)
+        self.assertNotIn("養分くん研究", message)
+        self.assertIn("branch@sha", message)
+
+    def test_warning_includes_note(self):
+        message = build_message("warning", "Issue #8", "13 tests", "branch@sha", "collector", "1,000件はHOLD")
+        self.assertIn("COMPLETED WITH NOTES", message)
+        self.assertIn("1,000件はHOLD", message)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,53 @@
+name: Yobun Hoihoi Completion Notification
+
+on:
+  workflow_dispatch:
+    inputs:
+      status:
+        description: Completion status
+        required: true
+        type: choice
+        options: [success, warning, failure]
+      work:
+        description: Work summary
+        required: true
+        type: string
+      tests:
+        description: Test result
+        required: true
+        type: string
+      github:
+        description: Branch and commit
+        required: true
+        type: string
+      next_task:
+        description: Next task
+        required: true
+        type: string
+      note:
+        description: Optional note
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Send dedicated Hoihoi Discord completion notification
+        env:
+          YOUBUN_HOIHOI_DISCORD_WEBHOOK_URL: ${{ secrets.YOUBUN_HOIHOI_DISCORD_WEBHOOK_URL }}
+        run: |
+          PYTHONPATH=projects/hyperliquid-youbun-hoihoi/src \
+            python3 -m hoihoi.notify \
+              --status "${{ inputs.status }}" \
+              --work "${{ inputs.work }}" \
+              --tests "${{ inputs.tests }}" \
+              --github "${{ inputs.github }}" \
+              --next "${{ inputs.next_task }}" \
+              --note "${{ inputs.note }}"
