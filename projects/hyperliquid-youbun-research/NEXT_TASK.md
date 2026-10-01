@@ -5,9 +5,9 @@
 ## 0. Discord Webhook更新と実送信確認
 
 - 目的: GitHub共有運用とpush後通知を有効にする。
-- 作業: 専用GitHub Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を使う通知のHTTPステータスを値非表示で確認し、Discord側のWebhookを必要に応じて再発行・更新する。
+- 作業: Discordの `HTTP 403 Forbidden` 対策として明示的なUser-Agentを付けて再送し、失敗時のみWebhookを再発行・更新する。
 - 完了条件: workflow run成功、Discord受信確認。Webhook値は表示・保存しない。
-- 現状: PR #4で専用Secret参照へ切替済み。run `36873062707`もHTTPErrorで失敗したため、Secret名ではなくWebhook値またはDiscord側の状態が原因。
+- 現状: PR #4で専用Secret参照へ切替済み。PR #5後のrun `36873349619`で `HTTP 403 Forbidden` と判明。
 
 ## 1. 完結61episodeの層別目視検証
 
