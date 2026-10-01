@@ -31,6 +31,7 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 - GitHub Actions用の手動完了通知workflowを追加。養分くん専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`の存在を値非表示で確認。
 - PR #2をmainへmergeし、通知workflow run `36871273127`を実行。Secretはworkflowへ渡ったがDiscordがHTTPErrorを返し、実送信は失敗。成功通知は送っていない。
 - PR #4で専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`へ切替済み。run `36873062707`でもSecretは渡ったがDiscordがHTTPErrorを返し、通知は未送信。
+- PR #5で安全なHTTP診断を追加。run `36873349619`で `HTTP 403 Forbidden` を確認し、Secret名・未設定ではなくDiscord側のリクエスト拒否と特定。
 
 ## Known Limitations
 
@@ -43,7 +44,7 @@ PoCデータ品質検証。行動分類前のTWAP/Funding/fee帰属とepisode目
 
 ## Blockers
 
-- 専用Secret名への切替は完了したが、Discord側がHTTPエラーを返す。Webhook値の有効性または形式を確認するため、URLを出さずHTTPステータスだけ記録する診断が必要。
+- 専用Secret名への切替は完了。Discordが `HTTP 403 Forbidden` を返すため、明示的なUser-Agentを付けた再送確認が必要。
 - ローカル`YOUBUN_DISCORD_WEBHOOK_URL`は未設定。
 - TWAP endpoint上限到達口座は完全な履歴を取得できず、行動分析対象外。
 

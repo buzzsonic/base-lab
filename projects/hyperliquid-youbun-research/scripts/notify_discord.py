@@ -30,7 +30,14 @@ def build_message(status: str, work: str, tests: str, github: str, next_task: st
 
 def send(message: str, webhook: str, retries: int = 2) -> None:
     payload = json.dumps({"content": message}, ensure_ascii=False).encode()
-    request = Request(webhook, data=payload, headers={"Content-Type": "application/json"})
+    request = Request(
+        webhook,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "YoubunResearchNotifier/1.0 (+https://github.com/buzzsonic/base-lab)",
+        },
+    )
     last_error: Exception | None = None
     for attempt in range(retries):
         try:
