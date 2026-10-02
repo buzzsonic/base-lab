@@ -4,193 +4,246 @@
 
 ## 0. 完了済みゲート
 
-### episode再構成
-- 全61episode 自動照合 61/61 PASS
-- 層別20episode 匿名化レビュー 20/20 PASS
-- 重大差異0
-
-### 会計照合
-- closedPnl / fee / Funding / net PnL 61/61 PASS
-- builderFee二重計上0
-- TWAP上限口座の除外条件をtestで固定
-- 重大差異0
-
-### 5分市場series coverage
-- FEATURE_READY 0
-- PARTIAL 24
-- NOT_READY 37
-- OHLCV / volume完備 24/61
-- Funding availability 60/61
-- historical mark / OI は0/61で unavailable
-- entry足を除外した直前12本をpast-only契約としてtest済み
+- episode再構成: 61/61 PASS
+- 層別目視: 20/20 PASS
+- 会計照合: 61/61 PASS
+- 5分市場series coverage: 完了
+- past-only特徴量: PARTIAL 24episodeへ付与済み
+- future leakage test: PASS
+- historical mark / OI: unavailableのためNULL維持
+- 26 tests PASS
 
 ---
 
-## 1. PARTIAL 24episodeへのpast-only特徴量付与【完了】
-
-- price / volume / local structure: 24/24
-- BTC relative: 24/24
-- Funding rate: 23/24
-- historical mark / OI: 0/24、NULL維持
-- duplicate episode ID 0
-- cached再実行で成果物byte-identical
-- 26 tests PASS
-- 成果物: `features/past-only-2026-10-02/`
-
-以下は実装契約として保存する。
+## 1. 行動ラベル定義の事前登録【最優先】
 
 目的:
-行動分類前に、entry時点で本当に利用可能だった市場情報だけから再現可能な特徴量基盤を作る。
+24episodeの実データを見てから都合よく閾値を変更することを防ぎ、再現可能な行動分類ルールを先に固定する。
 
-対象:
-PARTIAL 24episodeのみ。
-NOT_READY 37episodeは対象外。
+今回は「定義・実装契約・テスト」まで。
+24episodeへの分類結果はpipeline確認に限定し、成績評価や逆指標性の結論を出さない。
 
-## 2. 実装するentry特徴量
-
-最低限、以下を実装する。
-
-### Price return
-- return_5m
-- return_15m
-- return_1h
-
-### Volume
-- volume_ratio_5m
-- volume_ratio_15m
-- volume_zscore_1h（実装可能なら）
-
-### Local structure
-- distance_from_local_high
-- distance_from_local_low
-- range_position
-- breakout_distance
-- realized_volatility
-
-### BTC relative
-BTC側にも同じentry基準で必要窓が揃うepisodeのみ:
-- btc_return_5m
-- btc_return_15m
-- btc_relative_strength_5m
-- btc_relative_strength_15m
-
-### Funding
-- funding_rate
-- entry以前の最新Fundingのみ
-- 欠測1episodeはNULL維持
-
-### OI / mark
-今回はNULL維持。
-historical seriesを推定・補間・0埋めしない。
-
----
-
-## 3. 時点整合性
-
-すべてのentry特徴量はentry時刻以前の確定データだけを使用する。
-
-必須:
-- entryを含む未確定5分足は使わない
-- future candleを使わない
-- episode exit情報を使わない
-- MFE / MAE等のentry後データをentry特徴量へ混ぜない
-- timezoneはUTC正規化
-
-future leakage testを追加する。
-
----
-
-## 4. 評価用post-entry特徴量は分離
-
-entry後情報は別namespaceまたは別ファイルへ保存。
-
-候補:
-- evaluation_post_mfe
-- evaluation_post_mae
-- evaluation_post_max_adverse_move_time
-- evaluation_post_max_favorable_move_time
-- evaluation_post_volume_change
-
-今回は実装してもよいが、entry分類ロジックから物理的・論理的に分離する。
-
----
-
-## 5. 特徴量成果物
-
-`features/past-only-2026-10-02/` を作る。
+成果物:
+`labels/preregistered-v1/`
 
 最低限:
 - `README.md`
-- `episode_features.csv`
-- `feature_definitions.md`
+- `label_definitions.md`
+- `label_config.json`
+- `label_schema.json`
+- 単体test
+- 24episodeへのdry-run結果
 
-episode_features.csvには最低限:
-- episode_id
-- coin
+---
+
+## 2. v1で事前登録するラベル
+
+### FOMO_LONG / FOMO_SHORT
+
+基本概念:
+短時間にすでに大きく進んだ方向へ、出来高拡大を伴って遅れてentryした行動。
+
+使用可能series:
+- return_5m
+- return_15m
+- return_1h
+- volume_ratio
+- range_position
+- breakout_distance
+- BTC relative
 - side
-- entry_time
-- feature_availability
-- 各past-only特徴量
-- 欠測理由
 
-feature_definitions.mdには各特徴量ごとに:
-- 数式
-- lookback
-- 使用series
-- timestamp基準
-- 欠測処理
-- BTC依存条件
-- future leakage有無
-を記録する。
+必要条件を明文化:
+- direction-adjusted returnが一定以上
+- volume拡大
+- local range端に近い
+- entry方向と直前moveが同方向
+
+閾値はconfigへ固定する。
+閾値の根拠は「PoC初期値」として明記し、24episodeを見てから変更しない。
+
+### LATE_LONG / LATE_SHORT
+
+基本概念:
+方向自体は継続しているが、entry時点ですでにmoveの後半・range端・breakout後に位置するentry。
+
+FOMOとの違い:
+- FOMOは急加速＋出来高拡大を重視
+- Lateはmove進行度・位置を重視
+
+必要条件:
+- direction-adjusted return
+- range_position / local high-low距離
+- breakout_distance
+- side整合
+
+FOMOとの重複可否を明記する。
+
+### AVERAGING_DOWN_LONG / AVERAGING_DOWN_SHORT
+
+基本概念:
+既存ポジションが含み損方向へ動いた後、同方向へ追加する行動。
+
+これはmarket featureではなくepisode内fill sequenceを主に使う。
+
+必要条件:
+- 同一episode内で追加fillあり
+- 追加前から既存positionあり
+- 追加時価格が、Longなら平均entryより不利な下側、Shortなら不利な上側
+- 追加量が極小ノイズでない
+
+保存:
+- adds_count
+- adverse_add_count
+- adverse_add_size_ratio
+- worst_adverse_add_distance
+
+Profit pyramidingと区別する。
+
+### PROFIT_PYRAMIDING_LONG / SHORT
+
+基本概念:
+含み益方向へ進んだ後に同方向へ追加。
+
+AVERAGING_DOWNと対称ルールで定義する。
+将来比較用に必ず分けて保存する。
+
+### REVENGE_CANDIDATE
+
+基本概念:
+損失episode終了後、短時間で次episodeへ入り、通常よりサイズまたはentry頻度が増える候補。
+
+重要:
+単一episodeでは確定できない。
+wallet内episode sequenceを使用する。
+
+必要条件:
+- 直前episodeがloss
+- 次entryまでのelapsed time
+- 前episode比のsize ratio
+- 同一coin / 反対side / 同方向のどれかを補助情報として保存
+
+v1では「候補ラベル」とし、心理状態を断定しない。
 
 ---
 
-## 6. 品質ゲート【PASS】
+## 3. 今回まだ定義しないラベル
 
-以下を満たしたら「行動分類開始可」とする。
+以下はseries不足のためv1対象外。
 
-- 24episode全件のfeature availabilityが明示
-- 欠測0埋めなし
-- OI/mark推定なし
-- future leakage test PASS
-- timestamp alignment test PASS
-- 同一episodeで再実行時に同一結果
-- 特徴量定義書完成
-
-最低限のprice/volume特徴量が安全に付与できる24episode集合を確定した。
+- CROWDING
+  - historical OI不足
+- TRAPPED
+  - historical margin / liquidation state不足
+- LIQUIDATION_BEHAVIOR
+  - liquidation event標本不足
+- 「逆指標」
+  - outcome評価であり行動ラベルではない
 
 ---
 
-## 7. 次タスク: 行動ラベル定義の事前登録【最優先】
+## 4. Long / Short正規化
 
-24episodeの値を見て閾値を都合よく調整しないよう、分類実行前に以下を文書化する。
+全ラベルはdirection-adjusted metricを使える設計にする。
 
-- FOMO / Late Long・Short / ナンピン / Revenge候補の数式と閾値
-- 必要seriesとfeature availability
-- episode内イベント順序の条件
-- 除外条件と重複ラベル方針
-- Long/Shortの方向整合
-- 対照群、評価指標、最低サンプル数
-- exploratory PoCとconfirmatory拡大標本の分離
+例:
+- Long: price riseをpositive
+- Short: price fallをpositive
 
-24episodeへの初回適用は実装・coverage確認に限定する。PnL差、勝率、逆指標性について結論を出さない。
+Long/Shortで別実装を乱立させず、共通関数＋side signで正規化する。
 
-## 8. 引き続き開始しない分類
+ただし出力ラベル名はLONG / SHORTを明示する。
 
-今回はまだ以下を判定しない。
+---
 
-- FOMO
-- Late Long / Short
-- ナンピン
-- Revenge
-- Trapped
-- Crowding
-- Liquidation behavior
-- 「養分は逆指標」等の結論
+## 5. 重複ラベル方針
 
-- Crowding: historical OI不足
-- Trapped / Liquidation behavior: 過去margin・liquidation state不足
-- 「養分は逆指標」等の結論: 標本不足
+1 episodeに複数ラベルを許可する。
+
+例:
+- FOMO_LONG + LATE_LONG
+- AVERAGING_DOWN_LONG + FOMO_LONG
+
+排他的分類にしない。
+
+各ラベルについて:
+- boolean
+- score
+- triggered_rules
+- missing_required_features
+を保存する。
+
+必要series不足時はFALSEにせず `UNAVAILABLE` を持てるschemaにする。
+
+---
+
+## 6. 閾値の事前固定
+
+`label_config.json` にすべての閾値を保存する。
+
+必須:
+- config_version
+- created_at
+- rationale
+- threshold値
+- required_features
+- minimum_sample_note
+
+24episodeの分類結果を見た後にv1閾値を書き換えない。
+
+変更が必要なら `v2` として別versionを作る。
+
+---
+
+## 7. 24episode dry-run
+
+事前登録後にのみ24episodeへ適用する。
+
+目的:
+- 実装が動くか
+- coverageは足りるか
+- UNAVAILABLEが正しく出るか
+- Long/Short対称性が保たれるか
+- 重複ラベルがschema通り保存されるか
+
+確認するだけで、以下はまだ比較しない:
+- 勝率
+- PnL平均
+- PF
+- 「FOMOは負ける」
+- 「ナンピンは悪い」
+- 「逆に張れば勝てる」
+
+---
+
+## 8. test
+
+最低限:
+
+- Long/Short direction symmetry
+- threshold boundary
+- missing feature -> UNAVAILABLE
+- FOMO/Late重複
+- adverse add vs profit pyramiding分離
+- Revenge candidateのepisode sequence
+- future leakageなし
+- config version固定
+- dry-run再現性
+
+---
+
+## 9. 次ゲート
+
+以下がPASSしたら、次回から exploratory behavior classification に進める。
+
+- label definitions完成
+- config固定
+- schema固定
+- tests PASS
+- 24episode dry-run完了
+- label availability集計完了
+
+その次に「標本拡大前のexploratory分類」を行う。
 
 ---
 
