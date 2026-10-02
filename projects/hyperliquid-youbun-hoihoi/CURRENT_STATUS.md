@@ -6,12 +6,12 @@
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |
 | discovery pool / selected candidates | 200 / 100（未選抜100件を保持） |
-| selected status | OBSERVING 44、EXCLUDED 41、INACTIVE 15 |
+| selected status | OBSERVING 45、EXCLUDED 40、INACTIVE 15 |
 | flags in selected 100 | BOT 38、MM 10、arbitrage 1、farm 1（重複し得る） |
 | historical fills | 79/100で30日区間を完全取得、21/100はAPIの直近10,000件保持制約で不完全 |
 | small-alt-centric | 2/100（層化再PoCの偏りは未解決） |
 | latest snapshot / weekly | NOT RUN / NOT RUN（本体の永続化は未実装） |
-| last completed observation | [36991127825](https://github.com/buzzsonic/base-lab/actions/runs/36991127825) success（同日再観察） |
+| last completed observation | [37017796437](https://github.com/buzzsonic/base-lab/actions/runs/37017796437) success（同日再観察） |
 | current blocker | 7日間・7 JST日分の完全取得はまだ満たさない。1,000-wallet拡大はHOLD |
 
 ## Issue #8 の比較基準
@@ -40,3 +40,5 @@
 - [PR #21](https://github.com/buzzsonic/base-lab/pull/21)をmainへ統合。collectorのcoverage.jsonに記録した小型アルト銘柄を公開約定由来候補の独立した層とし、26テスト成功。
 - 保存済み4収集runでの100イベント候補試算は、従来BTC/ETH 46・その他alt 54、修正後BTC/ETH 32・alt 36・small_alt 32。70 walletは共通、30 walletが入替。これは公開約定の候補枠の比較であり、30日履歴でのsmall_alt_core 2/100の改善はまだ未確認。
 - JST 00–05時帯の定刻収集と、200→100再PoCでの実際の選抜・retention率を次に検証する。1,000-wallet拡大はHOLD。
+
+- PR #21統合後の[収集run 37017140756](https://github.com/buzzsonic/base-lab/actions/runs/37017140756)はsuccess。22/22銘柄・小型アルト12/12銘柄、ユニークwallet 2,220件、収集エラー0。[連動観察run 37017796437](https://github.com/buzzsonic/base-lab/actions/runs/37017796437)もsuccess。pool 200、registry 100、sample 0、成功日数79件が1日・21件が0日を維持。

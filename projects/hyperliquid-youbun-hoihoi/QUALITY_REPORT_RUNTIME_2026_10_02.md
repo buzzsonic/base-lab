@@ -26,3 +26,5 @@
 
 - 収集済み4runは小型アルトを別銘柄群として保存していたが、候補抽出はBTC/ETH以外をすべてalt層へまとめていた。[PR #21](https://github.com/buzzsonic/base-lab/pull/21)でcoverage.jsonのsmall_alt銘柄を独立層として扱うよう修正しmainへ統合。26テスト成功。
 - 保存済み4runの公開約定由来100候補の比較: 修正前BTC/ETH 46・alt 54、修正後BTC/ETH 32・alt 36・small_alt 32。共通70件、新規30件。30日履歴由来のsmall_alt_core比率改善は、次の再PoCで判定する。
+
+- PR #21統合後の[収集run 37017140756](https://github.com/buzzsonic/base-lab/actions/runs/37017140756)はsuccess。22/22銘柄、小型アルト12/12銘柄、ユニークwallet 2,220件、収集エラー0。[連動観察run 37017796437](https://github.com/buzzsonic/base-lab/actions/runs/37017796437)もsuccess。data branchのpool 200件、registry 100件、sample 0件。成功観察日数は79件が1日・21件が0日。最新statusはOBSERVING 45、EXCLUDED 40、INACTIVE 15。
