@@ -2,18 +2,22 @@
 
 ## 統合と収集
 
-- PR #14をmain@7863416b66102568c16065947bf33f89bd89ac44へsquash merge。
-- 24件のunittest成功、workflow YAML parse成功、diff check成功。
-- discovery run: https://github.com/buzzsonic/base-lab/actions/runs/36956559938 （success）
-- 収集時間: 2026-10-02 11:38:43–11:43:43 JST。
-- 主要2・アルト8・小型アルト12、計22銘柄で約定を観測。
-- snapshotを含む取引3612件・ユニークwallet673件。再接続0、解析エラー0。
-- 原JSONLをtime/coin/tidで重複排除し、trade.time >= started_atだけに絞って再照合した結果: 実時間取引2952件、実時間wallet598件、実時間22銘柄、小型アルト12/12銘柄。
-- 原JSONL、市場snapshot、coverage manifestをdata branchへ保存。既存別プロジェクトのdataは維持。
+- [PR #14](https://github.com/buzzsonic/base-lab/pull/14)をmain@7863416へ統合。24件のunittest、workflow YAML parse、diff check成功。
+- [discovery run 36956559938](https://github.com/buzzsonic/base-lab/actions/runs/36956559938) success。収集時間は2026-10-02 11:38:43–11:43:43 JST。
+- 主要2・アルト8・小型アルト12、計22銘柄で約定を観測。snapshotを含む取引3,612件・ユニークwallet673件。再接続0、解析エラー0。
+- 原JSONLをtime/coin/tidで重複排除し、trade.time >= started_atだけに絞った再照合では、実時間取引2,952件、wallet598件、22銘柄、小型アルト12/12銘柄。raw・市場snapshot・coverageをdata branchへ保存。
+- [二度目のdiscovery run 36957019109](https://github.com/buzzsonic/base-lab/actions/runs/36957019109)もsuccess。JST 12–17時帯の収集を保存。
 
-## 観察
+## 初回100候補の観察
 
-- observation run: https://github.com/buzzsonic/base-lab/actions/runs/36956559977
-- 初回100候補の30日履歴取り込みを実行中。完了前に取得完全性・cap改善・promotion成功を主張しない。
-- 同日再実行で観察日数を重複加算しないこと、API失敗時checkpointを進めないこと、Parquet往復はテスト済み。
-- 1,000-wallet拡大はHOLD。snapshot/weekly本体とサンプル全体品質ゲートは次工程。
+- [observation run 36956559977](https://github.com/buzzsonic/base-lab/actions/runs/36956559977) success。100 wallet checkpoint・registryをdata branchへ保存。poolの選抜100件とfirst_seenは100/100で一致し、早期promotionは0件。
+- 79/100で30日間のfill履歴を完全に取得。21/100はAPIの直近10,000件保持制限により過去区間を完全には復元できない。913 API呼出し、2,000件に達した応答410回、重複排除後の保存約定483,812件。
+- selected statusはOBSERVING 46、EXCLUDED 39、INACTIVE 15、ACTIVE 0。BOT疑い38、MM疑い10、arbitrage疑い1、farm疑い1。小型アルト中心は2/100のまま。
+- Issue #8の旧「2,000件cap 63/100」と今回の「10,000件retentionによる不完全21/100」は測定対象が異なるため、63%→21%という同一指標の改善とは表現しない。
+
+## pool保持の修正と残課題
+
+- 初回観察はpoolを200件から100件に上書きした。data branchで未選抜100件を保持して200件へ復元（`4f904d7`、registryは100件、sampleは0件）。
+- [PR #20](https://github.com/buzzsonic/base-lab/pull/20)をmain@4ae4debへ統合。既存poolの未選抜行とfirst_seenを保持し、新旧行の列をunionしてParquet保存。収集成功後に観察を連動させる。25テスト、workflow YAML parse、diff check成功。
+- 修正後の[discovery run 36990610067](https://github.com/buzzsonic/base-lab/actions/runs/36990610067)と後続観察は確認中。同日再実行で成功観察日を二重加算しないこと、pool 200件を維持することを実データで再確認する。
+- 7日観察条件、小型アルト2%、heuristicの目視検証、snapshot/weekly永続化は未達。1,000-wallet拡大はHOLD。
