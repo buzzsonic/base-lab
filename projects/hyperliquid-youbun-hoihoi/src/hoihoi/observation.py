@@ -6,6 +6,8 @@ def merge_observation(row, prior, now, config):
     first = datetime.fromisoformat(prior.get('first_seen') or row['first_seen'])
     eligible = first + timedelta(days=config['observation_days'])
     row.update(first_seen=first.isoformat(), eligible_after=eligible.isoformat(), last_seen=now.isoformat())
+    if 'poc_selected' in prior:
+        row['poc_selected'] = prior['poc_selected']
     dates = set(prior.get('observation_dates') or [])
     if row['data_complete']:
         dates.add(now.astimezone(timezone(timedelta(hours=9))).date().isoformat())

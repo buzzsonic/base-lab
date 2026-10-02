@@ -133,7 +133,11 @@ def run_poc(args: argparse.Namespace) -> dict:
     market_hash = hashlib.sha256(json.dumps(market_snapshot, sort_keys=True).encode()).hexdigest()
     write_json(out / "market-snapshots" / f"{market_hash}.json", market_snapshot)
     small_alts = small_alt_universe(market_snapshot, config["classification"]["small_alt_notional_cutoff"])
+    prior_pool = {r["wallet"]: r for r in read_parquet(out / "discovery_pool.parquet")}
     prior_registry = {r["wallet"]: r for r in read_parquet(out / "wallet_registry.parquet")}
+    prior_history = dict(prior_pool)
+    for wallet, previous in prior_registry.items():
+        prior_history[wallet] = {**prior_pool.get(wallet, {}), **previous}
     if args.command == "observe":
         candidates = [{"wallet": r["wallet"], "source": r["discovery_source"], "source_detail": r["discovery_detail"], "leaderboard_rank": r.get("leaderboard_rank"), "leaderboard_rank_band": r.get("leaderboard_rank_band")} for r in prior_registry.values()]
         if not candidates:
@@ -153,7 +157,7 @@ def run_poc(args: argparse.Namespace) -> dict:
         row["market_snapshot_version"] = market_hash
         row["fill_requests"] = history["requests"]
         row["fill_capped_responses"] = history["capped_responses"]
-        row = merge_observation(row, prior_registry.get(wallet), now, config)
+        row = merge_observation(row, prior_history.get(wallet), now, config)
         pool.append(row)
         print(f"[{index}/{len(candidates)}] {wallet} perp30d={row['perp_trade_count_30d']} status={row['status']}", file=sys.stderr)
     registry = pool if args.command == "observe" else stratified_select(pool, target)
@@ -161,14 +165,18 @@ def run_poc(args: argparse.Namespace) -> dict:
         present = {r["wallet"] for r in registry}
         registry.extend(r for wallet, r in prior_registry.items() if wallet not in present)
     # First-seen candidates cannot be promoted in the same run. Future weekly runs merge history before promotion.
-    sample = [r for r in registry if r["status"] == "ACTIVE"]
+    sample = [r for r in registry if r["status"] == "ACTIVE" and r["last_seen"] == now.isoformat()]
     version = f"sample_{now.astimezone(JST).strftime('%Y%m%d')}"
     for row in sample:
         row["sample_version"] = version
         row["sample_created_at"] = now.isoformat()
     arbitrage = [r for r in registry if r["arbitrage_suspected"] or r["funding_arbitrage_suspected"]]
     write_parquet(out / "wallet_registry.parquet", registry)
-    write_parquet(out / "discovery_pool.parquet", pool)
+    retained_pool = dict(prior_pool)
+    for refreshed in pool:
+        wallet = refreshed["wallet"]
+        retained_pool[wallet] = {**prior_pool.get(wallet, {}), **refreshed}
+    write_parquet(out / "discovery_pool.parquet", list(retained_pool.values()))
     write_parquet(out / "research_sample.parquet", sample, [("wallet", pa.string()), ("sample_version", pa.string()),
                                                                ("sample_created_at", pa.string())])
     write_csv(out / "arbitrage_wallets.csv", arbitrage,
@@ -185,8 +193,10 @@ def run_poc(args: argparse.Namespace) -> dict:
     pool_quality = quality_summary(pool)
     manifest = {"generated_at": now.isoformat(), "sample_version": version, "quality": quality,
                 "mode": args.command, "market_snapshot_version": market_hash,
-                "candidate_wallets": len(registry), "discovery_pool_wallets": len(pool),
+                "candidate_wallets": len(registry), "discovery_pool_wallets": len(retained_pool),
+                "refreshed_pool_wallets": len(pool),
                 "active_sample_wallets": len(sample), "pool_quality": pool_quality,
+                "pool_quality_scope": "refreshed_wallets_only",
                 "observation_policy": f"minimum {config['observation_days']} days; no same-run promotion"}
     write_json(out / "poc_manifest.json", manifest)
     return manifest
