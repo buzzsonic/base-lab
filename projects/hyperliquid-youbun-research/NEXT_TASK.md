@@ -2,75 +2,141 @@
 
 作業開始時は `PROJECT_CONTEXT.md`、`CURRENT_STATUS.md`、本ファイル、`DECISIONS.md` を先に読む。
 
-## 0. Discord通知（完了）
+## 0. 完結61episodeの層別目視検証（完了）
 
-- 養分くん専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
-- 403対策済み。
-- 最終成功run: `36873755127`。
-- Discord関連の追加修正は不要。研究品質確認を優先する。
+結果:
+- 全61episode 自動照合 61/61 PASS
+- 層別20episode 匿名化レビュー 20/20 PASS
+- 重大差異0
+- 10口座すべてをレビュー対象に含む
+- 反転境界2/2確認
+- 再構成ロジック修正なし
 
-## 1. 完結61episodeの層別目視検証（完了）
+成果物:
+- `reviews/episode-quality-2026-10-02/README.md`
+- `reviews/episode-quality-2026-10-02/episode_review.csv`
 
-結果: 全61episodeの自動照合61/61 PASS、層別20episodeの匿名化レビュー20/20 PASS、重大差異0。
+この品質ゲートは通過済み。
 
-成果物: `reviews/episode-quality-2026-10-02/README.md` と `episode_review.csv`。
+---
 
-目的: 再構成済みepisodeが、FOMO・Late Long/Short・ナンピン等の行動分類の土台として十分正確か確認する。
+## 1. TWAP / Funding / builder fee 会計照合【最優先】
+
+目的:
+episode純損益と費用の二重計上・欠落を防ぎ、行動分析前の会計品質ゲートを確定する。
 
 ### 対象
-- 10口座
-- 完結61 episode
+eligible 10口座・完結61episode。
 
-### 層別
-偏りなく、以下を跨ぐサンプルを選ぶ。
-- 勝ち / 負け
-- Long / Short
-- 追加あり / なし
-- 部分決済あり / なし
-- 反転あり / なし
-- 保有時間 短 / 中 / 長
-- fill数 少 / 中 / 多
+### 確認項目
+全61episodeについて以下を集計・照合する。
 
-最低20 episodeを層別抽出する。必要なら重大差異が収束するまで追加確認する。
-
-### 原fillとの照合項目
-episodeごとに以下をraw fillと突合する。
-- entry / exit時刻
-- side
-- entry / exit数量
-- 平均entry / exit価格
-- 追加ポジション
-- 部分決済
-- 反転
 - closedPnl
 - fee
 - builderFee
-- Funding帰属
-- zero-to-zero境界
-- fill時系列順序
+- Funding
+- episode net PnL
+- Funding発生episode数
+- Funding総額
+- builderFee非zero episode数
+- builderFeeがfeeへ含まれているか
+- feeへのbuilderFee再加算が起きていないか
+- TWAP関連fillの有無
+- TWAP上限口座が確実に分析対象外になっているか
+
+### TWAP
+- eligible 10口座でTWAP追加0件であることを再確認。
+- TWAP endpoint 2,000件上限に達した口座は引き続き除外。
+- その除外条件をfixture / test / reportに残す。
+- 将来TWAP fillがある場合のdata contractも明記する。
 
 ### 成果物
-匿名化したレビュー表を作り、最低限以下を記録する。
-- episode ID
-- 層別属性
-- raw値
-- reconstructed値
-- 差分
-- PASS / WARN / FAIL
-- 差異理由
-- 修正有無
+`reviews/accounting-quality-2026-10-02/` を作り、最低限以下を保存。
 
-目視結果をMarkdownレポートへ保存する。
+- `README.md`
+- episode単位reconciliation CSV
+- Funding集計
+- builderFee集計
+- TWAP除外条件
+- PASS / WARN / FAIL判定
 
-### 品質ゲート結果
+### 品質ゲート
+- 二重計上0
+- 欠落0、または既知欠測として説明可能
+- builderFee包含関係が確定
+- TWAP除外条件がtestで担保
 - 重大差異0
-- 再構成ロジックの修正なし
-- 数量許容誤差1e-8、価格・PnL・fee・Fundingは1e-6以内で全件一致
-- 次工程へ進行可
 
-## 2. 今回は行動分類を開始しない
+重大差異があれば修正・再テスト・再照合してから次へ進む。
 
-以下はまだ実装・判定しない。
+---
+
+## 2. 5分市場系列coverage定量化【会計ゲートPASS後】
+
+目的:
+FOMO / Late / Trapped等の判定に必要な市場特徴量を、どのepisodeで安全に計算できるか確定する。
+
+### episodeごとに確認
+entry前後の必要時間窓について、以下の取得可否とcoverage率を保存する。
+
+- OHLCV
+- mark price
+- OI
+- Funding
+- 可能なら trades / volume
+
+### 原則
+- 欠測は0で埋めない。NULL / unavailableとして扱う。
+- future情報をentry時点特徴量へ混入させない。
+- candle 5,000本制限により不足するepisodeは明示する。
+- coverage不足episodeは行動分類対象から外すか、特徴量ごとに利用可否を持たせる。
+
+### 成果物
+`reviews/market-coverage-2026-10-02/` を作成。
+
+最低限:
+- episode ID
+- coin
+- entry time
+- 必要窓
+- OHLCV coverage
+- OI coverage
+- Funding coverage
+- mark coverage
+- 欠測理由
+- FEATURE_READY / PARTIAL / NOT_READY
+
+### 完了条件
+- 61episode全件のcoverage状態が明示されている
+- 欠測が0埋めされていない
+- past-only条件をtestで担保
+- 行動分類へ使えるepisode集合が確定する
+
+---
+
+## 3. 市場特徴量付与【coverage確認後】
+
+FEATURE_READY episodeのみにpast-only特徴量を付与する。
+
+候補:
+- entry前5m / 15m / 1h return
+- volume ratio
+- OI change
+- Funding
+- BTC relative strength
+- breakout distance
+- local high / low distance
+- volatility
+- entry後のMFE / MAEは評価用として分離し、entry判定特徴量に混ぜない
+
+特徴量定義・時点整合性・欠測処理を文書化する。
+
+---
+
+## 4. 行動分類はまだ開始しない
+
+以下は今回まだ判定・結論化しない。
+
 - FOMO
 - Late Long / Short
 - ナンピン
@@ -79,25 +145,17 @@ episodeごとに以下をraw fillと突合する。
 - Crowding
 - 「養分は逆指標」等の結論
 
-61 episodeの再構成品質ゲート通過前に進めない。
+会計照合・市場coverage・past-only特徴量基盤が完成してから開始する。
 
-## 3. 次工程【最優先】
-
-1. TWAP / Funding / builder fee会計照合の最終確認
-   - eligible 10口座ではTWAP追加0件。TWAP上限2,000件の1口座は引き続き除外し、fixtureと除外理由を会計レポートに残す。
-   - Funding帰属が発生したepisode数・金額、builderFee非zero episode数・fee包含関係を全61件で集計する。
-2. 5分市場系列coverage定量化
-3. coverage十分なepisodeへのpast-only市場特徴量付与
-
-行動分類はその後。
+---
 
 ## 作業終了時
 
-- `CURRENT_STATUS.md` を更新
-- `NEXT_TASK.md` を更新
-- 必要なら `DECISIONS.md` に追記
+- `CURRENT_STATUS.md` 更新
+- `NEXT_TASK.md` 更新
+- 必要なら `DECISIONS.md` 追記
 - テスト実行
-- 対象プロジェクトのみcommit/push
+- 養分くん対象ファイルだけcommit/push
 - push成功後のみ養分くん専用Discordへ完了通知
 
-既存の養分ホイホイには変更を加えない。
+養分ホイホイには変更を加えない。
