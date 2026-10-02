@@ -44,6 +44,21 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual({r["wallet"] for r in rows}, {a, b})
         self.assertTrue(all("event_freq=" in r["source_detail"] for r in rows))
 
+    def test_public_trade_sampling_keeps_collector_small_alts_separate(self):
+        wallets = ["0x" + f"{i:040x}" for i in range(1, 7)]
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "public.jsonl"
+            (path.parent / "coverage.json").write_text(json.dumps({
+                "markets": {"major": ["BTC"], "alt": ["HYPE"], "small_alt": ["TINY"]}}))
+            path.write_text("\n".join(json.dumps({"channel": "trades", "wire": json.dumps({
+                "data": [{"coin": coin, "time": 1_780_000_000_000,
+                          "users": [wallets[i], wallets[i + 1]]}]})})
+                for i, coin in [(0, "BTC"), (2, "HYPE"), (4, "TINY")]) + "\n")
+            rows = trade_stream_candidates([path], 3)
+        self.assertEqual({r["event_symbol_group"] for r in rows},
+                         {"btc_eth", "alt", "small_alt"})
+        self.assertEqual(len({r["wallet"] for r in rows}), 3)
+
     def test_merge_deduplicates_and_preserves_provenance(self):
         w = "0x" + "1" * 40
         rows = merge_sources([[{"wallet": w, "source": "a", "source_detail": "x"}],
