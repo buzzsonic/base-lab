@@ -11,7 +11,8 @@ import pyarrow.parquet as pq
 def write_parquet(path: Path, rows: list[dict], schema_fields: list[tuple[str, pa.DataType]] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if rows:
-        table = pa.Table.from_pylist(rows)
+        fields = list(dict.fromkeys(key for row in rows for key in row))
+        table = pa.Table.from_pylist([{key: row.get(key) for key in fields} for row in rows])
     else:
         schema = pa.schema(schema_fields or [("wallet", pa.string())])
         table = pa.Table.from_pylist([], schema=schema)

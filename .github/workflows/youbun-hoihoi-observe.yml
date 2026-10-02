@@ -1,12 +1,9 @@
 name: Yobun Hoihoi Daily Observation
 on:
-  push:
+  workflow_run:
+    workflows: ['Yobun Hoihoi Public Trades Discovery']
+    types: [completed]
     branches: [main]
-    paths:
-      - '.github/workflows/youbun-hoihoi-*.yml'
-      - 'projects/hyperliquid-youbun-hoihoi/src/**'
-      - 'projects/hyperliquid-youbun-hoihoi/config.json'
-      - 'projects/hyperliquid-youbun-hoihoi/requirements.txt'
   workflow_dispatch:
   schedule:
     # Daily 01:20 JST
@@ -18,6 +15,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   observe:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -39,6 +39,9 @@ jobs:
           mkdir -p "$state"
           if [ ! -f "$state/wallet_registry.parquet" ]; then
             cp projects/hyperliquid-youbun-hoihoi/outputs/current/wallet_registry.parquet "$state/"
+          fi
+          if [ ! -f "$state/discovery_pool.parquet" ]; then
+            cp projects/hyperliquid-youbun-hoihoi/outputs/current/discovery_pool.parquet "$state/"
           fi
           python -m hoihoi.pipeline observe --output "$state" --refresh
       - name: Persist only Hoihoi state

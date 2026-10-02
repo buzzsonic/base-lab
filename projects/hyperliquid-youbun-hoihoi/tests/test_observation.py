@@ -82,7 +82,8 @@ class PipelineTests(unittest.TestCase):
             def spot_state(self,*args):return {}
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)
-            write_parquet(out/'wallet_registry.parquet',[{'wallet':'0x'+'1'*40,'first_seen':'2026-10-01T00:00:00+00:00','discovery_source':'public_trade_stream','discovery_detail':'test'}])
+            write_parquet(out/'discovery_pool.parquet', [{'wallet':'0x'+'2'*40,'first_seen':'2026-09-30T00:00:00+00:00','discovery_source':'official_leaderboard','discovery_detail':'unselected'}])
+            write_parquet(out/'wallet_registry.parquet',[{'wallet':'0x'+'1'*40,'first_seen':'2026-10-01T00:00:00+00:00','discovery_source':'public_trade_stream','discovery_detail':'test','poc_selected':True}])
             args=Namespace(config=ROOT/'config.json',output=out,as_of='2026-10-02T00:00:00+00:00',limit=None,public_stream=None,refresh=True,command='observe')
             with patch('hoihoi.pipeline.PublicApi',Public):
                 manifest=run_poc(args)
@@ -94,3 +95,21 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(first['first_seen'],second['first_seen'])
             self.assertEqual(second['successful_observation_days'],2)
             self.assertEqual(second['status'],'OBSERVING')
+            self.assertTrue(second['poc_selected'])
+            pool=read_parquet(out/'discovery_pool.parquet')
+            self.assertEqual({r['wallet'] for r in pool},{'0x'+'1'*40,'0x'+'2'*40})
+            unselected=next(r for r in pool if r['wallet']=='0x'+'2'*40)
+            self.assertEqual(unselected['first_seen'],'2026-09-30T00:00:00+00:00')
+            self.assertEqual(unselected['discovery_detail'],'unselected')
+
+
+class StorageTests(unittest.TestCase):
+    def test_new_observation_fields_survive_old_row_first(self):
+        from hoihoi.storage import read_parquet, write_parquet
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'pool.parquet'
+            write_parquet(path,[{'wallet':'old'}, {'wallet':'new','observation_dates':['2026-10-02'],'data_complete':True}])
+            rows=read_parquet(path)
+            self.assertEqual(rows[1]['observation_dates'],['2026-10-02'])
+            self.assertTrue(rows[1]['data_complete'])
+            self.assertIsNone(rows[0]['observation_dates'])
