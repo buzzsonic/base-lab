@@ -1,4 +1,5 @@
 outputs/*/raw-cache/
+outputs/discovery/
 outputs/smoke/
 outputs/repoc/
 outputs/final/

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from hoihoi.classify import classify_wallet, depletion_status
+from hoihoi.collector import Coverage, jst_time_band, select_markets
 from hoihoi.discovery import leaderboard_candidates, merge_sources, normalize_wallet, trade_stream_candidates
 from hoihoi.pipeline import small_alt_universe, stratified_select
 from hoihoi.notify import build_message
@@ -59,6 +60,33 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(len(selected), 16)
         self.assertGreaterEqual(len({r["source_detail"] for r in selected}), 4)
         self.assertGreaterEqual(len({r["leaderboard_rank_band"] for r in selected}), 2)
+
+
+class CollectorTests(unittest.TestCase):
+    def test_market_selection_has_separate_groups_and_rotates_small_alts(self):
+        universe = [{"name": name} for name in ("BTC", "ETH", "SOL", "DOGE", "TINY1", "TINY2", "TINY3")]
+        contexts = [{"dayNtlVlm": value} for value in (100, 90, 80, 70, 3, 2, 1)]
+        first = select_markets([{"universe": universe}, contexts], 10, 1, 2, "day|jst_00_05")
+        second = select_markets([{"universe": universe}, contexts], 10, 1, 2, "day|jst_06_11")
+        self.assertEqual(first["major"], ["BTC", "ETH"])
+        self.assertEqual(first["alt"], ["SOL"])
+        self.assertEqual(len(first["small_alt"]), 2)
+        self.assertNotEqual(first["small_alt"], second["small_alt"])
+
+    def test_coverage_reports_missing_markets_and_wallet_count(self):
+        wallet = "0x" + "1" * 40
+        coverage = Coverage({"major": ["BTC"], "small_alt": ["TINY"]})
+        source_time = coverage.observe({"channel": "trades", "data": [
+            {"coin": "BTC", "time": 123, "users": [wallet, "bad"]},
+        ]})
+        result = coverage.summary()
+        self.assertEqual(source_time, 123)
+        self.assertEqual(result["unique_wallets"], 1)
+        self.assertEqual(result["missing_markets"], ["TINY"])
+        self.assertEqual(result["group_coverage"]["major"]["coverage_ratio"], 1.0)
+
+    def test_jst_time_band(self):
+        self.assertEqual(jst_time_band(datetime(2026, 10, 1, 15, tzinfo=timezone.utc)), "jst_00_05")
 
 
 class ClassificationTests(unittest.TestCase):

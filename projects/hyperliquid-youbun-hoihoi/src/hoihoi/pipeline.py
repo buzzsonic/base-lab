@@ -15,7 +15,9 @@ import pyarrow as pa
 from .api import PublicApi
 from .classify import classify_wallet
 from .discovery import leaderboard_candidates, merge_sources, trade_stream_candidates
-from .storage import write_csv, write_json, write_parquet
+from .storage import read_parquet, write_csv, write_json, write_parquet
+from .history import collect_fills
+from .observation import merge_observation
 
 
 JST = timezone(timedelta(hours=9))
@@ -117,24 +119,47 @@ def run_poc(args: argparse.Namespace) -> dict:
     out = args.output
     api = PublicApi(out / "raw-cache", config["api"]["min_request_interval_seconds"], config["api"]["retries"])
     target = args.limit or config["sampling"]["poc_wallets"]
+    if target > 200 or target < 1:
+        raise ValueError("1,000 wallet expansion remains HOLD; limit must be 1..200")
     pool_target = max(target, target * int(config["sampling"].get("pool_multiplier", 2)))
     event_target = pool_target // 2
-    streams = args.public_stream or DEFAULT_PUBLIC_STREAMS
-    event_rows = trade_stream_candidates(streams, event_target)
-    leaderboard_rows = leaderboard_candidates(api.leaderboard(args.refresh), pool_target)
+    streams = args.public_stream or sorted((out / "discovery").rglob("public.jsonl"))
+    if not streams and args.command == "poc":
+        raise ValueError("No discovery streams: run hoihoi.collector or supply --public-stream")
+    event_rows = trade_stream_candidates(streams, event_target) if args.command == "poc" else []
+    leaderboard_rows = leaderboard_candidates(api.leaderboard(args.refresh), pool_target) if args.command == "poc" else []
     candidates = merge_sources([event_rows, leaderboard_rows], pool_target)
-    small_alts = small_alt_universe(api.market_contexts(args.refresh), config["classification"]["small_alt_notional_cutoff"])
+    market_snapshot = api.market_contexts(True)
+    market_hash = hashlib.sha256(json.dumps(market_snapshot, sort_keys=True).encode()).hexdigest()
+    write_json(out / "market-snapshots" / f"{market_hash}.json", market_snapshot)
+    small_alts = small_alt_universe(market_snapshot, config["classification"]["small_alt_notional_cutoff"])
+    prior_registry = {r["wallet"]: r for r in read_parquet(out / "wallet_registry.parquet")}
+    if args.command == "observe":
+        candidates = [{"wallet": r["wallet"], "source": r["discovery_source"], "source_detail": r["discovery_detail"], "leaderboard_rank": r.get("leaderboard_rank"), "leaderboard_rank_band": r.get("leaderboard_rank_band")} for r in prior_registry.values()]
+        if not candidates:
+            raise ValueError("No candidate registry to observe")
     pool = []
     for index, source in enumerate(candidates, 1):
         wallet = source["wallet"]
-        fills = api.user_fills(wallet, args.refresh)
-        perp_state = api.clearinghouse_state(wallet, args.refresh)
-        spot_state = api.spot_state(wallet, args.refresh)
+        history = collect_fills(api, wallet, out / "fill-checkpoints" / f"{wallet}.json",
+                                int((now - timedelta(days=config["activity"]["lookback_days"])).timestamp() * 1000),
+                                int(now.timestamp() * 1000), config["api"].get("max_fill_requests", 100))
+        fills = history["fills"]
+        perp_state = api.clearinghouse_state(wallet, True)
+        spot_state = api.spot_state(wallet, True)
         row = classify_wallet(wallet, fills, perp_state, spot_state, now, source, config, small_alts)
-        row["eligible_after"] = (now + timedelta(days=config["observation_days"])).isoformat()
+        row["data_complete"] = history["complete"]
+        row["data_limit_note"] = "unresolved fill coverage gaps" if not history["complete"] else ""
+        row["market_snapshot_version"] = market_hash
+        row["fill_requests"] = history["requests"]
+        row["fill_capped_responses"] = history["capped_responses"]
+        row = merge_observation(row, prior_registry.get(wallet), now, config)
         pool.append(row)
         print(f"[{index}/{len(candidates)}] {wallet} perp30d={row['perp_trade_count_30d']} status={row['status']}", file=sys.stderr)
-    registry = stratified_select(pool, target)
+    registry = pool if args.command == "observe" else stratified_select(pool, target)
+    if args.command == "poc":
+        present = {r["wallet"] for r in registry}
+        registry.extend(r for wallet, r in prior_registry.items() if wallet not in present)
     # First-seen candidates cannot be promoted in the same run. Future weekly runs merge history before promotion.
     sample = [r for r in registry if r["status"] == "ACTIVE"]
     version = f"sample_{now.astimezone(JST).strftime('%Y%m%d')}"
@@ -159,6 +184,7 @@ def run_poc(args: argparse.Namespace) -> dict:
     quality = quality_summary(registry)
     pool_quality = quality_summary(pool)
     manifest = {"generated_at": now.isoformat(), "sample_version": version, "quality": quality,
+                "mode": args.command, "market_snapshot_version": market_hash,
                 "candidate_wallets": len(registry), "discovery_pool_wallets": len(pool),
                 "active_sample_wallets": len(sample), "pool_quality": pool_quality,
                 "observation_policy": f"minimum {config['observation_days']} days; no same-run promotion"}
@@ -168,7 +194,7 @@ def run_poc(args: argparse.Namespace) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Hyperliquid Yobun Hoihoi (public data, read-only)")
-    parser.add_argument("command", choices=["poc"])
+    parser.add_argument("command", choices=["poc", "observe"])
     parser.add_argument("--config", type=Path, default=ROOT / "config.json")
     parser.add_argument("--output", type=Path, default=ROOT / "outputs/current")
     parser.add_argument("--limit", type=int)

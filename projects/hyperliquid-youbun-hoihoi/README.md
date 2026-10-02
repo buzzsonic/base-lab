@@ -20,3 +20,19 @@ python -m unittest discover -s tests -v
 - 養分くん: FOMO、Late、Trapped、ナンピン、Revenge、清算等の行動分析
 
 詳細は `research_plan.md` と `PROJECT_CONTEXT.md` を参照してください。
+
+## Daily discovery and observation
+
+```bash
+PYTHONPATH=src python -m hoihoi.collector --refresh
+PYTHONPATH=src python -m hoihoi.pipeline observe --output outputs/current --refresh
+```
+
+Collector defaults to `outputs/discovery`; Actions stores captures in
+`outputs/current/discovery` on `data`. A new PoC needs `--public-stream`
+or captures under its output directory. Observe refreshes existing candidates only.
+It preserves first_seen and requires seven distinct successful JST observation
+ dates after at least seven elapsed days. Missing or saturated history blocks promotion.
+Discovery runs four times daily; observation runs daily. Both persist only Hoihoi
+state to `data` under a shared concurrency lock. Snapshot/weekly remain gated.
+No live improvement figures have been measured for this implementation yet.

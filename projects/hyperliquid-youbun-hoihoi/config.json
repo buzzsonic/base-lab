@@ -1,12 +1,15 @@
 {
   "schema_version": 1,
   "observation_days": 7,
-  "activity": {"lookback_days": 30, "min_perp_fills": 3},
+  "activity": {
+    "lookback_days": 30,
+    "min_perp_fills": 3
+  },
   "sampling": {
-    "poc_wallets": 200,
+    "poc_wallets": 100,
     "pool_multiplier": 2,
-    "max_leaderboard_share": 0.60,
-    "max_whale_share": 0.20,
+    "max_leaderboard_share": 0.6,
+    "max_whale_share": 0.2,
     "max_bot_suspected_share": 0.25,
     "refill_trigger_fraction": 0.15
   },
@@ -22,14 +25,26 @@
     "mm_maker_ratio": 0.85,
     "farm_max_median_notional": 50.0,
     "farm_min_symbols": 8,
-    "major_ratio": 0.70,
+    "major_ratio": 0.7,
     "small_alt_notional_cutoff": 10000000.0
   },
   "depletion": {
     "window_days": 7,
-    "near_fraction": 0.50,
-    "rapid_fraction": 0.70,
+    "near_fraction": 0.5,
+    "rapid_fraction": 0.7,
     "withdrawal_match_tolerance": 0.25
   },
-  "api": {"min_request_interval_seconds": 1.25, "retries": 6}
+  "api": {
+    "min_request_interval_seconds": 1.25,
+    "retries": 6,
+    "max_fill_requests": 100
+  },
+  "min_observation_days": 7,
+  "discovery_collector": {
+    "duration_seconds": 300,
+    "alt_markets_per_run": 8,
+    "small_alt_markets_per_run": 12,
+    "stale_feed_seconds": 45,
+    "reconnect_delay_seconds": 3
+  }
 }
