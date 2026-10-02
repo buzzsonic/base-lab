@@ -1,6 +1,8 @@
 # CURRENT_STATUS
 
-更新: 2026-10-02 JST（Issue #8 層化再PoC・main反映・Discord通知完了）
+更新: 2026-10-02 JST（PR #14統合、discovery実行・保存成功、日次観察実行中）
+
+口座分類・cap率の表はIssue #8時点のbaseline。日次観察の結果は完了後に更新する。
 
 | item | state |
 |---|---|
@@ -13,9 +15,9 @@
 | farm suspected | 1 |
 | latest snapshot | NOT RUN |
 | latest weekly run | NOT RUN（再PoCのみ） |
-| last successful GitHub Action | `36928323512`（専用Discord完了通知、success） |
+| last successful GitHub Action | `36956559938`（discovery・data保存、success） |
 | known issues | userFills 2,000件capは63%。小型アルト中心は2%。既存public Trades captureの時点・銘柄coverageは限定的 |
-| current blockers | 7日観察期間未経過。専用discovery collector未実装。1,000-wallet拡大は引き続き保留 |
+| current blockers | 7日観察期間未経過。初回100候補の増分履歴取り込みは実行中。1,000-wallet拡大は引き続き保留 |
 
 ## Issue #8 再PoC結果
 
@@ -43,3 +45,12 @@
 - discovery/observeは共通concurrencyでdata branchへ対象ディレクトリだけを保存。push競合時にforce pushしない。
 - 検証: 24件のテスト成功、workflow YAML構文確認成功。実API取得・Actions運用・cap率改善は未検証。
 - この変更で既存の100件/63%/2%という実測値は更新していない。1,000-wallet拡大はHOLDを維持。
+
+## PR #14 運用検証
+
+- mainへ統合済み（merge commit `7863416`）。
+- discovery run `36956559938` はsuccess。data branch `4fea9437aac3036f7fb64abc74ae37e23a7e906a`へraw・市場snapshot・coverageを保存。
+- 22/22銘柄、小型アルト12/12銘柄、snapshotを含むwallet673件を観測。
+- 原JSONL照合: 接続直後の過去取引を除いた実時間2952取引・598wallet、実時間の小型アルト12/12銘柄。再接続0・解析エラー0。
+- observation run `36956559977` は初回100候補の履歴取り込み中。約定取得の完全性・cap率改善・観察保存はまだ未確認。
+- 詳細: `QUALITY_REPORT_RUNTIME_2026_10_02.md`。
