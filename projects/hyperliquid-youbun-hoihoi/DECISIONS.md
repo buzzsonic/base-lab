@@ -40,3 +40,12 @@
 - 決定: Issue #8 の層化再PoCを `main@91a873b` へ反映し、養分ホイホイ専用Discord webhookで完了通知する。
 - 実績: GitHub Actions run `36928323512` の送信jobはsuccess。
 - 影響: Issue #8の品質改善は完了扱いとするが、1,000-wallet拡大のHOLD判断は維持する。
+
+## 2026-10-02 増分取得と観察証拠
+
+- 決定: first_seenから7日以上経過し、7 JST日の完全な取得成功を確認したwalletだけをACTIVEにする。過去約定の活動日数は観察成功日数の代用にしない。
+- 決定: BOT/MM/farm/裁定疑いはregistryから削除せずEXCLUDEDとし、通常sampleへ入れない。
+- 決定: userFillsByTimeの2,000件応答を時間分割して解消し、同一ms飽和・budget不足・10,000件retention到達は取得欠損として保持する。
+- 制約: 公開APIだけでは10,000件より古い履歴を復元できない。未解決gapがlookback外になるまで完全性を回復したと扱わない。
+- 決定: 未統合のcodex/hoihoi-public-trades-collector実装を再利用し、市場snapshot保存とdata branch保存を追加する。
+- 未解決: 実APIとActionsでの保存検証、実測改善、サンプル全体の品質ゲート、snapshot/weekly実装。

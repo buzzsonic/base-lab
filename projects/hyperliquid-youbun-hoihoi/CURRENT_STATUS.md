@@ -33,3 +33,13 @@
 層化後の規模帯は小口30・中口52・大口3・不明15。銘柄傾向はBTC/ETH中心38・アルト中心45・小型アルト中心2・不明15。JST活動時間帯は各6時間帯18〜24件（inactive由来の不明15）。Leaderboard順位帯はtop 1%=12、top 10%=17、middle 40%=23、bottom 50%=11、非Leaderboard=37。
 
 高頻度/BOT偏重は明確に改善したが、cap 63%と小型アルト2%はまだ弱い。Issue #8の「改善確認」は通過、1,000件拡大ゲートは未通過と判断する。
+
+## 2026-10-02 次工程の実装
+
+- 未統合collectorブランチの実装を取り込み、JST 4時間帯・主要/アルト/小型アルトの取得と市場snapshot保存を追加。
+- userFillsByTimeを時間区間分割し、walletごとの増分checkpoint・重複排除・取得budgetを実装。
+- 同一msの2,000件飽和、10,000件retention到達、未取得区間を不完全として保持。API失敗時はcheckpointを進めない。
+- 日次observeで既存candidateを再観察し、first_seenを維持。7日経過かつ7 JST日分の完全取得を昇格条件にする。同日再実行は重複カウントしない。
+- discovery/observeは共通concurrencyでdata branchへ対象ディレクトリだけを保存。push競合時にforce pushしない。
+- 検証: 24件のテスト成功、workflow YAML構文確認成功。実API取得・Actions運用・cap率改善は未検証。
+- この変更で既存の100件/63%/2%という実測値は更新していない。1,000-wallet拡大はHOLDを維持。

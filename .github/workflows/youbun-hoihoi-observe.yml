@@ -1,0 +1,46 @@
+name: Yobun Hoihoi Daily Observation
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily 01:20 JST
+    - cron: '20 16 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: youbun-hoihoi-data
+  cancel-in-progress: false
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: data
+          path: persisted
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install -r projects/hyperliquid-youbun-hoihoi/requirements.txt
+      - name: Verify and observe existing candidates
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+        run: |
+          python -m unittest discover -s projects/hyperliquid-youbun-hoihoi/tests -v
+          state=persisted/projects/hyperliquid-youbun-hoihoi/outputs/current
+          mkdir -p "$state"
+          if [ ! -f "$state/wallet_registry.parquet" ]; then
+            cp projects/hyperliquid-youbun-hoihoi/outputs/current/wallet_registry.parquet "$state/"
+          fi
+          python -m hoihoi.pipeline observe --output "$state" --refresh
+      - name: Persist only Hoihoi state
+        working-directory: persisted
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/hyperliquid-youbun-hoihoi/outputs/current
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: update Hoihoi daily observations'
+            git push origin HEAD:data
+          fi
