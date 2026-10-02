@@ -1,0 +1,9 @@
+{
+  "source_main_commit": "7863416b66102568c16065947bf33f89bd89ac44",
+  "observation_run": 36956559977,
+  "source_data_commit": "f043e79f157001e698f16c9c89cb9fd4493e3006",
+  "retained_wallets": 200,
+  "refreshed_wallets": 100,
+  "historical_unselected_wallets": 100,
+  "policy": "fresh observation fields override matching historical fields; unselected rows retained"
+}

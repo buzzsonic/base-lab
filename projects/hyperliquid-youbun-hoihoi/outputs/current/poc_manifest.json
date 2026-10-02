@@ -57,7 +57,7 @@
   "mode": "observe",
   "market_snapshot_version": "81403d30719536e4330c0efb4e787997a1f2df8cf93ff9fd072c32ff71adb3d4",
   "candidate_wallets": 100,
-  "discovery_pool_wallets": 100,
+  "discovery_pool_wallets": 200,
   "active_sample_wallets": 0,
   "pool_quality": {
     "wallets": 100,
@@ -112,5 +112,7 @@
       "top_10pct": 17
     }
   },
-  "observation_policy": "minimum 7 days; no same-run promotion"
+  "observation_policy": "minimum 7 days; no same-run promotion",
+  "refreshed_pool_wallets": 100,
+  "pool_quality_scope": "refreshed_wallets_only"
 }
