@@ -19,7 +19,17 @@
 
 ---
 
-## 1. 5分市場系列coverage定量化【最優先】
+## 1. 5分市場系列coverage定量化【完了】
+
+- 61episode全件を確定
+- FEATURE_READY 0 / PARTIAL 24 / NOT_READY 37
+- OHLCV・volume完備 24/61
+- Funding availability 60/61
+- historical mark・OIは0/61でNULL/unavailable
+- entry足を除外した直前12本のpast-only契約、future leakage、UTC alignmentをtest化
+- 成果物: `reviews/market-coverage-2026-10-02/`
+
+以下は実施時に用いた契約として保存する。
 
 目的:
 FOMO / Late / Trapped / breakout / crowding等の行動分類に必要な市場特徴量を、どのepisodeで安全に計算できるか確定する。
@@ -115,9 +125,9 @@ NOT_READY:
 
 ---
 
-## 2. past-only市場特徴量付与【coverageゲートPASS後】
+## 2. PARTIAL集合へのpast-only市場特徴量付与【最優先】
 
-FEATURE_READY episodeを主対象に実装する。
+FEATURE_READYは0件のため、PARTIAL 24episodeだけを対象に、許可済みseriesから作れる特徴量を実装する。NOT_READY 37episodeは対象外。
 
 ### entry時点特徴量
 
@@ -128,9 +138,9 @@ FEATURE_READY episodeを主対象に実装する。
 - return_1h
 - volume_ratio_5m
 - volume_ratio_15m
-- oi_change_5m
-- oi_change_15m
-- funding_rate
+- oi_change_5m（今回はNULL。historical OI取得後のみ）
+- oi_change_15m（今回はNULL。historical OI取得後のみ）
+- funding_rate（LIT 1件はNULL。取得時点のpast-only確認必須）
 - btc_return_5m
 - btc_return_15m
 - btc_relative_strength
@@ -164,6 +174,14 @@ entry後情報は必ず別扱い。
 - 欠測時処理
 - future leakage有無
 - 適用可能episode
+
+### 今回の許容範囲
+
+- 実値を許可: return_5m / return_15m / return_1h / volume系 / local high-low / realized volatility / breakout / range position
+- NULL維持: mark依存 / OI依存 / 欠測Funding
+- BTC相対系列はBTC側にも同一entry時点の直前12本が揃うepisodeだけ
+- entry後評価列は別ファイルまたは`evaluation_post_*` namespace
+- 24episodeすべてについて特徴量availabilityを保存する
 
 ---
 

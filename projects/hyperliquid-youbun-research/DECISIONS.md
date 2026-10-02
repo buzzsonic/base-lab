@@ -44,3 +44,12 @@
 - TWAP: eligible口座の追加0件。2,000件上限かつcontinuity error 15件の口座は除外を継続し、欠落sliceを推定しない。
 - 既知WARN: 旧cacheのperp fill 0口座にstored eligible flag不整合1件。現行コードと今回の抽出は再計算条件で除外済み。次回PoC再生成時にcacheを更新する。
 - 影響範囲: 次は5分市場系列coverageを定量化する。行動分類はまだ開始しない。
+
+## 2026-10-02 市場coverageをseries別に判定する
+
+- 決定内容: entry特徴量はentryを含む5分足を除外し、entry時刻を5分境界へ切り下げた直前12本だけを使う。entry後12本は評価用namespaceへ分離する。
+- 実データ: 61episode中、FEATURE_READY 0、PARTIAL 24、NOT_READY 37。OHLCV/volumeは24/61で完備、Fundingは60/61でentry以前2時間内に観測、historical mark/OIは0/61。
+- 欠測処理: mark/OIは空欄NULL、Funding不足も0ではなくmissingとして保存する。37episodeのcandle不足は直近5,000本制限または市場履歴取得不能として除外する。
+- 許容範囲: PARTIAL 24episodeではpast-onlyのprice return／volume特徴量だけを明示的に許容する。mark/OI/crowding依存分析へは使わない。
+- 理由: 公式Info APIは現在のmark/OIを返すが過去時系列endpointではなく、公式archiveも月次程度・遅延／欠測あり。未確認の過去値を推定すると品質ゲートを壊す。
+- 影響範囲: 次はPARTIAL集合への限定的なpast-only特徴量付与。行動分類はまだ開始しない。

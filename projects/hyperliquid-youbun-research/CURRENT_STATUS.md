@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。episode再構成・会計照合ゲートを通過し、5分市場系列coverageの定量化段階。
+PoCデータ品質検証。episode再構成・会計照合・5分市場系列coverage棚卸しを完了し、限定的なpast-only価格・出来高特徴量の実装判断段階。
 
 ## Completed
 
@@ -23,6 +23,10 @@ PoCデータ品質検証。episode再構成・会計照合ゲートを通過し�
 - Fundingは44episodeで非zero、合計-1,004.713607 USDC
 - builderFeeは9episodeで非zero、合計565.678405 USDC。全件fee内包で二重計上0
 - eligible口座のTWAP追加0件、TWAP 2,000件上限口座の除外をtestとレポートで固定
+- eligible 10口座・完結61episodeのentry前60分／entry後60分の市場series coverageを全件確定
+- entryを含む未確定5分足を除外し、直前12本だけをentry特徴量窓にするpast-only契約をtest化
+- FEATURE_READY 0、PARTIAL 24、NOT_READY 37。OHLCV/volume完備24、Fundingは60/61でentry以前2時間内に観測
+- historical mark/OIは61件すべてNULL/unavailableとし、推定・0埋めを行わなかった
 
 ## Latest Work
 
@@ -33,11 +37,13 @@ PoCデータ品質検証。episode再構成・会計照合ゲートを通過し�
 - 全61episodeでもbuilderFeeを別加算せず、`closedPnl - fee + Funding`がprocessed net PnLと一致した。
 - 旧`account_quality.csv`はperp fill 0口座のstored eligible flagが1件だけ古い。今回と現行コードは再計算条件で正しく除外しており、次回PoC再生成時にキャッシュを更新する。
 - 養分行動分類はまだ開始していない。
+- 公式candleの直近5,000本制限により、37episodeはentry前60分の5分足が0/12でNOT_READY。
+- PARTIAL 24episodeはpast-onlyのprice return／volume特徴量だけ許容する。mark/OI/Funding依存特徴量へ暗黙利用しない。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 14 tests passed（再構成5件、Discord通知文2件、episodeレビュー3件、会計/TWAP除外4件）
+- 19 tests passed（従来14件＋市場coverage 5件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36873755127`。
@@ -63,4 +69,4 @@ PoCデータ品質検証。episode再構成・会計照合ゲートを通過し�
 
 ## Next
 
-61episodeのOHLCV、mark、OI、Fundingの5分市場系列coverageを定量化し、欠測をNULL/unavailableで保存する。FOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類はまだ開始しない。
+PARTIAL 24episodeに限定し、past-onlyのprice return／volume特徴量を別成果物として付与する。mark/OI依存特徴量と欠測Funding 1件はNULLのままにし、FOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類はまだ開始しない。
