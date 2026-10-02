@@ -1,0 +1,7 @@
+metric,wallets,status
+requested,100,PASS
+endpoint_complete,100,PASS
+zero_perp_fills,12,EXCLUDE
+quantity_mismatch,33,FAIL
+continuity_error,47,FAIL
+eligible_initial,41,HOLD

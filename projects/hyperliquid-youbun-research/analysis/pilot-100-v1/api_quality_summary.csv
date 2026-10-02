@@ -1,0 +1,10 @@
+metric,count,status
+requested_wallets,100,PASS
+completed_wallets,100,PASS
+failed_wallets,0,PASS
+raw_fills,674339,OBSERVED
+twap_rows,8452,OBSERVED
+funding_rows,505011,OBSERVED
+fills_pagination_safety_cap_wallets,0,PASS
+funding_pagination_safety_cap_wallets,0,PASS
+twap_endpoint_cap_wallets,0,PASS

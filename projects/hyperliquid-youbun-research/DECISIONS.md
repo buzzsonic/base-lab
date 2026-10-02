@@ -92,3 +92,11 @@
 - 結果: outcome-free add event 2,464件、source trace不明0。24episode dry-runのAveraging Down 4件・Profit Pyramiding 8件と一致。
 - 停止判断: main上に行動結果を含まない固定discovery universeがないため、100口座manifestを推測で作らない。
 - 次: discovery sourceと取得時刻を固定してから、層化100口座を再現可能に選ぶ。
+
+## 2026-10-02 pilot-100再構成の重大差異で停止する
+
+- Sampling: Hoihoi data commit `4fea9437aac3036f7fb64abc74ae37e23a7e906a`の公開Trades実時間598 walletから、size・frequency・symbol・activityだけを使い100 walletを固定。PnL・ROI・勝敗・behavior labelは不使用。
+- 収集: fills・TWAP・Fundingを100/100 walletで取得、endpoint失敗0、pagination safety cap hit 0。
+- 差異: 初回再構成46,182 episodesのうちquantity mismatch 107件 / 33 wallets、continuity error 3,790件 / 47 wallets。
+- 決定: `NEXT_TASK.md`の重大再構成差異に該当するため停止。OHLCV、label適用、500口座拡大は行わない。
+- 次: raw traceでfill/TWAP merge、同一timestamp順序、API page boundary、left censoringを原因分類し、欠落fillを推定しない。

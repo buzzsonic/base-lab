@@ -1,0 +1,4 @@
+reason,wallets,gate_effect
+zero_perp_fills,12,exclude
+quantity_mismatch,33,stop
+continuity_error,47,stop

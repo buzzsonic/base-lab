@@ -42,7 +42,39 @@
 
 ---
 
-# PHASE 1: 養分ホイホイ候補universeを読み取り専用で正本化
+# STOPPED GATE: pilot-100再構成差異の原因監査
+
+PHASE 1 PASS:
+- Hoihoi public Trades固定commitの598 walletから100 walletをoutcome-freeに固定
+- duplicate 0、25 strata、再生成同一、split 60/20/20
+
+PHASE 2 partial PASS:
+- fills / TWAP / Fundingは100/100 wallet成功、失敗0
+- OHLCV / BTC referenceは停止条件到達のため未収集
+
+PHASE 3 FAIL:
+- quantity mismatch 107 episodes / 33 wallets
+- continuity error 3,790 / 47 wallets
+
+次に行うこと:
+1. mismatch全107件をraw fill traceへ戻し、coin・wallet・timestamp・反転・同時刻・TWAP追加有無で分類する。
+2. continuity error全3,790件をAPI page boundary、重複tid、TWAP merge、期間開始前positionに分類する。
+3. `userFillsByTime`のページ間順序と同一timestamp順序が保存されているか検証する。
+4. 修正は原因を証明できる場合だけ行い、欠落fillの推定や前方補完は禁止する。
+5. quantity mismatch 0かつcontinuity errorが説明・除外可能になったら全43+ testsを再実行する。
+
+再開Gate:
+- quantity mismatch = 0
+- 重大 accounting mismatch = 0
+- continuity errorがraw evidenceで説明可能
+- sampling manifest不変
+- future leakage test PASS
+
+Gate PASS後のみ、未実行のOHLCV / BTC series収集へ戻る。
+
+---
+
+# ARCHIVE: PHASE 1: 養分ホイホイ候補universeを読み取り専用で正本化
 
 目的:
 100口座pilotのsampling sourceを固定する。

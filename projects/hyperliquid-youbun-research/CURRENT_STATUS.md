@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500口座への拡大設計まで完了し、100口座pilotの収集・再構成準備段階。
+100口座pilot。sampling固定とwallet endpoint収集まで完了したが、初回再構成で重大差異を検出し停止中。
 
 ## Completed
 
@@ -36,8 +36,19 @@ PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500�
 - PHASE 3としてwallet・coin・side・重複パターン別のoutcome-free分布サマリを作成
 - TRUEを含む14episode全件＋層別all-FALSE 7episodeをoutcome-blind再照合し21/21 PASS
 - 100口座pilot→500口座拡大、探索60%・validation 20%・held-out 20%、目標2,000episodeの設計を固定
+- Hoihoi data commit `4fea9437aac3036f7fb64abc74ae37e23a7e906a`のpublic Trades実時間598 walletからoutcome-freeに100 walletを固定
+- sampling duplicate 0、25 strata、再生成byte-identical、split 60/20/20
+- 100/100 walletでfills・TWAP・Funding endpoint収集成功、失敗0、safety cap hit 0
+- raw fills 674,339、TWAP追加8,452、Funding 505,011、merge後perp fills 680,842
+- 初回再構成46,182 episodes、完結uncensored 44,125
+- quantity mismatch 107 episodes / 33 wallets、continuity error 3,790 / 47 walletsを検出し停止
 
 ## Latest Work
+
+- PHASE 1 GateはPASS。
+- PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
+- PHASE 3 GateはFAIL。差異を除外・推定・0埋めで隠していない。
+- 500口座拡大はHOLD。
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
@@ -57,7 +68,7 @@ PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500�
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 39 tests passed（従来38件＋add evidence outcome除外1件）
+- 43 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -83,4 +94,4 @@ PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500�
 
 ## Next
 
-outcome-free add evidence 2,464件を生成し、trace不明0、dry-runのAveraging Down 4件・Profit Pyramiding 8件と一致。次は行動結果を含まないdiscovery universeを正本化して100口座sampling manifestを固定する。
+quantity mismatch 107件とcontinuity error 3,790件を、fill/TWAP merge、同時刻server order、APIページ境界、left censoringに分解してraw trace監査する。重大差異0になるまでOHLCV収集、行動ラベル、500口座拡大へ進まない。

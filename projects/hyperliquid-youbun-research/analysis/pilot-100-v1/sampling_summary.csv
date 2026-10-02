@@ -1,0 +1,14 @@
+dimension,value,wallets
+split,exploratory,60
+split,validation,20
+split,held_out,20
+size_band,small,36
+size_band,medium,35
+size_band,large,29
+frequency_band,low,36
+frequency_band,medium,34
+frequency_band,high,30
+symbol_tendency,major,37
+symbol_tendency,alt,40
+symbol_tendency,small_alt,23
+activity_band,jst_06_11,100
