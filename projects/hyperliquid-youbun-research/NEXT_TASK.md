@@ -26,7 +26,18 @@
 
 ---
 
-## 1. PARTIAL 24episodeへのpast-only特徴量付与【最優先】
+## 1. PARTIAL 24episodeへのpast-only特徴量付与【完了】
+
+- price / volume / local structure: 24/24
+- BTC relative: 24/24
+- Funding rate: 23/24
+- historical mark / OI: 0/24、NULL維持
+- duplicate episode ID 0
+- cached再実行で成果物byte-identical
+- 26 tests PASS
+- 成果物: `features/past-only-2026-10-02/`
+
+以下は実装契約として保存する。
 
 目的:
 行動分類前に、entry時点で本当に利用可能だった市場情報だけから再現可能な特徴量基盤を作る。
@@ -134,7 +145,7 @@ feature_definitions.mdには各特徴量ごとに:
 
 ---
 
-## 6. 品質ゲート
+## 6. 品質ゲート【PASS】
 
 以下を満たしたら「行動分類開始可」とする。
 
@@ -146,11 +157,25 @@ feature_definitions.mdには各特徴量ごとに:
 - 同一episodeで再実行時に同一結果
 - 特徴量定義書完成
 
-最低限のprice/volume特徴量が安全に付与できるepisode集合を確定する。
+最低限のprice/volume特徴量が安全に付与できる24episode集合を確定した。
 
 ---
 
-## 7. 行動分類はまだ開始しない
+## 7. 次タスク: 行動ラベル定義の事前登録【最優先】
+
+24episodeの値を見て閾値を都合よく調整しないよう、分類実行前に以下を文書化する。
+
+- FOMO / Late Long・Short / ナンピン / Revenge候補の数式と閾値
+- 必要seriesとfeature availability
+- episode内イベント順序の条件
+- 除外条件と重複ラベル方針
+- Long/Shortの方向整合
+- 対照群、評価指標、最低サンプル数
+- exploratory PoCとconfirmatory拡大標本の分離
+
+24episodeへの初回適用は実装・coverage確認に限定する。PnL差、勝率、逆指標性について結論を出さない。
+
+## 8. 引き続き開始しない分類
 
 今回はまだ以下を判定しない。
 
@@ -163,7 +188,9 @@ feature_definitions.mdには各特徴量ごとに:
 - Liquidation behavior
 - 「養分は逆指標」等の結論
 
-特徴量品質ゲート通過後、次タスクとして行動ラベル定義へ進む。
+- Crowding: historical OI不足
+- Trapped / Liquidation behavior: 過去margin・liquidation state不足
+- 「養分は逆指標」等の結論: 標本不足
 
 ---
 
