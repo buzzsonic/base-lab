@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。行動ラベルv1事前登録・dry-run・outcome-free探索分布まで完了し、ラベル品質レビューと標本拡大設計段階。
+PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500口座への拡大設計まで完了し、100口座pilotの収集・再構成準備段階。
 
 ## Completed
 
@@ -34,6 +34,8 @@ PoCデータ品質検証。行動ラベルv1事前登録・dry-run・outcome-fre
 - 24episode dry-runはFOMO 1、Late 2、Averaging Down 4、Profit Pyramiding 8、Revenge Candidate 4。Revenge 6件は前episode不足でUNAVAILABLE
 - dry-run成果物にPnL・勝敗・MFE/MAE・post-entry結果を含めず、再実行同一を確認
 - PHASE 3としてwallet・coin・side・重複パターン別のoutcome-free分布サマリを作成
+- TRUEを含む14episode全件＋層別all-FALSE 7episodeをoutcome-blind再照合し21/21 PASS
+- 100口座pilot→500口座拡大、探索60%・validation 20%・held-out 20%、目標2,000episodeの設計を固定
 
 ## Latest Work
 
@@ -50,11 +52,12 @@ PoCデータ品質検証。行動ラベルv1事前登録・dry-run・outcome-fre
 - 24件は特徴量パイプラインのPoCとして使用可能だが、行動別成績や「逆指標」の統計結論には少なすぎる。
 - label config v1.0.0はdry-run後に固定。閾値変更はv1上書きではなくv2を作る。
 - FOMO/Late重複はschema上許可しsynthetic test済みだが、今回の24件では重複0。
+- 個別addのpre-add平均・add価格・stable order traceがdry-run成果物に未保存。100口座pilot前の監査証跡追加が必要。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 37 tests passed（従来26件＋ラベル9件＋探索集計2件）
+- 38 tests passed（従来37件＋outcome-blind選定1件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -80,4 +83,4 @@ PoCデータ品質検証。行動ラベルv1事前登録・dry-run・outcome-fre
 
 ## Next
 
-24episodeのラベル品質レビューを、outcomeを見ない形で実施する。全TRUE例と層別FALSE例について、使用入力・triggered rules・fill sequenceを匿名化確認し、実装誤りと定義上の限界を分ける。v1閾値は変更せず、修正案はv2候補として記録する。成績や逆指標の結論は出さない。
+100口座pilot前にoutcome-free add evidence tableを実装し、その後層化候補100口座を固定してraw fills/TWAP/Funding/5分足の収集計画を実行する。再構成・会計誤差0を維持できない場合は500口座へ進まない。

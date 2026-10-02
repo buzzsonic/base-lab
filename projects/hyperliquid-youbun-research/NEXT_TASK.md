@@ -19,27 +19,27 @@
 - `labels/preregistered-v1/`
 - `analysis/exploratory-behavior-v1/`
 
-# 次タスク: outcome-blind品質レビューと標本拡大設計
+# 完了: outcome-blind品質レビューと標本拡大設計
 
-## 1. ラベル品質レビュー
+- 全TRUE 14episode＋層別all-FALSE 7episodeをレビューし21/21 PASS
+- v1閾値変更なし
+- add個別証跡不足をv2 pipeline候補として記録
+- 100口座pilot→500口座、探索60%・validation 20%・held-out 20%、eligible 2,000episode目標を設計
 
-- TRUE例を全件確認
-- FALSE例はLong/Short・coin・walletを跨ぐ層別サンプル
-- FOMO/Lateはpast-only入力とtriggered rulesを確認
-- Averaging Down/Profit Pyramidingは追加前平均建値、追加価格、追加比率、stable fill orderを確認
-- Revenge Candidateは前episode loss、gap、initial notional ratio、overlap除外を確認
-- outcome、PnL、勝敗、MFE/MAEをレビュー画面へ含めない
-- 実装バグと定義限界を分離する
-- v1閾値は変更せず、変更提案は`v2_candidates.md`へ記録する
+# 次タスク: 100口座pilot準備
 
-## 2. 100〜500口座・数千episodeへの拡大設計
+## 1. outcome-free add evidence table
 
-- selection biasを抑えるwallet層化
-- zero-to-zero再構成誤差0を維持する品質ゲート
-- TWAP cap、continuity error、left censoringの除外
-- 5分足5,000本制限を回避する継続collectorまたは固定期間設計
-- label-side cell最低50件を目標に必要口座数・期間を見積もる
-- exploratory用とheld-out confirmatory期間を事前分離
+- stable sequence index、timestamp、pre-add平均、add価格・数量、既存数量、size ratio、signed distance、分類を保存
+- outcome/PnLは含めない
+- v1判定と件数一致をtest化
+
+## 2. 100口座候補の層化と固定
+
+- volume、ROI/loss depth、activity、holding、market-cap exposure、fill frequencyで層化
+- sampling manifestと固定end timeを保存
+- 5分足継続collectorを先行し、API 5,000本制限を回避
+- 100口座で再構成・会計誤差0と除外率を確認後だけ500口座へ拡大
 
 ## 3. 引き続き禁止
 
