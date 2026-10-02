@@ -1,6 +1,13 @@
 name: Yobun Hoihoi Public Trades Discovery
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/youbun-hoihoi-*.yml'
+      - 'projects/hyperliquid-youbun-hoihoi/src/**'
+      - 'projects/hyperliquid-youbun-hoihoi/config.json'
+      - 'projects/hyperliquid-youbun-hoihoi/requirements.txt'
   workflow_dispatch:
     inputs:
       duration_seconds:

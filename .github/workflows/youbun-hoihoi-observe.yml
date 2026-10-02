@@ -1,5 +1,12 @@
 name: Yobun Hoihoi Daily Observation
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/youbun-hoihoi-*.yml'
+      - 'projects/hyperliquid-youbun-hoihoi/src/**'
+      - 'projects/hyperliquid-youbun-hoihoi/config.json'
+      - 'projects/hyperliquid-youbun-hoihoi/requirements.txt'
   workflow_dispatch:
   schedule:
     # Daily 01:20 JST
