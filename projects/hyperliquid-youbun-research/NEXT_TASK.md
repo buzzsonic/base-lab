@@ -42,7 +42,13 @@
 
 ---
 
-# PHASE 1: outcome-free add evidence table【最優先】
+# PHASE 1: outcome-free add evidence table【完了】
+
+- add events 2,464件
+- source trace不明0
+- dry-run Averaging Down 4件 / Profit Pyramiding 8件と一致
+- outcome列なし
+- 39 tests PASS
 
 目的:
 AVERAGING_DOWN / PROFIT_PYRAMIDINGの根拠を、個々の追加fill単位で監査可能にする。
@@ -102,7 +108,9 @@ PASS後PHASE 2へ進む。
 
 ---
 
-# PHASE 2: 100口座pilot sampling manifest作成
+# PHASE 2: 100口座pilot sampling manifest作成【次】
+
+開始条件: 行動ラベル結果を含まないdiscovery universeをCSV/JSONで正本化する。現在mainには固定可能な候補universeがないため、候補を推測して100口座を作らない。
 
 目的:
 100口座を固定し、探索用pilotを再現可能にする。

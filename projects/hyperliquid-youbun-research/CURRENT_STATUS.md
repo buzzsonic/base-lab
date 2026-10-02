@@ -57,7 +57,7 @@ PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500�
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 38 tests passed（従来37件＋outcome-blind選定1件）
+- 39 tests passed（従来38件＋add evidence outcome除外1件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -83,4 +83,4 @@ PoCデータ品質検証。outcome-blindラベル品質レビューと100〜500�
 
 ## Next
 
-100口座pilot前にoutcome-free add evidence tableを実装し、その後層化候補100口座を固定してraw fills/TWAP/Funding/5分足の収集計画を実行する。再構成・会計誤差0を維持できない場合は500口座へ進まない。
+outcome-free add evidence 2,464件を生成し、trace不明0、dry-runのAveraging Down 4件・Profit Pyramiding 8件と一致。次は行動結果を含まないdiscovery universeを正本化して100口座sampling manifestを固定する。
