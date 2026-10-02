@@ -6,12 +6,12 @@
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |
 | discovery pool / selected candidates | 200 / 100（未選抜100件を保持） |
-| selected status | OBSERVING 46、EXCLUDED 39、INACTIVE 15 |
+| selected status | OBSERVING 44、EXCLUDED 41、INACTIVE 15 |
 | flags in selected 100 | BOT 38、MM 10、arbitrage 1、farm 1（重複し得る） |
 | historical fills | 79/100で30日区間を完全取得、21/100はAPIの直近10,000件保持制約で不完全 |
 | small-alt-centric | 2/100（層化再PoCの偏りは未解決） |
 | latest snapshot / weekly | NOT RUN / NOT RUN（本体の永続化は未実装） |
-| last completed observation | [36956559977](https://github.com/buzzsonic/base-lab/actions/runs/36956559977) success |
+| last completed observation | [36991127825](https://github.com/buzzsonic/base-lab/actions/runs/36991127825) success（同日再観察） |
 | current blocker | 7日間・7 JST日分の完全取得はまだ満たさない。1,000-wallet拡大はHOLD |
 
 ## Issue #8 の比較基準
@@ -33,4 +33,4 @@
 - [収集run 36956559938](https://github.com/buzzsonic/base-lab/actions/runs/36956559938)はsuccess。原JSONLで再照合すると開始後の実時間約定2,952件、wallet598件、22/22銘柄、小型アルト12/12銘柄。再接続・解析エラー0。次の手動収集[36957019109](https://github.com/buzzsonic/base-lab/actions/runs/36957019109)もsuccess。
 - [観察run 36956559977](https://github.com/buzzsonic/base-lab/actions/runs/36956559977)はsuccess。100候補のcheckpointとregistryをdata branchへ保存。79件の30日区間は完全、21件はAPIの直近10,000件retentionで不完全。早期昇格0件。
 - 初回観察がpoolを100件へ縮めたため、data branchのpoolを200件へ復元（commit `4f904d7`）。[PR #20](https://github.com/buzzsonic/base-lab/pull/20)で次回以降の未選抜行保持、Parquetの列union、収集成功後の観察起動を修正。25テスト成功。
-- 修正後の[収集run 36990610067](https://github.com/buzzsonic/base-lab/actions/runs/36990610067)と後続観察の実行結果、同日再観察時の保存状態を確認中。小型アルト比率とheuristicの目視検証、snapshot/weekly永続化を次工程とする。詳細は `QUALITY_REPORT_RUNTIME_2026_10_02.md`。
+- 修正後の[push収集run 36990610067](https://github.com/buzzsonic/base-lab/actions/runs/36990610067)と[定刻収集run 36990861363](https://github.com/buzzsonic/base-lab/actions/runs/36990861363)はsuccess。[連動観察run 36991127825](https://github.com/buzzsonic/base-lab/actions/runs/36991127825)もsuccess。再保存後もpool 200件（選抜100件）、registry 100件、sample 0件、first_seen 100/100一致。成功観察日は79件が1日、21件が0日で同日二重加算なし。定刻収集に由来する[別の観察run 36991640533](https://github.com/buzzsonic/base-lab/actions/runs/36991640533)は、workflowのpush限定条件によってskipped。小型アルト比率とheuristicの目視検証、snapshot/weekly永続化を次工程とする。詳細は `QUALITY_REPORT_RUNTIME_2026_10_02.md`。
