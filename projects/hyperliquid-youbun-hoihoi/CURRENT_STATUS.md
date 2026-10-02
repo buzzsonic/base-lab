@@ -34,3 +34,9 @@
 - [観察run 36956559977](https://github.com/buzzsonic/base-lab/actions/runs/36956559977)はsuccess。100候補のcheckpointとregistryをdata branchへ保存。79件の30日区間は完全、21件はAPIの直近10,000件retentionで不完全。早期昇格0件。
 - 初回観察がpoolを100件へ縮めたため、data branchのpoolを200件へ復元（commit `4f904d7`）。[PR #20](https://github.com/buzzsonic/base-lab/pull/20)で次回以降の未選抜行保持、Parquetの列union、収集成功後の観察起動を修正。25テスト成功。
 - 修正後の[push収集run 36990610067](https://github.com/buzzsonic/base-lab/actions/runs/36990610067)と[定刻収集run 36990861363](https://github.com/buzzsonic/base-lab/actions/runs/36990861363)はsuccess。[連動観察run 36991127825](https://github.com/buzzsonic/base-lab/actions/runs/36991127825)もsuccess。再保存後もpool 200件（選抜100件）、registry 100件、sample 0件、first_seen 100/100一致。成功観察日は79件が1日、21件が0日で同日二重加算なし。定刻収集に由来する[別の観察run 36991640533](https://github.com/buzzsonic/base-lab/actions/runs/36991640533)は、workflowのpush限定条件によってskipped。小型アルト比率とheuristicの目視検証、snapshot/weekly永続化を次工程とする。詳細は `QUALITY_REPORT_RUNTIME_2026_10_02.md`。
+
+## 小型アルト候補の抽出修正
+
+- [PR #21](https://github.com/buzzsonic/base-lab/pull/21)をmainへ統合。collectorのcoverage.jsonに記録した小型アルト銘柄を公開約定由来候補の独立した層とし、26テスト成功。
+- 保存済み4収集runでの100イベント候補試算は、従来BTC/ETH 46・その他alt 54、修正後BTC/ETH 32・alt 36・small_alt 32。70 walletは共通、30 walletが入替。これは公開約定の候補枠の比較であり、30日履歴でのsmall_alt_core 2/100の改善はまだ未確認。
+- JST 00–05時帯の定刻収集と、200→100再PoCでの実際の選抜・retention率を次に検証する。1,000-wallet拡大はHOLD。

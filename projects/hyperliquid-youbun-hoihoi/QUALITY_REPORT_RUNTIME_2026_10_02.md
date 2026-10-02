@@ -21,3 +21,8 @@
 - [PR #20](https://github.com/buzzsonic/base-lab/pull/20)をmain@4ae4debへ統合。既存poolの未選抜行とfirst_seenを保持し、新旧行の列をunionしてParquet保存。収集成功後に観察を連動させる。25テスト、workflow YAML parse、diff check成功。
 - 修正後の[push収集run 36990610067](https://github.com/buzzsonic/base-lab/actions/runs/36990610067)、[定刻収集run 36990861363](https://github.com/buzzsonic/base-lab/actions/runs/36990861363)、[連動観察run 36991127825](https://github.com/buzzsonic/base-lab/actions/runs/36991127825)はsuccess。再観察後のpoolは200件（poc_selected 100件）、registry 100件、sample 0件。first_seenは100件共通で維持。成功観察日数は79件が1日・21件が0日で同日二重加算なし。statusはOBSERVING 44、EXCLUDED 41、INACTIVE 15へ更新。[別の観察run 36991640533](https://github.com/buzzsonic/base-lab/actions/runs/36991640533)はschedule由来のworkflow_runがpush限定条件に合わずskipped。
 - 7日観察条件、小型アルト2%、heuristicの目視検証、snapshot/weekly永続化は未達。1,000-wallet拡大はHOLD。
+
+## 小型アルトの候補抽出
+
+- 収集済み4runは小型アルトを別銘柄群として保存していたが、候補抽出はBTC/ETH以外をすべてalt層へまとめていた。[PR #21](https://github.com/buzzsonic/base-lab/pull/21)でcoverage.jsonのsmall_alt銘柄を独立層として扱うよう修正しmainへ統合。26テスト成功。
+- 保存済み4runの公開約定由来100候補の比較: 修正前BTC/ETH 46・alt 54、修正後BTC/ETH 32・alt 36・small_alt 32。共通70件、新規30件。30日履歴由来のsmall_alt_core比率改善は、次の再PoCで判定する。
