@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。episode再構成・会計照合・5分市場系列coverage棚卸しを完了し、限定的なpast-only価格・出来高特徴量の実装判断段階。
+PoCデータ品質検証。episode再構成・会計照合・市場coverage・限定past-only特徴量ゲートを通過し、行動ラベル定義の事前登録段階。
 
 ## Completed
 
@@ -27,6 +27,9 @@ PoCデータ品質検証。episode再構成・会計照合・5分市場系列cov
 - entryを含む未確定5分足を除外し、直前12本だけをentry特徴量窓にするpast-only契約をtest化
 - FEATURE_READY 0、PARTIAL 24、NOT_READY 37。OHLCV/volume完備24、Fundingは60/61でentry以前2時間内に観測
 - historical mark/OIは61件すべてNULL/unavailableとし、推定・0埋めを行わなかった
+- PARTIAL 24episodeへentry以前の確定12本だけからprice/volume/local structure特徴量を付与
+- BTC相対特徴量は24/24、Funding rateは23/24。mark/OIは24/24でNULLを維持
+- 24episode ID一意、数値特徴量有限、range position範囲内、再実行CSV同一を確認
 
 ## Latest Work
 
@@ -39,14 +42,16 @@ PoCデータ品質検証。episode再構成・会計照合・5分市場系列cov
 - 養分行動分類はまだ開始していない。
 - 公式candleの直近5,000本制限により、37episodeはentry前60分の5分足が0/12でNOT_READY。
 - PARTIAL 24episodeはpast-onlyのprice return／volume特徴量だけ許容する。mark/OI/Funding依存特徴量へ暗黙利用しない。
+- entry足、exit時刻、PnL、MFE/MAE、post-entry candleは特徴量計算interfaceから物理的に除外した。
+- 24件は特徴量パイプラインのPoCとして使用可能だが、行動別成績や「逆指標」の統計結論には少なすぎる。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 19 tests passed（従来14件＋市場coverage 5件）
+- 26 tests passed（従来19件＋past-only特徴量7件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
-- 最終成功通知run: `36873755127`。
+- 最終成功通知run: `36949200840`。
 
 ## Known Limitations
 
@@ -69,4 +74,4 @@ PoCデータ品質検証。episode再構成・会計照合・5分市場系列cov
 
 ## Next
 
-PARTIAL 24episodeに限定し、past-onlyのprice return／volume特徴量を別成果物として付与する。mark/OI依存特徴量と欠測Funding 1件はNULLのままにし、FOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類はまだ開始しない。
+FOMO / Late Long・Short / ナンピン / Revenge候補のラベル定義を、閾値・必要series・除外条件・比較対象を含めて事前登録する。24episodeでの分類はpipeline検証に限定し、成績や逆指標の結論を出さない。mark/OIが必要なCrowdingと、過去marginが必要なTrapped/Liquidationは開始しない。

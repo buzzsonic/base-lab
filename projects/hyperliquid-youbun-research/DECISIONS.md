@@ -53,3 +53,12 @@
 - 許容範囲: PARTIAL 24episodeではpast-onlyのprice return／volume特徴量だけを明示的に許容する。mark/OI/crowding依存分析へは使わない。
 - 理由: 公式Info APIは現在のmark/OIを返すが過去時系列endpointではなく、公式archiveも月次程度・遅延／欠測あり。未確認の過去値を推定すると品質ゲートを壊す。
 - 影響範囲: 次はPARTIAL集合への限定的なpast-only特徴量付与。行動分類はまだ開始しない。
+
+## 2026-10-02 限定past-only特徴量ゲートを通過する
+
+- 決定内容: PARTIAL 24episodeに対し、entry直前12本だけからprice return、volume、local structure、BTC relative、Funding rateを生成し、限定特徴量ゲートをPASSとする。
+- 実データ: price/volume/local structure/BTC relativeは24/24、Funding rateは23/24。historical mark/OIは0/24でNULLを維持。
+- 時点契約: entry足、未来足、exit、PnL、MFE/MAEを計算interfaceへ渡さない。同一timestamp candleの重複または12本未満はwindow全体を不適格にする。
+- 定義: returnはlookback内の最初のopenから最後のclose、volume比は直近区間をそれ以前の同幅換算量と比較、breakout distanceはLONG/SHORT方向へ整合させる。詳細は`features/past-only-2026-10-02/feature_definitions.md`。
+- 再現性: 24 episode ID一意、数値特徴量は全件有限、range positionは0〜1、cached再実行で成果物がbyte-identical、26 tests PASS。
+- 影響範囲: 次は行動ラベル定義の事前登録。24件での分類結果はpipeline検証に限定し、統計的な成績結論には使わない。Crowding/Trapped/Liquidationは必要series不足のため保留する。
