@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T15:00:49.159292+00:00",
+  "generated_at": "2026-10-02T15:09:02.486351+00:00",
   "sample_version": "sample_20261003",
   "quality": {
     "wallets": 100,
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "f68f47a4c730b69d1cc4a5fef32c2439ae711816d97cbdf323d23da38c361b33",
+  "market_snapshot_version": "c5a26b8eb6a340be6bb3bc3ba512e463f2a251438208be2d69b246f27902e433",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
