@@ -2,258 +2,203 @@
 
 作業開始時は `PROJECT_CONTEXT.md`、`CURRENT_STATUS.md`、本ファイル、`DECISIONS.md` を先に読む。
 
-## 0. 完了済みゲート
+# 運用方針
 
-- episode再構成: 61/61 PASS
-- 層別目視: 20/20 PASS
-- 会計照合: 61/61 PASS
-- 5分市場series coverage: 完了
-- past-only特徴量: PARTIAL 24episodeへ付与済み
-- future leakage test: PASS
-- historical mark / OI: unavailableのためNULL維持
-- 26 tests PASS
+このファイルは「1工程だけ」で止めず、原則として2〜3工程を連続実行する。
+
+各工程の品質ゲートをPASSした場合は、ユーザー確認を待たず次工程へ進む。
+重大差異・仕様衝突・データ不足・安全上の懸念がある場合のみ停止する。
+
+作業終了時は、その時点までの成果をまとめて
+- CURRENT_STATUS.md
+- NEXT_TASK.md
+- 必要ならDECISIONS.md
+へ反映し、test、commit、push、Discord通知まで行う。
+
+養分ホイホイには変更を加えない。
 
 ---
 
-## 1. 行動ラベル定義の事前登録【最優先】
+# 現在地
 
-目的:
-24episodeの実データを見てから都合よく閾値を変更することを防ぎ、再現可能な行動分類ルールを先に固定する。
+完了:
+- episode再構成 61/61 PASS
+- 層別目視 20/20 PASS
+- 会計照合 61/61 PASS
+- 市場series coverage棚卸し完了
+- PARTIAL 24episodeへpast-only特徴量付与済み
+- future leakage test PASS
+- 26 tests PASS
 
-今回は「定義・実装契約・テスト」まで。
-24episodeへの分類結果はpipeline確認に限定し、成績評価や逆指標性の結論を出さない。
+historical mark / OIは unavailable のためNULL維持。
+
+---
+
+# PHASE 1: 行動ラベルv1の事前登録
+
+以下を事前登録する。
+
+- FOMO_LONG / FOMO_SHORT
+- LATE_LONG / LATE_SHORT
+- AVERAGING_DOWN_LONG / SHORT
+- PROFIT_PYRAMIDING_LONG / SHORT
+- REVENGE_CANDIDATE
 
 成果物:
 `labels/preregistered-v1/`
 
 最低限:
-- `README.md`
-- `label_definitions.md`
-- `label_config.json`
-- `label_schema.json`
-- 単体test
-- 24episodeへのdry-run結果
+- README.md
+- label_definitions.md
+- label_config.json
+- label_schema.json
+- unit tests
 
----
+要件:
+- 閾値は24episodeの結果を見る前に固定
+- required_featuresを明示
+- missing featureはFALSEではなくUNAVAILABLE
+- 1episode複数ラベル可
+- Long/Shortはdirection-adjusted metricで共通実装
+- config_versionを固定
+- v1を後から上書きしない。変更はv2
 
-## 2. v1で事前登録するラベル
+Crowding / Trapped / Liquidation behaviorはまだ対象外。
 
-### FOMO_LONG / FOMO_SHORT
+## PHASE 1 Gate
 
-基本概念:
-短時間にすでに大きく進んだ方向へ、出来高拡大を伴って遅れてentryした行動。
-
-使用可能series:
-- return_5m
-- return_15m
-- return_1h
-- volume_ratio
-- range_position
-- breakout_distance
-- BTC relative
-- side
-
-必要条件を明文化:
-- direction-adjusted returnが一定以上
-- volume拡大
-- local range端に近い
-- entry方向と直前moveが同方向
-
-閾値はconfigへ固定する。
-閾値の根拠は「PoC初期値」として明記し、24episodeを見てから変更しない。
-
-### LATE_LONG / LATE_SHORT
-
-基本概念:
-方向自体は継続しているが、entry時点ですでにmoveの後半・range端・breakout後に位置するentry。
-
-FOMOとの違い:
-- FOMOは急加速＋出来高拡大を重視
-- Lateはmove進行度・位置を重視
-
-必要条件:
-- direction-adjusted return
-- range_position / local high-low距離
-- breakout_distance
-- side整合
-
-FOMOとの重複可否を明記する。
-
-### AVERAGING_DOWN_LONG / AVERAGING_DOWN_SHORT
-
-基本概念:
-既存ポジションが含み損方向へ動いた後、同方向へ追加する行動。
-
-これはmarket featureではなくepisode内fill sequenceを主に使う。
-
-必要条件:
-- 同一episode内で追加fillあり
-- 追加前から既存positionあり
-- 追加時価格が、Longなら平均entryより不利な下側、Shortなら不利な上側
-- 追加量が極小ノイズでない
-
-保存:
-- adds_count
-- adverse_add_count
-- adverse_add_size_ratio
-- worst_adverse_add_distance
-
-Profit pyramidingと区別する。
-
-### PROFIT_PYRAMIDING_LONG / SHORT
-
-基本概念:
-含み益方向へ進んだ後に同方向へ追加。
-
-AVERAGING_DOWNと対称ルールで定義する。
-将来比較用に必ず分けて保存する。
-
-### REVENGE_CANDIDATE
-
-基本概念:
-損失episode終了後、短時間で次episodeへ入り、通常よりサイズまたはentry頻度が増える候補。
-
-重要:
-単一episodeでは確定できない。
-wallet内episode sequenceを使用する。
-
-必要条件:
-- 直前episodeがloss
-- 次entryまでのelapsed time
-- 前episode比のsize ratio
-- 同一coin / 反対side / 同方向のどれかを補助情報として保存
-
-v1では「候補ラベル」とし、心理状態を断定しない。
-
----
-
-## 3. 今回まだ定義しないラベル
-
-以下はseries不足のためv1対象外。
-
-- CROWDING
-  - historical OI不足
-- TRAPPED
-  - historical margin / liquidation state不足
-- LIQUIDATION_BEHAVIOR
-  - liquidation event標本不足
-- 「逆指標」
-  - outcome評価であり行動ラベルではない
-
----
-
-## 4. Long / Short正規化
-
-全ラベルはdirection-adjusted metricを使える設計にする。
-
-例:
-- Long: price riseをpositive
-- Short: price fallをpositive
-
-Long/Shortで別実装を乱立させず、共通関数＋side signで正規化する。
-
-ただし出力ラベル名はLONG / SHORTを明示する。
-
----
-
-## 5. 重複ラベル方針
-
-1 episodeに複数ラベルを許可する。
-
-例:
-- FOMO_LONG + LATE_LONG
-- AVERAGING_DOWN_LONG + FOMO_LONG
-
-排他的分類にしない。
-
-各ラベルについて:
-- boolean
-- score
-- triggered_rules
-- missing_required_features
-を保存する。
-
-必要series不足時はFALSEにせず `UNAVAILABLE` を持てるschemaにする。
-
----
-
-## 6. 閾値の事前固定
-
-`label_config.json` にすべての閾値を保存する。
-
-必須:
-- config_version
-- created_at
-- rationale
-- threshold値
-- required_features
-- minimum_sample_note
-
-24episodeの分類結果を見た後にv1閾値を書き換えない。
-
-変更が必要なら `v2` として別versionを作る。
-
----
-
-## 7. 24episode dry-run
-
-事前登録後にのみ24episodeへ適用する。
-
-目的:
-- 実装が動くか
-- coverageは足りるか
-- UNAVAILABLEが正しく出るか
-- Long/Short対称性が保たれるか
-- 重複ラベルがschema通り保存されるか
-
-確認するだけで、以下はまだ比較しない:
-- 勝率
-- PnL平均
-- PF
-- 「FOMOは負ける」
-- 「ナンピンは悪い」
-- 「逆に張れば勝てる」
-
----
-
-## 8. test
-
-最低限:
-
-- Long/Short direction symmetry
-- threshold boundary
-- missing feature -> UNAVAILABLE
-- FOMO/Late重複
-- adverse add vs profit pyramiding分離
-- Revenge candidateのepisode sequence
-- future leakageなし
-- config version固定
-- dry-run再現性
-
----
-
-## 9. 次ゲート
-
-以下がPASSしたら、次回から exploratory behavior classification に進める。
+以下がPASSしたらPHASE 2へ自動進行。
 
 - label definitions完成
 - config固定
 - schema固定
 - tests PASS
-- 24episode dry-run完了
-- label availability集計完了
-
-その次に「標本拡大前のexploratory分類」を行う。
+- future leakageなし
+- Long/Short symmetry test PASS
 
 ---
 
-## 作業終了時
+# PHASE 2: 24episodeへのdry-run分類
 
-- `CURRENT_STATUS.md` 更新
-- `NEXT_TASK.md` 更新
-- 必要なら `DECISIONS.md` 追記
-- テスト実行
+PHASE 1の固定済みv1を、PARTIAL 24episodeへ適用する。
+
+目的はpipeline検証であり、成績評価ではない。
+
+各episodeについて保存:
+- episode_id
+- wallet匿名ID
+- coin
+- side
+- 各label status: TRUE / FALSE / UNAVAILABLE
+- label score
+- triggered_rules
+- missing_required_features
+- config_version
+
+集計:
+- label availability件数
+- TRUE / FALSE / UNAVAILABLE件数
+- 重複ラベル件数
+- Long / Short別件数
+- wallet別件数
+
+この段階では以下を結論化しない:
+- 勝率
+- 平均PnL
+- PF
+- 「FOMOは負ける」
+- 「ナンピンは悪い」
+- 「逆張りすれば勝てる」
+
+## PHASE 2 Gate
+
+以下がPASSしたらPHASE 3へ自動進行。
+
+- 24episode全件出力
+- schema validation PASS
+- 再実行で同一結果
+- UNAVAILABLE処理正常
+- 重複ラベル正常
+- no future leakage
+- 明らかな実装バグなし
+
+---
+
+# PHASE 3: exploratory behavior summary
+
+PHASE 2がPASSしたら、初回の探索的サマリを作る。
+
+重要:
+24episodeは標本が小さいため、統計的な結論ではなく「どの行動がどれくらい出るか」の分布確認に限定する。
+
+出力:
+`analysis/exploratory-behavior-v1/`
+
+最低限:
+- README.md
+- label_counts.csv
+- episode_labels.csv
+- wallet_label_summary.csv
+
+見る項目:
+- FOMO候補件数
+- Late候補件数
+- Averaging Down件数
+- Profit Pyramiding件数
+- Revenge Candidate件数
+- 重複パターン
+- walletごとの偏り
+- coinごとの偏り
+- Long/Short偏り
+- UNAVAILABLE率
+
+PnL関連は参考値として別セクションに分離し、標本不足を明記する。
+有意差・勝率優位・逆指標性の結論は出さない。
+
+## PHASE 3 Gate
+
+PHASE 3終了時に次の判断材料を作る。
+
+- どのラベルが実際に十分発生するか
+- どのラベルがほぼ発生しないか
+- どのseries不足がボトルネックか
+- 標本拡大時に優先すべきラベル
+- v1定義で明らかな不自然さがあるか
+- v2を作る必要があるか
+
+v2が必要な場合もv1結果を保存したまま別versionで作る。
+
+---
+
+# 停止条件
+
+以下の場合のみ途中停止して報告する。
+
+- 重大な再構成差異
+- データ破損
+- v1定義と実データ構造の根本的不整合
+- 既存テストの回帰
+- future leakage検出
+- GitHub競合
+- 仕様判断が研究結果を大きく左右し、既存DECISIONS.mdで解決できない場合
+
+軽微な閾値・命名・ファイル構成は合理的に決めて続行する。
+
+---
+
+# 作業終了時
+
+必ず:
+- CURRENT_STATUS.md更新
+- NEXT_TASK.md更新
+- 必要ならDECISIONS.md追記
+- 全test実行
 - 養分くん対象ファイルだけcommit/push
-- push成功後のみ養分くん専用Discordへ完了通知
+- push成功後のみ養分くん専用Discord通知
 
-養分ホイホイには変更を加えない。
+完了報告には
+1. どこまで進んだか
+2. 各PHASEの結果
+3. 停止理由があればその理由
+4. 次に何をするか
+を短く明記する。
