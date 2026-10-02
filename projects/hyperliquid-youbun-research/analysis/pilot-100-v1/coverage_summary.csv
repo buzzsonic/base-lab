@@ -1,0 +1,7 @@
+series,status,reason
+fills,COMPLETE_ENDPOINT,100/100 wallet requests succeeded
+twap,COMPLETE_ENDPOINT,100/100 wallet requests succeeded; cap hits 0
+funding,COMPLETE_ENDPOINT,100/100 wallet requests succeeded; safety cap hits 0
+ohlcv,NOT_RUN,stopped on major reconstruction discrepancy before market collection
+btc_reference,NOT_RUN,stopped on major reconstruction discrepancy before market collection
+historical_mark_oi,UNAVAILABLE,no inference or zero fill

@@ -1,0 +1,5 @@
+metric,count,status
+reconstructed_episodes,46182,OBSERVED
+completed_uncensored,44125,OBSERVED
+quantity_mismatches,107,FAIL
+continuity_errors,3790,FAIL

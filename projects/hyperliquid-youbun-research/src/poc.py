@@ -68,7 +68,8 @@ def select_accounts(rows: list[dict], limit: int) -> list[dict]:
             for row, item in chosen]
 
 
-def fetch_fills(wallet: str, start_ms: int, end_ms: int, raw_dir: Path) -> list[dict]:
+def fetch_fills(wallet: str, start_ms: int, end_ms: int, raw_dir: Path,
+                page_delay_seconds: float = 4.0) -> list[dict]:
     cache = raw_dir / f"fills_{wallet.lower()}_{start_ms}_{end_ms}.json"
     if cache.exists():
         return json.loads(cache.read_text())
@@ -82,7 +83,7 @@ def fetch_fills(wallet: str, start_ms: int, end_ms: int, raw_dir: Path) -> list[
         cursor = max(int(row["time"]) for row in batch) + 1
         if cursor >= end_ms:
             break
-        time.sleep(4.0)
+        time.sleep(page_delay_seconds)
     cache.write_text(json.dumps(rows, ensure_ascii=False))
     return rows
 
@@ -102,7 +103,8 @@ def fetch_twap_fills(wallet: str, start_ms: int, end_ms: int, raw_dir: Path) -> 
     return rows
 
 
-def fetch_funding(wallet: str, start_ms: int, end_ms: int, raw_dir: Path) -> list[dict]:
+def fetch_funding(wallet: str, start_ms: int, end_ms: int, raw_dir: Path,
+                  page_delay_seconds: float = 4.0) -> list[dict]:
     cache = raw_dir / f"funding_{wallet.lower()}_{start_ms}_{end_ms}.json"
     if cache.exists():
         return json.loads(cache.read_text())
@@ -116,7 +118,7 @@ def fetch_funding(wallet: str, start_ms: int, end_ms: int, raw_dir: Path) -> lis
         cursor = max(int(row["time"]) for row in batch) + 1
         if cursor >= end_ms:
             break
-        time.sleep(4.0)
+        time.sleep(page_delay_seconds)
     cache.write_text(json.dumps(rows, ensure_ascii=False))
     return rows
 

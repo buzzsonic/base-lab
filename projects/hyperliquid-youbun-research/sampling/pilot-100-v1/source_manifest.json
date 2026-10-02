@@ -1,0 +1,66 @@
+{
+  "candidate_wallets_after_fixed_start": 598,
+  "fixed_end_time": "2026-10-02T02:43:43.773351Z",
+  "fixed_start_time": "2026-10-02T02:38:43.371144Z",
+  "prohibited_sampling_inputs": [
+    "PnL",
+    "ROI",
+    "win/loss",
+    "episode outcome",
+    "behavior labels"
+  ],
+  "sample_version": "pilot-100-v1",
+  "sampling_inputs": [
+    "trade time",
+    "trade price",
+    "trade size",
+    "coin",
+    "public trade participants"
+  ],
+  "schema_version": 1,
+  "selected_wallets": 100,
+  "selection_algorithm_version": "public-trades-stratified-v1",
+  "selection_seed": "youbun-pilot-100-v1-20261002",
+  "source_branch": "data",
+  "source_commit": "4fea9437aac3036f7fb64abc74ae37e23a7e906a",
+  "source_data_version": "discovery-runtime-20261002T023843Z",
+  "source_files": [
+    {
+      "path": "projects/hyperliquid-youbun-hoihoi/outputs/current/discovery/date=2026-10-02/window=jst_06_11/run=20261002T023843Z/public.jsonl",
+      "sha256": "d3026a9e88f9fe8e9cfb7c5ed16a7f8e189ec74c9b7a4b35b1ce3027c49be498"
+    }
+  ],
+  "source_project": "projects/hyperliquid-youbun-hoihoi",
+  "split_counts": {
+    "exploratory": 60,
+    "held_out": 20,
+    "validation": 20
+  },
+  "strata_counts": {
+    "size=large|frequency=high|symbol=alt|activity=jst_06_11": 5,
+    "size=large|frequency=high|symbol=major|activity=jst_06_11": 2,
+    "size=large|frequency=low|symbol=alt|activity=jst_06_11": 5,
+    "size=large|frequency=low|symbol=major|activity=jst_06_11": 5,
+    "size=large|frequency=low|symbol=small_alt|activity=jst_06_11": 2,
+    "size=large|frequency=medium|symbol=alt|activity=jst_06_11": 5,
+    "size=large|frequency=medium|symbol=major|activity=jst_06_11": 5,
+    "size=medium|frequency=high|symbol=alt|activity=jst_06_11": 5,
+    "size=medium|frequency=high|symbol=major|activity=jst_06_11": 5,
+    "size=medium|frequency=high|symbol=small_alt|activity=jst_06_11": 1,
+    "size=medium|frequency=low|symbol=alt|activity=jst_06_11": 4,
+    "size=medium|frequency=low|symbol=major|activity=jst_06_11": 4,
+    "size=medium|frequency=low|symbol=small_alt|activity=jst_06_11": 4,
+    "size=medium|frequency=medium|symbol=alt|activity=jst_06_11": 4,
+    "size=medium|frequency=medium|symbol=major|activity=jst_06_11": 4,
+    "size=medium|frequency=medium|symbol=small_alt|activity=jst_06_11": 4,
+    "size=small|frequency=high|symbol=alt|activity=jst_06_11": 4,
+    "size=small|frequency=high|symbol=major|activity=jst_06_11": 4,
+    "size=small|frequency=high|symbol=small_alt|activity=jst_06_11": 4,
+    "size=small|frequency=low|symbol=alt|activity=jst_06_11": 4,
+    "size=small|frequency=low|symbol=major|activity=jst_06_11": 4,
+    "size=small|frequency=low|symbol=small_alt|activity=jst_06_11": 4,
+    "size=small|frequency=medium|symbol=alt|activity=jst_06_11": 4,
+    "size=small|frequency=medium|symbol=major|activity=jst_06_11": 4,
+    "size=small|frequency=medium|symbol=small_alt|activity=jst_06_11": 4
+  }
+}
