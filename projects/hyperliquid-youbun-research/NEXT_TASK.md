@@ -2,152 +2,187 @@
 
 作業開始時は `PROJECT_CONTEXT.md`、`CURRENT_STATUS.md`、本ファイル、`DECISIONS.md` を先に読む。
 
-## 0. 完結61episodeの層別目視検証（完了）
+## 0. 完了済みゲート
 
-結果:
+### episode再構成
 - 全61episode 自動照合 61/61 PASS
 - 層別20episode 匿名化レビュー 20/20 PASS
 - 重大差異0
-- 10口座すべてをレビュー対象に含む
-- 反転境界2/2確認
-- 再構成ロジック修正なし
 
-成果物:
-- `reviews/episode-quality-2026-10-02/README.md`
-- `reviews/episode-quality-2026-10-02/episode_review.csv`
-
-この品質ゲートは通過済み。
-
----
-
-## 1. TWAP / Funding / builder fee 会計照合（完了）
-
-結果:
-- eligible 10口座・完結61episodeの会計照合 61/61 PASS
-- closedPnl / fee / Funding / net PnLの重大差異0
-- Funding非zero 44episode、合計-1,004.713607 USDC
-- builderFee非zero 9episode、合計565.678405 USDC
-- builderFeeは全件fee内包、再加算0
-- eligible口座のTWAP追加0件
-- TWAP 2,000件上限・continuity error 15件の口座を除外
-- 旧cacheのstored eligible flag不整合1件はWARN。再計算条件では正しく除外
-
-成果物: `reviews/accounting-quality-2026-10-02/`
-
-目的:
-episode純損益と費用の二重計上・欠落を防ぎ、行動分析前の会計品質ゲートを確定する。
-
-### 対象
-eligible 10口座・完結61episode。
-
-### 確認項目
-全61episodeについて以下を集計・照合する。
-
-- closedPnl
-- fee
-- builderFee
-- Funding
-- episode net PnL
-- Funding発生episode数
-- Funding総額
-- builderFee非zero episode数
-- builderFeeがfeeへ含まれているか
-- feeへのbuilderFee再加算が起きていないか
-- TWAP関連fillの有無
-- TWAP上限口座が確実に分析対象外になっているか
-
-### TWAP
-- eligible 10口座でTWAP追加0件であることを再確認。
-- TWAP endpoint 2,000件上限に達した口座は引き続き除外。
-- その除外条件をfixture / test / reportに残す。
-- 将来TWAP fillがある場合のdata contractも明記する。
-
-### 成果物
-`reviews/accounting-quality-2026-10-02/` を作り、最低限以下を保存。
-
-- `README.md`
-- episode単位reconciliation CSV
-- Funding集計
-- builderFee集計
-- TWAP除外条件
-- PASS / WARN / FAIL判定
-
-### 品質ゲート
-- 二重計上0
-- 欠落0、または既知欠測として説明可能
-- builderFee包含関係が確定
-- TWAP除外条件がtestで担保
+### 会計照合
+- closedPnl / fee / Funding / net PnL 61/61 PASS
+- Funding非zero 44episode
+- builderFee非zero 9episode
+- builderFee二重計上0
+- TWAP上限口座の除外条件をtestで固定
 - 重大差異0
 
-重大差異があれば修正・再テスト・再照合してから次へ進む。
-
 ---
 
-## 2. 5分市場系列coverage定量化【最優先】
+## 1. 5分市場系列coverage定量化【最優先】
 
 目的:
-FOMO / Late / Trapped等の判定に必要な市場特徴量を、どのepisodeで安全に計算できるか確定する。
+FOMO / Late / Trapped / breakout / crowding等の行動分類に必要な市場特徴量を、どのepisodeで安全に計算できるか確定する。
 
-### episodeごとに確認
-entry前後の必要時間窓について、以下の取得可否とcoverage率を保存する。
+対象:
+eligible 10口座・完結61episode。
 
-- OHLCV
+### episodeごとの必要窓
+
+entry時点を基準に、少なくとも以下を確認する。
+
+- entry前 60分
+- entry前 15分
+- entry前 5分
+- entry後 60分（MFE/MAE等の評価用。entry判定特徴量には使わない）
+
+### series
+
+各episodeについて以下を確認する。
+
+- 5m OHLCV
 - mark price
 - OI
 - Funding
-- 可能なら trades / volume
+- volume / trades（取得可能なら）
 
-### 原則
-- 欠測は0で埋めない。NULL / unavailableとして扱う。
-- future情報をentry時点特徴量へ混入させない。
-- candle 5,000本制限により不足するepisodeは明示する。
-- coverage不足episodeは行動分類対象から外すか、特徴量ごとに利用可否を持たせる。
+### coverage保存項目
 
-### 成果物
-`reviews/market-coverage-2026-10-02/` を作成。
+episode単位で最低限以下を保存する。
 
-最低限:
-- episode ID
+- episode_id
+- wallet匿名ID
 - coin
-- entry time
-- 必要窓
-- OHLCV coverage
-- OI coverage
-- Funding coverage
-- mark coverage
-- 欠測理由
+- side
+- entry_time
+- exit_time
+- required_start
+- required_end
+- ohlcv_coverage_ratio
+- mark_coverage_ratio
+- oi_coverage_ratio
+- funding_coverage_ratio
+- volume_coverage_ratio（取得時）
+- missing_series
+- missing_reason
 - FEATURE_READY / PARTIAL / NOT_READY
 
+### 判定基準
+
+FEATURE_READY:
+- entry前に必要な主要seriesが揃う
+- past-only特徴量を安全に算出可能
+- 未来情報混入なし
+
+PARTIAL:
+- 一部series欠測
+- 使用可能特徴量を個別管理できる
+
+NOT_READY:
+- entry前windowが不足
+- candle上限等で主要特徴量を安全に作れない
+
+### 原則
+
+- 欠測を0で埋めない
+- unavailable / NULLとして明示
+- future情報をentry特徴量へ混入させない
+- entry後データは評価用特徴量として別namespace / 別列群に分離
+- candle 5,000本制限による欠測理由を明示
+- coin/timezone/time alignmentをtestで担保
+
+### 成果物
+
+`reviews/market-coverage-2026-10-02/`
+
+最低限:
+- `README.md`
+- `episode_market_coverage.csv`
+- series別coverage集計
+- FEATURE_READY / PARTIAL / NOT_READY件数
+- coin別・期間別の欠測理由
+- 行動分類へ進めるepisode集合
+
 ### 完了条件
-- 61episode全件のcoverage状態が明示されている
-- 欠測が0埋めされていない
-- past-only条件をtestで担保
-- 行動分類へ使えるepisode集合が確定する
+
+- 61episode全件のcoverage状態が確定
+- 欠測0埋めなし
+- future leakage test PASS
+- timestamp alignment test PASS
+- FEATURE_READY集合が明示
+- PARTIALを使う場合の許容特徴量が明示
+- NOT_READY除外理由が明示
 
 ---
 
-## 3. 市場特徴量付与【coverage確認後】
+## 2. past-only市場特徴量付与【coverageゲートPASS後】
 
-FEATURE_READY episodeのみにpast-only特徴量を付与する。
+FEATURE_READY episodeを主対象に実装する。
 
-候補:
-- entry前5m / 15m / 1h return
-- volume ratio
-- OI change
-- Funding
-- BTC relative strength
-- breakout distance
-- local high / low distance
-- volatility
-- entry後のMFE / MAEは評価用として分離し、entry判定特徴量に混ぜない
+### entry時点特徴量
 
-特徴量定義・時点整合性・欠測処理を文書化する。
+最低限候補:
+
+- return_5m
+- return_15m
+- return_1h
+- volume_ratio_5m
+- volume_ratio_15m
+- oi_change_5m
+- oi_change_15m
+- funding_rate
+- btc_return_5m
+- btc_return_15m
+- btc_relative_strength
+- distance_from_local_high
+- distance_from_local_low
+- realized_volatility
+- breakout_distance
+- range_position
+
+### 評価用特徴量
+
+entry後情報は必ず別扱い。
+
+- MFE
+- MAE
+- max_adverse_move_time
+- max_favorable_move_time
+- post_entry_volume
+- post_entry_oi_change
+
+これらをentry分類ロジックへ混入させない。
+
+### 特徴量定義書
+
+各特徴量について記録する。
+
+- 数式
+- 使用series
+- lookback
+- timestamp基準
+- 欠測時処理
+- future leakage有無
+- 適用可能episode
 
 ---
 
-## 4. 行動分類はまだ開始しない
+## 3. 行動分類開始前ゲート
 
-以下は今回まだ判定・結論化しない。
+以下を満たしたら次回から行動分類開始可。
+
+- episode品質 PASS
+- 会計品質 PASS
+- market coverage確定
+- past-only特徴量生成 PASS
+- future leakage test PASS
+- FEATURE_READY集合確定
+
+---
+
+## 4. まだ開始しない分類
+
+今回はまだ以下を判定しない。
 
 - FOMO
 - Late Long / Short
@@ -155,9 +190,8 @@ FEATURE_READY episodeのみにpast-only特徴量を付与する。
 - Revenge
 - Trapped
 - Crowding
+- Liquidation behavior
 - 「養分は逆指標」等の結論
-
-会計照合・市場coverage・past-only特徴量基盤が完成してから開始する。
 
 ---
 
