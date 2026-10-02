@@ -73,6 +73,13 @@ def trade_stream_candidates(paths: list[Path], limit: int) -> list[dict]:
     for path in paths:
         if not path.exists():
             continue
+        # The collector records its actual small-alt market selection beside each stream.
+        # An older stream without this sidecar retains the legacy major/alt grouping.
+        try:
+            coverage = json.loads((path.parent / "coverage.json").read_text())
+            small_alts = set(coverage.get("markets", {}).get("small_alt", []))
+        except (OSError, ValueError, TypeError, AttributeError):
+            small_alts = set()
         with path.open(errors="replace") as handle:
             for line in handle:
                 try:
@@ -87,7 +94,8 @@ def trade_stream_candidates(paths: list[Path], limit: int) -> list[dict]:
                     coin = str(trade.get("coin") or "")
                     time_ms = int(trade.get("time") or envelope.get("source_time") or 0)
                     hour = (time_ms // 3_600_000) % 24 if time_ms else 0
-                    symbol_group = "btc_eth" if coin in {"BTC", "ETH"} else "alt"
+                    symbol_group = ("btc_eth" if coin in {"BTC", "ETH"} else
+                                    "small_alt" if coin in small_alts else "alt")
                     for role, raw in zip(("taker_or_buyer", "maker_or_seller"), trade.get("users") or []):
                         wallet = normalize_wallet(raw)
                         if wallet:
