@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。episode再構成・会計照合・市場coverage・限定past-only特徴量ゲートを通過し、行動ラベル定義の事前登録段階。
+PoCデータ品質検証。行動ラベルv1事前登録・dry-run・outcome-free探索分布まで完了し、ラベル品質レビューと標本拡大設計段階。
 
 ## Completed
 
@@ -30,6 +30,10 @@ PoCデータ品質検証。episode再構成・会計照合・市場coverage・�
 - PARTIAL 24episodeへentry以前の確定12本だけからprice/volume/local structure特徴量を付与
 - BTC相対特徴量は24/24、Funding rateは23/24。mark/OIは24/24でNULLを維持
 - 24episode ID一意、数値特徴量有限、range position範囲内、再実行CSV同一を確認
+- FOMO / Late / Averaging Down / Profit Pyramiding / Revenge Candidateのv1定義・閾値・tri-state schemaを事前登録
+- 24episode dry-runはFOMO 1、Late 2、Averaging Down 4、Profit Pyramiding 8、Revenge Candidate 4。Revenge 6件は前episode不足でUNAVAILABLE
+- dry-run成果物にPnL・勝敗・MFE/MAE・post-entry結果を含めず、再実行同一を確認
+- PHASE 3としてwallet・coin・side・重複パターン別のoutcome-free分布サマリを作成
 
 ## Latest Work
 
@@ -44,14 +48,16 @@ PoCデータ品質検証。episode再構成・会計照合・市場coverage・�
 - PARTIAL 24episodeはpast-onlyのprice return／volume特徴量だけ許容する。mark/OI/Funding依存特徴量へ暗黙利用しない。
 - entry足、exit時刻、PnL、MFE/MAE、post-entry candleは特徴量計算interfaceから物理的に除外した。
 - 24件は特徴量パイプラインのPoCとして使用可能だが、行動別成績や「逆指標」の統計結論には少なすぎる。
+- label config v1.0.0はdry-run後に固定。閾値変更はv1上書きではなくv2を作る。
+- FOMO/Late重複はschema上許可しsynthetic test済みだが、今回の24件では重複0。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 26 tests passed（従来19件＋past-only特徴量7件）
+- 37 tests passed（従来26件＋ラベル9件＋探索集計2件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
-- 最終成功通知run: `36949200840`。
+- 最終成功通知run: `36956495550`。
 
 ## Known Limitations
 
@@ -74,4 +80,4 @@ PoCデータ品質検証。episode再構成・会計照合・市場coverage・�
 
 ## Next
 
-FOMO / Late Long・Short / ナンピン / Revenge候補のラベル定義を、閾値・必要series・除外条件・比較対象を含めて事前登録する。24episodeでの分類はpipeline検証に限定し、成績や逆指標の結論を出さない。mark/OIが必要なCrowdingと、過去marginが必要なTrapped/Liquidationは開始しない。
+24episodeのラベル品質レビューを、outcomeを見ない形で実施する。全TRUE例と層別FALSE例について、使用入力・triggered rules・fill sequenceを匿名化確認し、実装誤りと定義上の限界を分ける。v1閾値は変更せず、修正案はv2候補として記録する。成績や逆指標の結論は出さない。

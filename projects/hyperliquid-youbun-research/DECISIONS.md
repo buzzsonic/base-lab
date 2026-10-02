@@ -62,3 +62,19 @@
 - 定義: returnはlookback内の最初のopenから最後のclose、volume比は直近区間をそれ以前の同幅換算量と比較、breakout distanceはLONG/SHORT方向へ整合させる。詳細は`features/past-only-2026-10-02/feature_definitions.md`。
 - 再現性: 24 episode ID一意、数値特徴量は全件有限、range positionは0〜1、cached再実行で成果物がbyte-identical、26 tests PASS。
 - 影響範囲: 次は行動ラベル定義の事前登録。24件での分類結果はpipeline検証に限定し、統計的な成績結論には使わない。Crowding/Trapped/Liquidationは必要series不足のため保留する。
+
+## 2026-10-02 行動ラベルv1を事前登録する
+
+- 決定内容: FOMO、Late、Averaging Down、Profit Pyramiding、Revenge Candidateの定義・閾値・必要入力・tri-state schemaをv1.0.0として固定する。
+- 閾値: FOMOは方向15分return 1%以上・15分volume ratio 1.5以上・方向range位置80%以上等、Lateは方向1時間return 2%以上・方向range位置85%以上・range端から0.5%以内、追加は既存建玉5%以上かつ平均建値から5bp以上、Revenge候補は損失後60分以内かつinitial notional 1.25倍以上。
+- 重複: ラベルは非排他。missing required inputはFALSEでなくUNAVAILABLE。心理状態は断定せずRevengeはcandidateとする。
+- dry-run: 24件でFOMO 1、Late 2、Averaging Down 4、Profit Pyramiding 8、Revenge Candidate 4、Revenge UNAVAILABLE 6。PnL・勝率・MFE/MAE・post-entry outcomeは出力へ含めない。
+- 最低標本: exploratory outcome比較は最低labeled 100件＋control 100件、confirmatoryは全500episode以上・各label-side cell 50件以上・held-out期間を要求する。
+- 変更管理: dry-run後にv1閾値を上書きしない。変更案はv2として別管理し、v1結果を保持する。
+- 影響範囲: 次はoutcome-blindのラベル品質レビュー。Crowding/Trapped/Liquidation/逆指標評価は引き続き保留する。
+
+## 2026-10-02 探索サマリをoutcome-freeに限定する
+
+- 決定内容: PHASE 3はlabel件数、wallet/coin/side偏り、重複、UNAVAILABLE率だけを集計し、PnL・勝率・PF・MFE/MAE・post-entry returnを含めない。
+- 理由: 24episodeでは結果を見た閾値調整と過剰解釈の危険が高く、まずラベルの発火分布と実装品質だけを確認するため。
+- 影響範囲: 次は全TRUE例と層別FALSE例のoutcome-blindレビュー、その後100〜500口座・数千episodeへの拡大設計。

@@ -1,0 +1,16 @@
+coin,episodes,fomo_true,fomo_unavailable,late_true,late_unavailable,averaging_down_true,averaging_down_unavailable,profit_pyramiding_true,profit_pyramiding_unavailable,revenge_true,revenge_unavailable
+AAVE,1,0,0,0,0,0,0,0,0,0,0
+ADA,1,0,0,0,0,1,0,1,0,0,1
+BTC,3,0,0,0,0,0,0,0,0,1,0
+CHIP,1,0,0,0,0,1,0,0,0,0,0
+ETH,1,0,0,0,0,0,0,0,0,1,0
+FET,1,0,0,0,0,0,0,0,0,0,0
+FIL,1,0,0,0,0,0,0,0,0,0,0
+HYPE,6,0,0,0,0,2,0,0,0,1,2
+LIT,1,0,0,0,0,0,0,1,0,0,0
+NEAR,1,0,0,1,0,0,0,1,0,0,0
+PENGU,2,0,0,0,0,0,0,1,0,0,0
+SUI,1,0,0,0,0,0,0,1,0,0,1
+VVV,2,1,0,0,0,0,0,2,0,0,1
+XRP,1,0,0,0,0,0,0,0,0,1,0
+ZEC,1,0,0,1,0,0,0,1,0,0,1

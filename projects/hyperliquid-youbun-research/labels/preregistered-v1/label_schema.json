@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/buzzsonic/base-lab/youbun-labels-v1.schema.json",
+  "title": "Youbun preregistered behavior label row v1",
+  "type": "object",
+  "required": ["episode_id", "config_version", "labels"],
+  "properties": {
+    "episode_id": {"type": "string", "pattern": "^A[0-9]{2}-M[0-9]{3}$"},
+    "config_version": {"const": "1.0.0"},
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fomo", "late", "averaging_down", "profit_pyramiding", "revenge_candidate"],
+      "properties": {
+        "fomo": {"$ref": "#/$defs/label"},
+        "late": {"$ref": "#/$defs/label"},
+        "averaging_down": {"$ref": "#/$defs/label"},
+        "profit_pyramiding": {"$ref": "#/$defs/label"},
+        "revenge_candidate": {"$ref": "#/$defs/label"}
+      }
+    }
+  },
+  "$defs": {
+    "label": {
+      "type": "object",
+      "required": ["status", "score", "triggered_rules", "missing_required_features"],
+      "properties": {
+        "status": {"enum": ["TRUE", "FALSE", "UNAVAILABLE"]},
+        "score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "triggered_rules": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "missing_required_features": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  }
+}
