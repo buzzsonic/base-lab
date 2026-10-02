@@ -1,0 +1,13 @@
+account_alias,completed_uncensored,regular_fill_count,perp_fill_count,twap_endpoint_rows,twap_added_after_dedup,continuity_errors,twap_endpoint_capped,stored_eligible_flag,recomputed_eligible,exclusion_reasons,status
+A01,3,537,537,0,0,0,False,True,True,,PASS
+A02,18,1107,1107,0,0,0,False,True,True,,PASS
+A03,9,968,968,0,0,0,False,True,True,,PASS
+A04,5,175,2175,2000,2000,15,True,False,False,"continuity_error,twap_endpoint_capped",PASS
+A05,9,955,791,0,0,0,False,True,True,,PASS
+A06,1,572,12,0,0,0,False,True,True,,PASS
+A07,11,66,66,0,0,0,False,True,True,,PASS
+A08,2,78,78,0,0,0,False,True,True,,PASS
+A09,2,1111,1062,0,0,0,False,True,True,,PASS
+A10,2,2059,432,0,0,0,False,True,True,,PASS
+A11,4,155,155,0,0,0,False,True,True,,PASS
+A12,0,0,0,0,0,0,False,True,False,"no_completed_episode,no_perp_fills",WARN_STALE_STORED_FLAG
