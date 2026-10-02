@@ -4,22 +4,23 @@
 
 # 運用方針
 
-原則として2〜3工程を連続実行する。
-各工程の品質ゲートをPASSしたら、ユーザー確認を待たず次工程へ進む。
+原則2〜3工程を連続実行する。
+各Gate PASS後はユーザー確認を待たず次工程へ進む。
 
-停止するのは以下のみ:
+停止条件:
 - 重大な再構成差異
 - 会計差異
 - future leakage
-- データ破損
 - sampling leakage
+- データ破損
 - API制約で設計変更が必要
 - GitHub競合
-- 仕様判断が研究結果を大きく左右し、既存DECISIONS.mdで解決不能
+- 研究結果を大きく左右する未決仕様
 
-軽微な閾値・命名・ファイル構成は合理的に決めて続行する。
+軽微な命名・ファイル構成・実装詳細は合理的に決めて続行する。
 
-養分ホイホイには変更を加えない。
+養分ホイホイのコード・状態ファイルは変更しない。
+ただし候補universeは読み取り専用のsourceとして参照してよい。
 
 ---
 
@@ -35,201 +36,160 @@
 - 24episode dry-run完了
 - exploratory behavior summary完了
 - outcome-blindレビュー 21/21 PASS
-- 38 tests PASS
-- v1閾値凍結済み
-
-次は100口座pilotへ進む。
+- outcome-free add evidence 2,464件
+- add trace不明0
+- 39 tests PASS
 
 ---
 
-# PHASE 1: outcome-free add evidence table【完了】
-
-- add events 2,464件
-- source trace不明0
-- dry-run Averaging Down 4件 / Profit Pyramiding 8件と一致
-- outcome列なし
-- 39 tests PASS
+# PHASE 1: 養分ホイホイ候補universeを読み取り専用で正本化
 
 目的:
-AVERAGING_DOWN / PROFIT_PYRAMIDINGの根拠を、個々の追加fill単位で監査可能にする。
+100口座pilotのsampling sourceを固定する。
 
-各add eventについて保存:
-- wallet_anon_id
-- episode_id
-- stable_sequence_index
-- timestamp
-- coin
-- side
-- pre_add_position_size
-- pre_add_avg_entry_price
-- add_price
-- add_qty
-- add_notional
-- add_size_ratio_vs_existing
-- signed_price_distance_vs_pre_add_avg
-- favorable_or_adverse
-- resulting_position_size
-- label_v1_classification
-- source_fill_id または stable trace key
+参照元:
+`projects/hyperliquid-youbun-hoihoi`
+
+ホイホイ側の現状:
+- candidate wallets 100
+- discovery pool 200
+- 新discovery runtimeではwallet 673観測
+- public Trades実時間wallet 598
+- 小型アルト12/12銘柄観測
+- data branchへraw / market snapshot / coverage保存済み
+- observationは進行中
 
 原則:
-- PnL
-- episode outcome
-- MFE / MAE
-- 勝敗
-- post-entry market data
-は含めない。
+- 養分ホイホイ側は読み取り専用
+- ホイホイの候補選抜ロジックを変更しない
+- 養分くん側へ必要なwallet ID / strata metadataだけsnapshotとして固定する
+- behavior labels / PnL / outcomeをsamplingに使わない
 
 成果物:
-`evidence/add-events-v1/`
+`sampling/pilot-100-v1/`
 
 最低限:
-- README.md
-- add_events.csv
-- schema.md
+- `source_manifest.json`
+- `sampling_manifest.csv`
+- `README.md`
 
-テスト:
-- add件数がv1分類と整合
-- Averaging DownとProfit Pyramidingが相互に正しく分離
-- Long/Short対称性
-- stable sequence再現性
-- source fill trace可能
-- outcome列が存在しない
+source_manifest.json:
+- source_project
+- source_branch / source_commit
+- source_data_version
+- fixed_end_time
+- source files
+- selection seed
+- selection algorithm version
 
-## PHASE 1 Gate
+sampling_manifest.csv:
+- wallet
+- anon_wallet_id
+- source
+- stratum
+- size_band
+- frequency_band
+- symbol_tendency
+- activity_band
+- split
+- inclusion_reason
+- exclusion_reason
+- sample_version
 
-PASS条件:
-- add evidence table生成成功
-- v1ラベル件数と一致
-- trace不明0
-- tests PASS
+100 walletを固定する。
+途中差替え禁止。
+技術除外は別記録。
+
+split:
+- exploratory 60
+- validation 20
+- held_out 20
+
+## Gate
+- 100 wallet固定
+- duplicate 0
+- 再生成で同一
+- source commit固定
+- outcome / behavior label非使用
+- strata分布保存
 
 PASS後PHASE 2へ進む。
 
 ---
 
-# PHASE 2: 100口座pilot sampling manifest作成【次】
+# PHASE 2: 100口座pilot収集
 
-開始条件: 行動ラベル結果を含まないdiscovery universeをCSV/JSONで正本化する。現在mainには固定可能な候補universeがないため、候補を推測して100口座を作らない。
+固定100口座に対して収集する。
 
-目的:
-100口座を固定し、探索用pilotを再現可能にする。
-
-## サンプリング原則
-
-養分ホイホイ由来の候補または既存discovery universeから選ぶ場合でも、
-養分くん側では「行動結果やPnLを見て選ばない」。
-
-層化軸:
-- account size / equity proxy
-- fill frequency
-- holding time
-- BTC/ETH中心 / alt中心 / small-alt中心
-- activity level
-- volume
-- loss depth / ROI系指標を使う場合は、sampling biasを招かないよう層化変数としてのみ使用し、行動ラベル結果を見て選ばない
-- source diversity
-
-固定するもの:
-- sampling_manifest.csv
-- sample_version
-- fixed_end_time
-- discovery source
-- inclusion reason
-- exclusion reason
-- stratum
-
-100口座を固定後、途中差し替えしない。
-API失敗等の技術除外は別記録にする。
-
-## split設計
-
-最終500口座拡大を見据え、
-- exploratory 60%
-- validation 20%
-- held-out 20%
-の概念をmanifestへ持たせる。
-
-pilot 100では将来split seedを固定しておく。
-
-## PHASE 2 Gate
-
-PASS条件:
-- 100 wallet IDs固定
-- duplicate 0
-- sampling manifest再生成で同一
-- strata分布記録済み
-- outcome/behavior labelでの選抜なし
-
-PASS後PHASE 3へ進む。
-
----
-
-# PHASE 3: 100口座pilot収集・再構成準備
-
-目的:
-500口座拡大前に、100口座でデータ品質・API負荷・除外率を測る。
-
-## 収集対象
-
-各walletについて可能な範囲で:
+対象:
 - raw fills
 - TWAP
 - Funding
-- account / position continuity情報
+- continuity情報
 - 5分OHLCV
-- 必要なBTC基準series
+- BTC基準series
+- 必要なmarket snapshots
 
-historical mark / OIは取得不能ならNULL維持し、推定しない。
+historical mark/OIは取得不能ならNULL。
+推定・0埋め禁止。
 
-## 5分足
-
-公式5,000本制限を回避するため、
-継続collector / cacheを優先して実装する。
-
-今後のpilot以降では「後から17日分しかない」問題を減らす。
-
+取得はcheckpoint方式。
 保存:
-- collector checkpoint
-- last successful timestamp
-- coin別coverage
-- fetch failures
-- retry status
+- wallet checkpoint
+- endpoint checkpoint
+- last success timestamp
+- retries
+- failures
+- completeness
+- cap/retention flags
 
-## 再構成品質
+5分足は継続collector/cacheを使い、5,000本制限の影響を減らす。
 
-100口座pilotで必ず測る:
-- raw fills件数
-- reconstructed episode数
-- completed episode数
-- quantity mismatch
-- continuity error
-- TWAP cap hit
-- perp fill 0
-- excluded wallets
-- accounting mismatch
-- FEATURE_READY / PARTIAL / NOT_READY
-- API error / retry count
-
-## 500口座へ進むGate
-
-以下を満たすまで500へ進まない:
-- quantity mismatch 0
--重大 accounting mismatch 0
-- continuity errorが説明可能
-- 除外率が許容範囲
-- API負荷が運用可能
-- collector checkpoint正常
-- sampling manifest固定
-- test回帰なし
-
-除外率やcap率が高すぎる場合は500へ進まず原因分析を優先。
+## 収集品質集計
+- requested wallets
+- completed wallets
+- partial wallets
+- failed wallets
+- raw fills
+- TWAP cap hits
+- retention hits
+- Funding coverage
+- OHLCV coverage
+- API retries/errors
 
 ---
 
-# PHASE 4: pilot結果サマリ【PHASE 3 PASS時】
+# PHASE 3: 100口座再構成・品質Gate
 
-100口座pilot結果をまとめる。
+収集後に既存episode pipelineを適用。
+
+必須集計:
+- reconstructed episodes
+- completed episodes
+- quantity mismatch
+- continuity errors
+- accounting mismatch
+- excluded wallets
+- exclusion reasons
+- FEATURE_READY / PARTIAL / NOT_READY
+- add events
+- label availability
+- endpoint cap / retention影響
+
+品質条件:
+- quantity mismatch = 0
+-重大 accounting mismatch = 0
+- continuity errorは説明可能
+- sampling manifest固定
+- checkpoint正常
+- future leakage test PASS
+- 全test回帰なし
+
+上記PASSならPHASE 4へ。
+
+---
+
+# PHASE 4: pilot-100品質サマリ
 
 成果物:
 `analysis/pilot-100-v1/`
@@ -240,14 +200,35 @@ historical mark / OIは取得不能ならNULL維持し、推定しない。
 - episode_quality_summary.csv
 - coverage_summary.csv
 - exclusion_reasons.csv
+- api_quality_summary.csv
+- sampling_summary.csv
 
-まだ行わない:
-- behavior別勝率結論
+結論は「500口座へ拡大可能か」の品質判断に限定。
+
+まだ禁止:
+- behavior別勝率の結論
 - PF比較
-- 有意差主張
-- 逆指標性の結論
+- 有意差
+- 逆指標性
+- FOMO/ナンピンの善悪評価
 
-ここでは「500口座へ拡大してよい品質か」を判断する。
+## 500口座Gate
+
+GO条件:
+- quantity mismatch 0
+-重大 accounting mismatch 0
+- 除外率が許容
+- cap/retention影響が把握可能
+- API負荷が運用可能
+- 5分足collector継続可能
+- sampling biasなし
+- test PASS
+
+FAIL時:
+500へ進まず、原因別に修正案をNEXT_TASKへ記載。
+
+GO時:
+次のNEXT_TASKを500口座拡大バッチへ自動更新する。
 
 ---
 
@@ -261,9 +242,8 @@ historical mark / OIは取得不能ならNULL維持し、推定しない。
 - 養分くん対象ファイルのみcommit/push
 - push成功後のみ養分くん専用Discord通知
 
-完了報告には:
-1. PHASE 1〜4のどこまで進んだか
-2. 各GateのPASS/FAIL
-3. 100口座pilotの主要品質指標
+完了報告:
+1. どのPHASEまで完了
+2. 100口座pilot主要数値
+3. Gate PASS/FAIL
 4. 500口座へ進めるか
-を短く明記する。
