@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-PoCデータ品質検証。episode層別目視ゲートを通過し、TWAP/Funding/builder fee会計照合の最終確認段階。
+PoCデータ品質検証。episode再構成・会計照合ゲートを通過し、5分市場系列coverageの定量化段階。
 
 ## Completed
 
@@ -19,6 +19,10 @@ PoCデータ品質検証。episode層別目視ゲートを通過し、TWAP/Fundi
 - 養分くん専用Discord通知を実送信確認済み
 - eligible 10口座・完結61episodeの境界・数量・価格・PnL・fee・Fundingを独立再計算し、61/61一致
 - 勝敗、Long/Short、追加、部分決済、反転、保有時間、fill数を跨ぐ20episodeを匿名化レビューし、20/20 PASS
+- eligible 10口座・完結61episodeのclosedPnl、fee、Funding、net PnL会計照合61/61 PASS
+- Fundingは44episodeで非zero、合計-1,004.713607 USDC
+- builderFeeは9episodeで非zero、合計565.678405 USDC。全件fee内包で二重計上0
+- eligible口座のTWAP追加0件、TWAP 2,000件上限口座の除外をtestとレポートで固定
 
 ## Latest Work
 
@@ -26,12 +30,14 @@ PoCデータ品質検証。episode層別目視ゲートを通過し、TWAP/Fundi
 - perp fill 0件の1口座を対象外とした。
 - 層別レビューは10口座をすべて含み、勝敗10/10、Long/Short 10/10、反転境界2/2を確認した。
 - 非zero builderFeeを含む3サンプルで、builderFeeをfeeへ再加算しないことを確認した。
+- 全61episodeでもbuilderFeeを別加算せず、`closedPnl - fee + Funding`がprocessed net PnLと一致した。
+- 旧`account_quality.csv`はperp fill 0口座のstored eligible flagが1件だけ古い。今回と現行コードは再計算条件で正しく除外しており、次回PoC再生成時にキャッシュを更新する。
 - 養分行動分類はまだ開始していない。
 
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 10 tests passed（再構成5件、Discord通知文2件、episodeレビュー3件）
+- 14 tests passed（再構成5件、Discord通知文2件、episodeレビュー3件、会計/TWAP除外4件）
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36873755127`。
@@ -51,8 +57,10 @@ PoCデータ品質検証。episode層別目視ゲートを通過し、TWAP/Fundi
 
 成果物: `reviews/episode-quality-2026-10-02/README.md` と `episode_review.csv`。
 
+会計照合は61/61 PASS、二重計上0、重大差異0。
+
+成果物: `reviews/accounting-quality-2026-10-02/`。
+
 ## Next
 
-TWAP/Funding/builder fee会計照合を最終確認する。今回のeligible口座には非zero TWAP追加がないため、TWAP上限口座を除外する設計とfixtureを明示し、FundingとbuilderFeeは実サンプルのcoverageを集計する。
-
-その後に5分市場系列coverageを定量化する。FOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類はまだ開始しない。
+61episodeのOHLCV、mark、OI、Fundingの5分市場系列coverageを定量化し、欠測をNULL/unavailableで保存する。FOMO、Late Long/Short、ナンピン、Revenge、Trapped、Crowding分類はまだ開始しない。

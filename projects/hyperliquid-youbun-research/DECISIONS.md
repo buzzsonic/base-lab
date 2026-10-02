@@ -35,3 +35,12 @@
 - 許容誤差: 数量1e-8、価格・PnL・fee・Funding 1e-6。
 - 影響範囲: 次はTWAP/Funding/builder fee会計照合の最終確認へ進む。行動分類はまだ開始しない。
 - 制約: 目視サンプルは20/61。過去cross-margin状態と清算距離は対象外。eligible口座のTWAP追加は0件で、TWAP上限口座は除外を継続する。
+
+## 2026-10-02 会計品質ゲートを通過する
+
+- 決定内容: eligible 10口座・完結61episodeのclosedPnl、fee、Funding、net PnLが全件一致し、builderFee二重計上0のため会計ゲートをPASSとする。
+- 会計式: `episode net PnL = closedPnl - fee + Funding`。公式fillの`fee`は`builderFee`を含むため、builderFeeを再加算・再控除しない。
+- 実データ: Funding非zero 44episode・合計-1,004.713607 USDC。builderFee非zero 9episode・合計565.678405 USDC。
+- TWAP: eligible口座の追加0件。2,000件上限かつcontinuity error 15件の口座は除外を継続し、欠落sliceを推定しない。
+- 既知WARN: 旧cacheのperp fill 0口座にstored eligible flag不整合1件。現行コードと今回の抽出は再計算条件で除外済み。次回PoC再生成時にcacheを更新する。
+- 影響範囲: 次は5分市場系列coverageを定量化する。行動分類はまだ開始しない。

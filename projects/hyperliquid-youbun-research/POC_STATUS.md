@@ -46,8 +46,8 @@
 
 ## 次のゲート
 
-1. TWAP slice fills、Funding、builder feeをrawへ追加してPnL照合
-2. 66完結episodeの目視サンプルを生成
-3. 5分candle/mark/OI coverageをepisode時刻と照合
+1. TWAP slice fills、Funding、builder feeをrawへ追加してPnL照合（完了: eligible 61/61 PASS）
+2. 完結episodeの目視サンプルを生成（完了: 層別20/20 PASS）
+3. 5分candle/mark/OI coverageをepisode時刻と照合（次工程）
 4. FOMO/Late/Nanpin/Revengeの時点情報だけを使うラベルを実装
 5. 目視一致後に100口座へ拡張

@@ -20,7 +20,19 @@
 
 ---
 
-## 1. TWAP / Funding / builder fee 会計照合【最優先】
+## 1. TWAP / Funding / builder fee 会計照合（完了）
+
+結果:
+- eligible 10口座・完結61episodeの会計照合 61/61 PASS
+- closedPnl / fee / Funding / net PnLの重大差異0
+- Funding非zero 44episode、合計-1,004.713607 USDC
+- builderFee非zero 9episode、合計565.678405 USDC
+- builderFeeは全件fee内包、再加算0
+- eligible口座のTWAP追加0件
+- TWAP 2,000件上限・continuity error 15件の口座を除外
+- 旧cacheのstored eligible flag不整合1件はWARN。再計算条件では正しく除外
+
+成果物: `reviews/accounting-quality-2026-10-02/`
 
 目的:
 episode純損益と費用の二重計上・欠落を防ぎ、行動分析前の会計品質ゲートを確定する。
@@ -71,7 +83,7 @@ eligible 10口座・完結61episode。
 
 ---
 
-## 2. 5分市場系列coverage定量化【会計ゲートPASS後】
+## 2. 5分市場系列coverage定量化【最優先】
 
 目的:
 FOMO / Late / Trapped等の判定に必要な市場特徴量を、どのepisodeで安全に計算できるか確定する。

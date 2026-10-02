@@ -35,6 +35,7 @@ class RawEpisode:
     fees: Decimal = ZERO
     builder_fee: Decimal = ZERO
     funding: Decimal = ZERO
+    twap_fill_count: int = 0
     adds: int = 0
     partial_exits: int = 0
     fill_count: int = 0
@@ -105,6 +106,7 @@ def reconstruct_raw(wallet: str, fills: list[dict[str, Any]]) -> list[RawEpisode
             states[coin] = state
 
         state.fill_count += 1
+        state.twap_fill_count += row.get("source_kind") == "twap"
         state.traces.append(trace_line(row, before, after))
         if closing_qty:
             state.exit_qty += closing_qty
@@ -139,6 +141,7 @@ def reconstruct_raw(wallet: str, fills: list[dict[str, Any]]) -> list[RawEpisode
                     fees=dec(row.get("fee")) * (opening_qty / qty),
                     builder_fee=dec(row.get("builderFee")) * (opening_qty / qty),
                     fill_count=1,
+                    twap_fill_count=int(row.get("source_kind") == "twap"),
                     starts_with_reversal=True,
                     traces=[trace_line(row, before, after)],
                 )
@@ -196,15 +199,26 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def eligibility_reasons(row: dict[str, str]) -> list[str]:
+    reasons = []
+    if int(row["completed_uncensored"]) <= 0:
+        reasons.append("no_completed_episode")
+    if int(row["perp_fills"]) <= 0:
+        reasons.append("no_perp_fills")
+    if int(row["quantity_mismatches"]) != 0:
+        reasons.append("quantity_mismatch")
+    if int(row["continuity_errors"]) != 0:
+        reasons.append("continuity_error")
+    if row["twap_endpoint_capped"].lower() == "true":
+        reasons.append("twap_endpoint_capped")
+    return reasons
+
+
 def eligible_wallets(quality_rows: list[dict[str, str]]) -> list[str]:
     return sorted(
         row["wallet"].lower()
         for row in quality_rows
-        if int(row["completed_uncensored"]) > 0
-        and int(row["perp_fills"]) > 0
-        and int(row["quantity_mismatches"]) == 0
-        and int(row["continuity_errors"]) == 0
-        and row["twap_endpoint_capped"].lower() == "false"
+        if not eligibility_reasons(row)
     )
 
 
