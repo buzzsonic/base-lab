@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-02T14:09:05.197658+00:00",
-  "sample_version": "sample_20261002",
+  "generated_at": "2026-10-02T15:00:49.159292+00:00",
+  "sample_version": "sample_20261003",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
     "inactive": 15,
-    "bot_suspected": 39,
+    "bot_suspected": 40,
     "mm_suspected": 12,
     "arbitrage_suspected": 1,
     "farm_suspected": 1,
@@ -34,10 +34,10 @@
       "small_alt_core": 2
     },
     "activity_time_bands": {
-      "jst_18_23": 31,
+      "jst_18_23": 33,
       "jst_06_11": 12,
       "unknown": 15,
-      "jst_00_05": 29,
+      "jst_00_05": 27,
       "jst_12_17": 13
     },
     "active_days_bands": {
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "776c3f4623dae829cc78307f5bc884c423a68f2baa661d19f3183ab987bb4e06",
+  "market_snapshot_version": "f68f47a4c730b69d1cc4a5fef32c2439ae711816d97cbdf323d23da38c361b33",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -64,7 +64,7 @@
     "wallets": 100,
     "duplicates": 0,
     "inactive": 15,
-    "bot_suspected": 39,
+    "bot_suspected": 40,
     "mm_suspected": 12,
     "arbitrage_suspected": 1,
     "farm_suspected": 1,
@@ -93,10 +93,10 @@
       "small_alt_core": 2
     },
     "activity_time_bands": {
-      "jst_18_23": 31,
+      "jst_18_23": 33,
       "jst_06_11": 12,
       "unknown": 15,
-      "jst_00_05": 29,
+      "jst_00_05": 27,
       "jst_12_17": 13
     },
     "active_days_bands": {
