@@ -78,3 +78,11 @@
 - 決定内容: PHASE 3はlabel件数、wallet/coin/side偏り、重複、UNAVAILABLE率だけを集計し、PnL・勝率・PF・MFE/MAE・post-entry returnを含めない。
 - 理由: 24episodeでは結果を見た閾値調整と過剰解釈の危険が高く、まずラベルの発火分布と実装品質だけを確認するため。
 - 影響範囲: 次は全TRUE例と層別FALSE例のoutcome-blindレビュー、その後100〜500口座・数千episodeへの拡大設計。
+
+## 2026-10-02 ラベル品質レビューPASS後は100口座pilotから拡大する
+
+- 結果: 全TRUE 14episodeと層別all-FALSE 7episodeをoutcome-blindで再照合し21/21 PASS。v1閾値変更なし。
+- 制約: add判定の個別pre-add平均・価格・stable order traceが成果物に未保存。pilot前にoutcome-free evidence tableを追加する。
+- 拡大: 100口座pilotで再構成・会計誤差0と層別除外率を確認し、PASS時のみ500口座へ進む。eligible完結episode目標は2,000件。
+- 期間: exploratory 60%、validation 20%、held-out confirmatory 20%を収集前に固定する。
+- 影響範囲: outcome評価は最低標本を満たすまで開始しない。v1閾値は凍結を継続する。
