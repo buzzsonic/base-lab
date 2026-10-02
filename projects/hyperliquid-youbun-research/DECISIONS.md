@@ -86,3 +86,9 @@
 - 拡大: 100口座pilotで再構成・会計誤差0と層別除外率を確認し、PASS時のみ500口座へ進む。eligible完結episode目標は2,000件。
 - 期間: exploratory 60%、validation 20%、held-out confirmatory 20%を収集前に固定する。
 - 影響範囲: outcome評価は最低標本を満たすまで開始しない。v1閾値は凍結を継続する。
+
+## 2026-10-02 add evidence gateを通過する
+
+- 結果: outcome-free add event 2,464件、source trace不明0。24episode dry-runのAveraging Down 4件・Profit Pyramiding 8件と一致。
+- 停止判断: main上に行動結果を含まない固定discovery universeがないため、100口座manifestを推測で作らない。
+- 次: discovery sourceと取得時刻を固定してから、層化100口座を再現可能に選ぶ。
