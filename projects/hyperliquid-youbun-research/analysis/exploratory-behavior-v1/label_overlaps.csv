@@ -1,0 +1,9 @@
+true_label_pattern,episodes
+NONE,10
+averaging_down,2
+averaging_down+profit_pyramiding,1
+averaging_down+revenge,1
+fomo+profit_pyramiding,1
+late+profit_pyramiding,2
+profit_pyramiding,4
+revenge,3

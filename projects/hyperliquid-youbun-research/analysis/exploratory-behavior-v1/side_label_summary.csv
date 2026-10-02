@@ -1,0 +1,3 @@
+side,episodes,fomo_true,fomo_unavailable,late_true,late_unavailable,averaging_down_true,averaging_down_unavailable,profit_pyramiding_true,profit_pyramiding_unavailable,revenge_true,revenge_unavailable
+LONG,12,1,0,2,0,1,0,5,0,3,3
+SHORT,12,0,0,0,0,3,0,3,0,1,3

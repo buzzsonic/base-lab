@@ -1,0 +1,33 @@
+{
+  "config_version": "1.0.0",
+  "created_at": "2026-10-02T00:00:00Z",
+  "status": "PREREGISTERED_BEFORE_DRY_RUN",
+  "rationale": "Round, interpretable PoC thresholds selected as initial rules, not fitted to the 24-episode label counts or outcomes. Any change requires a new config version.",
+  "minimum_sample_note": "The 24-episode dry run validates implementation and availability only. Do not compare outcomes. Exploratory rates require at least 100 labeled and 100 control episodes; confirmatory analysis requires at least 500 total episodes, at least 50 per tested label-side cell, and a held-out time period.",
+  "fomo": {
+    "direction_return_5m_min": 0.0,
+    "direction_return_15m_min": 0.01,
+    "volume_ratio_15m_min": 1.5,
+    "directional_range_position_min": 0.8,
+    "required_features": ["return_5m", "return_15m", "volume_ratio_15m", "range_position", "side"]
+  },
+  "late": {
+    "direction_return_1h_min": 0.02,
+    "directional_range_position_min": 0.85,
+    "breakout_distance_min": -0.005,
+    "required_features": ["return_1h", "range_position", "breakout_distance", "side"]
+  },
+  "adds": {
+    "minimum_add_vs_existing_position": 0.05,
+    "minimum_price_distance_bps": 5.0,
+    "required_features": ["ordered_episode_fills", "startPosition", "side", "sz", "px"]
+  },
+  "revenge_candidate": {
+    "previous_loss_required": true,
+    "maximum_reentry_minutes": 60,
+    "minimum_initial_notional_ratio": 1.25,
+    "required_features": ["wallet_episode_sequence", "previous_net_pnl", "previous_exit_time", "current_entry_time", "previous_initial_notional", "current_initial_notional"]
+  },
+  "overlap_policy": "Labels are non-exclusive. FOMO and LATE may both be TRUE; market and episode-sequence labels may coexist.",
+  "unavailable_policy": "A missing required feature yields UNAVAILABLE, never FALSE and never numeric zero."
+}

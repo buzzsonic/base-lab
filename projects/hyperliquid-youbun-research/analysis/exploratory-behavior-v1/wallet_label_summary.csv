@@ -1,0 +1,9 @@
+account_alias,episodes,fomo_true,fomo_unavailable,late_true,late_unavailable,averaging_down_true,averaging_down_unavailable,profit_pyramiding_true,profit_pyramiding_unavailable,revenge_true,revenge_unavailable
+A01,3,0,0,0,0,1,0,3,0,0,2
+A02,7,0,0,0,0,0,0,0,0,3,0
+A03,3,0,0,1,0,1,0,2,0,0,0
+A05,5,0,0,0,0,2,0,0,0,1,0
+A06,1,0,0,0,0,0,0,0,0,0,1
+A09,2,0,0,1,0,0,0,1,0,0,2
+A10,2,1,0,0,0,0,0,2,0,0,1
+A11,1,0,0,0,0,0,0,0,0,0,0
