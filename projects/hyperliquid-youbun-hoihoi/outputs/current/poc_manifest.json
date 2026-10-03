@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-03T10:26:27.818544+00:00",
-  "sample_version": "sample_20261003",
+  "generated_at": "2026-10-03T19:18:19.623599+00:00",
+  "sample_version": "sample_20261004",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
     "inactive": 15,
-    "bot_suspected": 39,
+    "bot_suspected": 38,
     "mm_suspected": 12,
     "arbitrage_suspected": 1,
     "farm_suspected": 1,
@@ -30,20 +30,21 @@
     "symbol_profiles": {
       "btc_eth_core": 37,
       "unknown": 15,
-      "alt_core": 48
+      "alt_core": 46,
+      "small_alt_core": 2
     },
     "activity_time_bands": {
       "jst_18_23": 31,
-      "jst_06_11": 12,
+      "jst_06_11": 13,
       "unknown": 15,
-      "jst_00_05": 29,
+      "jst_00_05": 28,
       "jst_12_17": 13
     },
     "active_days_bands": {
       "11_plus": 47,
       "none": 15,
-      "1_3": 12,
-      "4_10": 26
+      "1_3": 13,
+      "4_10": 25
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
@@ -54,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "5550c5518aec1f365ab50c768bb7a991810c646b41390ec4b10103511cc3c003",
+  "market_snapshot_version": "88d84fdf84ec280af708ce540d4b4ae7ad63f9d96f0a2adb3c30c3d661db84d2",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -63,7 +64,7 @@
     "wallets": 100,
     "duplicates": 0,
     "inactive": 15,
-    "bot_suspected": 39,
+    "bot_suspected": 38,
     "mm_suspected": 12,
     "arbitrage_suspected": 1,
     "farm_suspected": 1,
@@ -88,20 +89,21 @@
     "symbol_profiles": {
       "btc_eth_core": 37,
       "unknown": 15,
-      "alt_core": 48
+      "alt_core": 46,
+      "small_alt_core": 2
     },
     "activity_time_bands": {
       "jst_18_23": 31,
-      "jst_06_11": 12,
+      "jst_06_11": 13,
       "unknown": 15,
-      "jst_00_05": 29,
+      "jst_00_05": 28,
       "jst_12_17": 13
     },
     "active_days_bands": {
       "11_plus": 47,
       "none": 15,
-      "1_3": 12,
-      "4_10": 26
+      "1_3": 13,
+      "4_10": 25
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
