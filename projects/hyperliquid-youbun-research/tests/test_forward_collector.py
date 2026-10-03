@@ -90,6 +90,7 @@ class ForwardCollectorTests(unittest.TestCase):
         self.assertIn("ref: data", text)
         self.assertIn("forward-data", text)
         self.assertIn("PYTHONPATH=projects/hyperliquid-youbun-research", text)
+        self.assertIn("python -m unittest discover", text)
         for forbidden in ("privateKey", "placeOrder", "/exchange"):
             self.assertNotIn(forbidden, text)
 
