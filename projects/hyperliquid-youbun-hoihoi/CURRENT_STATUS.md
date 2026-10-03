@@ -1,18 +1,25 @@
 # CURRENT_STATUS
 
-更新: 2026-10-02 JST（PR #14・#20統合、初回実収集と100候補の初回観察成功）
+更新: 2026-10-03 JST（翌日観察、4時間帯coverage、隔離200→100再PoC成功）
 
 | item | state |
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |
 | discovery pool / selected candidates | 200 / 100（未選抜100件を保持） |
 | selected status | OBSERVING 45、EXCLUDED 40、INACTIVE 15 |
-| flags in selected 100 | BOT 38、MM 10、arbitrage 1、farm 1（重複し得る） |
+| flags in selected 100 | BOT 39、MM 12、arbitrage 1、farm 1（重複し得る） |
 | historical fills | 79/100で30日区間を完全取得、21/100はAPIの直近10,000件保持制約で不完全 |
-| small-alt-centric | 2/100（層化再PoCの偏りは未解決） |
-| latest snapshot / weekly | NOT RUN / NOT RUN（本体の永続化は未実装） |
-| last completed observation | [37017796437](https://github.com/buzzsonic/base-lab/actions/runs/37017796437) success（同日再観察） |
+| small-alt-centric | 現行0/100、新隔離cohort 9/100 |
+| latest snapshot / weekly | [37116871931](https://github.com/buzzsonic/base-lab/actions/runs/37116871931) success / NOT RUN |
+| last completed observation | [37116402104](https://github.com/buzzsonic/base-lab/actions/runs/37116402104) success（79件が2成功JST日、21件が0日） |
 | current blocker | 7日間・7 JST日分の完全取得はまだ満たさない。1,000-wallet拡大はHOLD |
+
+## 2026-10-03 隔離再PoC
+
+- [再PoC run 37116104107](https://github.com/buzzsonic/base-lab/actions/runs/37116104107)はsuccess。59分23秒でfresh 200件を評価し、100件を層化選抜した。artifactのみで、現行registryは変更していない。
+- 新100件は履歴完全98、不完全2、BOT疑い29、MM疑い4、farm疑い6、small-alt中心9。現行100件との重複は42件。
+- 20件の層別レビューではheuristic閾値との不一致0件。ただしMM/farmは戦略確定ではないため、疑いラベルと保守的除外を維持する。
+- 詳細は `QUALITY_REPORT_STRATIFIED_POC_2026_10_03.md`。
 
 ## Issue #8 の比較基準
 
