@@ -1,10 +1,29 @@
 # NEXT_TASK
 
-更新: 2026-10-04 JST。現行は79件が成功3日、shadowは97件が成功2日へ増加。weekly比較品質ゲートを実装中。1,000-wallet拡大はHOLD。
+## 軽量運用ルール
 
-1. shadow cohortを日次観察し、成功JST日を7日まで蓄積する。現在は完全97、不完全3、BOT 27、MM 4、farm 6、small-alt 11。欠測・retention gapを成功日に数えない。
-2. 完全→不完全へ変化した1 walletを追跡し、retention/gapがlookback外へ出るまでpromotionを禁止する。farm疑い6件と単一銘柄MM疑い2件も重点確認する。
-3. 現行cohortは79件が3成功JST日、21件が0日。7日経過・7 JST日分完全取得後のpromotionを実データで検証する。
-4. weekly比較workflowを実行し、両cohortの構造PASS、promotion/置換HOLD、report-only保存を実データで検証する。
-5. JST 4時間帯は最低1回ずつ到達したが、run数は1/1/1/7で18–23時偏重。曜日差を含むcoverageを追加する。
-6. 両cohortの7日比較とAPI所要時間のgateを通過した場合にのみ、置換・統合と1,000-wallet拡大を検討する。
+通常は最初に `STATUS_SUMMARY.md` だけ読む。
+前回確認commitが分かる場合は、その後の養分ホイホイ関連commit差分だけ確認する。
+`CURRENT_STATUS.md` / 品質レポート / 大きなdiffは、実装・異常調査・設計変更時だけ読む。
+
+作業終了時に状態が変わったら、必ず `STATUS_SUMMARY.md` を最新化する。
+
+## Current Task
+
+current cohortとshadow cohortを日次観察し、7成功JST日まで品質を蓄積する。
+
+1. shadowのcomplete→incomplete 1 walletを追跡
+2. farm疑い6件・単一銘柄MM疑いを重点確認
+3. weekly比較workflowをreport-onlyで検証
+4. current / shadowの7日比較とAPI所要時間Gateを判定
+5. Gate PASS時のみcohort置換/統合と1,000-wallet expansionを検討
+
+## Current Snapshot
+
+- current: complete 79 / incomplete 21、79 walletsが成功3日
+- shadow: complete 97 / incomplete 3、97 walletsが成功2日
+- shadow flags: BOT 27 / MM 4 / farm 6 / small-alt 11
+- research sample: 0
+- 1,000-wallet expansion: HOLD
+
+禁止: 欠測・retention gapを成功日に数えること、7日観察前の即時昇格、shadowからcurrent registryへの早期置換。
