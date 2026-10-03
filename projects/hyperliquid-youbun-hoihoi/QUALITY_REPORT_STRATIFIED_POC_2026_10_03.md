@@ -77,3 +77,10 @@
 3. farm疑い6件と単一銘柄MM疑い2件を重点レビューする。
 4. 新cohortがgateを通過した場合だけ、現行cohortとの置換または統合を決める。
 5. 1,000-wallet拡大はその後に再判定する。
+
+## Shadow観察の実装結果
+
+- [PR #28](https://github.com/buzzsonic/base-lab/pull/28)で別namespaceと日次workflowを導入。data branch `3b4c0ab`にartifactをseedした。
+- [初回run 37120774019](https://github.com/buzzsonic/base-lab/actions/runs/37120774019)はsuccess、data commit `bb4709f`へshadow配下だけを保存した。現行cohortのtree hashは不変。
+- 独立再取得後は履歴完全97、不完全3、BOT 29、MM 4、farm 6、small-alt 10。baselineから1 walletが完全→不完全へ変化した。
+- 同一JST日の再実行なので、成功観察日は完全取得98件が1日・欠損2件が0日のまま。新たな不完全walletには成功日を加算していない。sampleは0件で早期昇格なし。

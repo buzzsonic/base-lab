@@ -1,10 +1,10 @@
 # NEXT_TASK
 
-更新: 2026-10-03 JST。翌日観察、JST 4時間帯到達、隔離した200→100件再PoC、20件の層別レビューまで完了。1,000-wallet拡大はHOLD。
+更新: 2026-10-03 JST。新100件の別namespace永続化、初回shadow観察、現行cohort非変更の実データ確認まで完了。1,000-wallet拡大はHOLD。
 
-1. 新100件を現行100件とは別cohortとして永続化し、既存観察を壊さず7 JST日分追跡できる契約を設計・実装する。即時置換しない。
-2. 新cohortの履歴完全98/100、small-alt 9/100、BOT 29/100、MM 4/100が7日後も維持されるか検証する。farm疑い6件と単一銘柄MM疑い2件を重点確認する。
-3. 現行cohortは79件が2成功JST日、21件が0日。7日経過・7 JST日分完全取得後のpromotionを実データで検証する。欠測・retention gapを成功日に数えない。
-4. weekly実行とsample品質ゲートを実データで検証する。snapshotはrun 37116871931で永続化成功済み。
+1. shadow cohortを日次観察し、成功JST日を7日まで蓄積する。初回live再取得は完全97、不完全3、BOT 29、MM 4、farm 6、small-alt 10。欠測・retention gapを成功日に数えない。
+2. 完全→不完全へ変化した1 walletを追跡し、retention/gapがlookback外へ出るまでpromotionを禁止する。farm疑い6件と単一銘柄MM疑い2件も重点確認する。
+3. 現行cohortは79件が2成功JST日、21件が0日。7日経過・7 JST日分完全取得後のpromotionを実データで検証する。
+4. weekly実行と両cohortのsample品質ゲートを実データで検証する。snapshotはrun 37116871931で永続化成功済み。
 5. JST 4時間帯は最低1回ずつ到達したが、run数は1/1/1/7で18–23時偏重。曜日差を含むcoverageを追加する。
 6. 両cohortの7日比較とAPI所要時間のgateを通過した場合にのみ、置換・統合と1,000-wallet拡大を検討する。

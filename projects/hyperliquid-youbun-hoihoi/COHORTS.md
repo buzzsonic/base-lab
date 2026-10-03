@@ -27,3 +27,12 @@ The workflow requires these seed files:
 - `wallet_registry.parquet`
 
 It then creates and updates the cohort-local `fill-checkpoints/`, `raw-cache/`, `research_sample.parquet`, `poc_manifest.json`, and review outputs.
+
+## First runtime validation
+
+- Run: `37120774019` success
+- Data commit: `bb4709f`
+- Persisted state: registry 100, pool 200, checkpoints 100, sample 0
+- Successful observation dates: 98 wallets at one day, 2 at zero
+- Live completeness: 97 complete, 3 incomplete; one previously complete wallet became incomplete and did not gain a successful date
+- Current-cohort isolation: the `outputs/current/` tree hash remained `96e57802da37182ec82f0d5461cdbbf3c257d992` before and after the shadow commit
