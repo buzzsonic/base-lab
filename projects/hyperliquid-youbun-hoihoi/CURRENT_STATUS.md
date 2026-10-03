@@ -18,6 +18,7 @@
 
 - [再PoC run 37116104107](https://github.com/buzzsonic/base-lab/actions/runs/37116104107)はsuccess。59分23秒でfresh 200件を評価し、100件を層化選抜した。artifactのみで、現行registryは変更していない。
 - 新100件は履歴完全98、不完全2、BOT疑い29、MM疑い4、farm疑い6、small-alt中心9。現行100件との重複は42件。
+- 新100件の成功観察日は完全取得98件が1日、欠損2件が0日。7日・7 JST日分のgateは未達。
 - 20件の層別レビューではheuristic閾値との不一致0件。ただしMM/farmは戦略確定ではないため、疑いラベルと保守的除外を維持する。
 - 詳細は `QUALITY_REPORT_STRATIFIED_POC_2026_10_03.md`。
 

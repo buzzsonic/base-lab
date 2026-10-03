@@ -1,0 +1,50 @@
+name: Yobun Hoihoi Shadow Cohort Observation
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily 03:20 JST, separated from the current cohort at 01:20 JST.
+    - cron: '20 18 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  # Serialize every writer to the shared data branch.
+  group: youbun-hoihoi-data
+  cancel-in-progress: false
+
+jobs:
+  observe-shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: data
+          path: persisted
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - run: pip install -r projects/hyperliquid-youbun-hoihoi/requirements.txt
+      - name: Verify and observe the isolated shadow cohort
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+        run: |
+          python -m unittest discover -s projects/hyperliquid-youbun-hoihoi/tests -v
+          state=persisted/projects/hyperliquid-youbun-hoihoi/outputs/cohorts/stratified-20261003
+          test -f "$state/wallet_registry.parquet"
+          test -f "$state/discovery_pool.parquet"
+          test -f "$state/cohort_manifest.json"
+          python -m hoihoi.pipeline observe --output "$state" --refresh
+      - name: Persist only the shadow cohort
+        working-directory: persisted
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/hyperliquid-youbun-hoihoi/outputs/cohorts/stratified-20261003
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: update Hoihoi shadow cohort observations'
+            bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-hoihoi/scripts/push_data_branch.sh" data 3
+          fi
