@@ -1,0 +1,40 @@
+{
+  "analysis_start_ms": 1791029567198,
+  "endpoint_results": [
+    {
+      "anon_wallet_id": "P079",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791029567198,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P079",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791029567198,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P079",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791029567198,
+      "status": "success"
+    }
+  ],
+  "failures": 0,
+  "finished_at": "2026-10-03T12:12:54.343814+00:00",
+  "records": 0,
+  "requested_wallets": 1,
+  "requests": 3,
+  "run_id": "20261003T121247Z",
+  "schema_version": 1,
+  "started_at_ms": 1791029567198
+}
