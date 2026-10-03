@@ -26,7 +26,8 @@ def save(path: Path, value: dict) -> None:
 
 
 def collect(manifest: Path, output: Path, start_ms: int, end_ms: int,
-            delay_seconds: float = 1.0, page_delay_seconds: float = 1.5) -> dict:
+            delay_seconds: float = 1.0, page_delay_seconds: float = 1.5,
+            endpoints: tuple[str, ...] = ENDPOINTS) -> dict:
     rows = load_rows(manifest)
     raw = output / "raw"
     checkpoints = output / "checkpoints"
@@ -46,7 +47,7 @@ def collect(manifest: Path, output: Path, start_ms: int, end_ms: int,
     for index, row in enumerate(rows, 1):
         wallet = row["wallet"].lower()
         state = run["wallets"].setdefault(wallet, {"endpoints": {}, "retries": 0, "failures": []})
-        for endpoint in ENDPOINTS:
+        for endpoint in endpoints:
             if state["endpoints"].get(endpoint, {}).get("status") == "success":
                 continue
             try:
@@ -65,7 +66,7 @@ def collect(manifest: Path, output: Path, start_ms: int, end_ms: int,
             except Exception as exc:
                 state["endpoints"][endpoint] = {"status": "failed", "error": str(exc)}
                 state["failures"].append({"endpoint": endpoint, "error": str(exc)})
-            state["complete"] = all(state["endpoints"].get(name, {}).get("status") == "success" for name in ENDPOINTS)
+            state["complete"] = all(state["endpoints"].get(name, {}).get("status") == "success" for name in endpoints)
             save(checkpoints / f"{wallet}.json", state)
             save(run_path, run)
             time.sleep(delay_seconds)
@@ -85,10 +86,15 @@ def main() -> None:
     parser.add_argument("--end-ms", type=int, required=True)
     parser.add_argument("--delay-seconds", type=float, default=1.0)
     parser.add_argument("--page-delay-seconds", type=float, default=1.5)
+    parser.add_argument("--endpoints", default=",".join(ENDPOINTS))
     args = parser.parse_args()
     start_ms = args.end_ms - int(timedelta(days=args.days).total_seconds() * 1000)
+    endpoints = tuple(item.strip() for item in args.endpoints.split(",") if item.strip())
+    unknown = set(endpoints) - set(ENDPOINTS)
+    if unknown:
+        parser.error(f"unknown endpoints: {sorted(unknown)}")
     result = collect(args.manifest, args.output, start_ms, args.end_ms,
-                     args.delay_seconds, args.page_delay_seconds)
+                     args.delay_seconds, args.page_delay_seconds, endpoints)
     print(json.dumps({key: result.get(key) for key in ("requested_wallets", "completed_wallets", "failed_wallets")}, indent=2))
 
 

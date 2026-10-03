@@ -43,7 +43,38 @@ PHASE 3 Gate FAIL。
 
 ---
 
-# PHASE 1: quantity mismatch 107件のraw trace監査【最優先】
+# STOPPED GATE: API retentionに対応するforward collector設計
+
+2026-10-03原因監査結果:
+- 旧ページングの`max(timestamp)+1ms`が同一timestamp recordsを欠落させた
+- 修正は境界timestamp overlap＋tid/row hash dedup
+- 通常fillとTWAP sliceは観測済みstartPosition鎖で同一timestamp順序を復元
+- Funding 100口座再取得で+30,451 rows
+- rolling retentionにより36口座は旧固定期間と完全比較不能
+- 最終eligible 44/100、excluded 56/100
+- eligible完結22,973episode、quantity mismatch 0、continuity error 0
+
+停止理由:
+- 56%技術除外はsampling biasが大きい
+- 過去30日を後追い取得する設計では高頻度口座のraw完全性を保証できない
+- `API制約で設計変更が必要`に該当
+
+次に設計すること:
+1. 固定100 walletを変更せず、fills / TWAP / Fundingをappend-only保存するforward collector
+2. 境界timestamp overlap、dedup key、raw server order、source endpoint、ingested_atを保存
+3. wallet×endpoint checkpoint、gap、retry、retention/cap flagを永続化
+4. collector開始時刻を新しいanalysis periodの固定startとし、それ以前を推定しない
+5. WebSocketと定期REST overlap取得の役割分担、実行間隔、保存先、data branch運用を決定
+6. 7日以上のshadow collectionでcontinuity error 0を確認してからpilotを再開
+
+設計変更が確定するまでOHLCV・label・500口座拡大は禁止。
+
+---
+
+# ARCHIVE: main側の初期raw trace監査計画
+
+以下の監査計画は2026-10-03に実施済み。結果は
+`reviews/pilot-100-reconstruction-audit-2026-10-03/`を正本とする。
 
 107件を全件raw evidenceへ戻して分類する。
 

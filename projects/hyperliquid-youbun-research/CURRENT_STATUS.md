@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-100口座pilot。sampling固定とwallet endpoint収集まで完了したが、初回再構成で重大差異を検出し停止中。
+100口座pilot。初回再構成差異の原因は特定・修正したが、rolling retentionにより56%が技術除外となるため、forward収集への設計変更Gateで停止中。
 
 ## Completed
 
@@ -42,12 +42,18 @@
 - raw fills 674,339、TWAP追加8,452、Funding 505,011、merge後perp fills 680,842
 - 初回再構成46,182 episodes、完結uncensored 44,125
 - quantity mismatch 107 episodes / 33 wallets、continuity error 3,790 / 47 walletsを検出し停止
+- ページ境界末尾timestampへ`+1ms`して同一millisecond recordsを落とす不具合を特定し、timestamp overlap＋dedupへ修正
+- 通常fillとTWAP sliceの同一timestamp順序を観測済みstartPosition鎖でinterleaveするよう修正
+- 修正版Fundingを100/100再取得し、505,011→535,462 rows（+30,451）
+- 修正版fillsと旧固定期間を完全比較できたのは64/100口座。36口座はrolling retentionで期間先頭を再取得不能
+- 全品質条件を満たす44口座・完結22,973episodeではquantity mismatch 0、continuity error 0
+- 56口座除外はsampling biasが大きいためOHLCV・label・500口座拡大を停止
 
 ## Latest Work
 
 - PHASE 1 GateはPASS。
 - PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
-- PHASE 3 GateはFAIL。差異を除外・推定・0埋めで隠していない。
+- PHASE 3の実装差異は修正したが、API retentionによる56%除外でGateはFAIL。差異を推定・0埋めで隠していない。
 - 500口座拡大はHOLD。
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
@@ -68,7 +74,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 43 tests passed
+- 46 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -94,4 +100,4 @@
 
 ## Next
 
-quantity mismatch 107件とcontinuity error 3,790件を、fill/TWAP merge、同時刻server order、APIページ境界、left censoringに分解してraw trace監査する。重大差異0になるまでOHLCV収集、行動ラベル、500口座拡大へ進まない。
+固定100口座を維持したappend-only forward collectorの期間・保存・gap復旧契約を設計し、新しい観測開始時刻を固定する。56%除外のhistorical pilotではOHLCV、行動ラベル、500口座拡大へ進まない。

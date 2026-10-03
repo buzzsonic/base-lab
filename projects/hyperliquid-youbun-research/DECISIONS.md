@@ -100,3 +100,12 @@
 - 差異: 初回再構成46,182 episodesのうちquantity mismatch 107件 / 33 wallets、continuity error 3,790件 / 47 wallets。
 - 決定: `NEXT_TASK.md`の重大再構成差異に該当するため停止。OHLCV、label適用、500口座拡大は行わない。
 - 次: raw traceでfill/TWAP merge、同一timestamp順序、API page boundary、left censoringを原因分類し、欠落fillを推定しない。
+
+## 2026-10-03 historical pilotを止めforward収集へ設計変更する
+
+- 確定原因1: `userFillsByTime` / `userFunding`のページ境界で`max(timestamp)+1ms`としていたため、同一millisecondの残りrecordsを欠落させた。境界timestamp overlap＋dedupへ修正する。
+- 確定原因2: 通常fillsとTWAP sliceの同一timestamp順序が単純連結で壊れた。観測済み`startPosition → afterPosition`鎖でinterleaveする。
+- 実証: P077はfills 12,079→12,329、continuity 6→0。Funding全体は505,011→535,462。
+- 制約: 修正版再取得時に36口座がrolling retentionで旧固定期間先頭を失い、追加のTWAP retention gap 5、復元不能fill gap 2等を含めeligibleは44/100に留まった。
+- 決定: eligible 44口座・完結22,973episodeはquantity mismatch 0 / continuity error 0だが、56%除外のhistorical pilotはsampling biasが大きいため不採用。固定100口座のappend-only forward collectorへ変更する。
+- 禁止: 欠落fill推定、口座差替え、OHLCV/label/500口座拡大。forward収集設計とshadow quality Gate後に再開する。

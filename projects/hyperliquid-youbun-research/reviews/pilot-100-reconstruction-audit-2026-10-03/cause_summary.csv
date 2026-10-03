@@ -1,0 +1,7 @@
+reason,wallets,rate
+no_completed_episode,25,0.2500
+no_perp_fills,18,0.1800
+quantity_mismatch,5,0.0500
+refetch_coverage_loss,36,0.3600
+twap_retention_gap,5,0.0500
+unrecoverable_fill_gap,2,0.0200
