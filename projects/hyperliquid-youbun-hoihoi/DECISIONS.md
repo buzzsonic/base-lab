@@ -49,3 +49,16 @@
 - 制約: 公開APIだけでは10,000件より古い履歴を復元できない。未解決gapがlookback外になるまで完全性を回復したと扱わない。
 - 決定: 未統合のcodex/hoihoi-public-trades-collector実装を再利用し、市場snapshot保存とdata branch保存を追加する。
 - 未解決: 実APIとActionsでの保存検証、実測改善、サンプル全体の品質ゲート、snapshot/weekly実装。
+
+## 2026-10-03 新100件は隔離観察してから判断
+
+- 決定: fresh 200→100再PoCの結果は採用候補として保存するが、現行registry 100件を即時置換しない。
+- 証拠: run 37116104107で履歴不完全21→2、small-alt 0→9、BOT疑い39→29、MM疑い12→4へ改善。現行との重複42件。20件レビューで閾値不一致0件。
+- 理由: 新cohortは観察0日で、7日・7 JST日分のpromotion gateを満たさない。MM/farmラベルも公開約定だけでは戦略確定できない。
+- 影響: 次は別cohortとして7日追跡し、既存観察を維持したまま比較する。1,000-wallet拡大はHOLD。
+
+## 2026-10-03 data branch競合はrebase再試行
+
+- 決定: discovery/observationのdata branch pushは最大3回、失敗時にfetch・rebaseして再試行する。force pushは禁止。
+- 理由: run 37081829753は収集とartifact生成が成功した一方、並行workflowの更新でnon-fast-forwardとなり保存だけ失敗した。
+- 証拠: PR #25統合後の収集run 37116093295、観察run 37116402104、snapshot run 37116871931はすべてsuccess。
