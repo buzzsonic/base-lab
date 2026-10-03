@@ -6,20 +6,38 @@
 
 - historical pilot: 不採用（rolling retentionにより56/100口座を技術除外）
 - eligible 44口座・完結22,973episode: quantity mismatch 0 / continuity error 0
-- fixed-100 forward collector: main反映・GitHub canary・固定100口座初回run PASS
-- analysis start: `2026-10-03 21:12 JST` (`1791029567198` ms)
-- data branch: 300/300 checkpoint、failure 0、cap hit 0、retention risk 0
+- fixed-100 forward collector v1: Gate FAIL、workflow停止済み
+- v1 analysis start: `2026-10-03 21:12 JST` (`1791029567198` ms)、監査用に凍結
+- v1 scheduled gap: 約3〜4時間、高頻度2口座で各run 10,000 fills超
+- v2: `forward-data-v2/`へ分離し、新しいanalysis startで再開準備中
 - OHLCV / behavior label / 500口座拡大: HOLD
-- 7日Shadow Collection終了予定: `2026-10-10 21:12 JST`
+- v2の7日Shadow Collection終了予定: 初回連続run合格後に再設定
 
 # 運用方針
 
-Shadow Collectionは20分周期のまま継続する。
+v1収集は停止し、v2の起動間隔と品質fail-fastを検証してから再開する。
 7日経過を待つ間も停止せず、Gate判定に必要な検証ツールと中間品質監査を実装する。
 
 原則2〜3工程を連続実行し、各Gate PASS後はユーザー確認を待たず次へ進む。
 
 養分ホイホイ側は変更しない。
+
+---
+
+# PHASE 0: collector v2再開【最優先】
+
+1. v2変更をmainへmergeし、workflowを再enableする。
+2. `max_wallets=1` canaryで新しいanalysis startとdata branch保存を確認する。
+3. 固定100口座初回runを実行し、300 checkpoint、failure/cap/retention risk 0を確認する。
+4. 直後のqueued runまで確認し、poll間隔が高頻度口座の10,000件保持範囲内に収まることを確認する。
+5. その時点をv2の7日Gate開始とし、終了日時を固定する。
+
+停止条件:
+- いずれかのrunで`retention_risk > 0`
+- endpoint failure / page cap / data branch conflict
+- v1 stateまたはrawがv2へ混入
+
+PHASE 0 PASS後のみPHASE 1へ進む。
 
 ---
 

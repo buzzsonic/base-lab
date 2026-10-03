@@ -5,6 +5,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,8 +13,9 @@ from pathlib import Path
 from src.poc import INFO, get_json
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 SAMPLE_VERSION = "pilot-100-v1"
+COLLECTOR_VERSION = "forward-v2"
 ENDPOINTS = {
     "fills": {"type": "userFillsByTime", "page_size": 2000, "cadence_ms": 20 * 60_000},
     "twap": {"type": "userTwapSliceFillsByTime", "page_size": 500, "cadence_ms": 20 * 60_000},
@@ -97,7 +99,8 @@ def collect(sample: Path, output: Path, now_ms: int, overlap_ms: int,
         if now_ms < state["analysis_start_ms"]:
             raise ValueError("run time precedes fixed analysis start")
     else:
-        state = {"schema_version": SCHEMA_VERSION, "sample_version": SAMPLE_VERSION,
+        state = {"schema_version": SCHEMA_VERSION, "collector_version": COLLECTOR_VERSION,
+                 "sample_version": SAMPLE_VERSION,
                  "sample_sha256": sample_sha, "analysis_start_ms": now_ms, "checkpoints": {}}
     run_id = datetime.fromtimestamp(now_ms / 1000, timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     date = datetime.fromtimestamp(now_ms / 1000, timezone.utc).strftime("%Y-%m-%d")
@@ -106,9 +109,11 @@ def collect(sample: Path, output: Path, now_ms: int, overlap_ms: int,
         raise ValueError(f"immutable run already exists: {run_id}")
     run_dir.mkdir(parents=True)
     handles = {name: (run_dir / f"{name}.jsonl").open("w") for name in ENDPOINTS}
-    manifest = {"schema_version": SCHEMA_VERSION, "run_id": run_id, "analysis_start_ms": state["analysis_start_ms"],
+    manifest = {"schema_version": SCHEMA_VERSION, "collector_version": COLLECTOR_VERSION,
+                "run_id": run_id, "analysis_start_ms": state["analysis_start_ms"],
                 "started_at_ms": now_ms, "requested_wallets": len(accounts), "endpoint_results": [],
-                "failures": 0, "records": 0, "requests": 0}
+                "failures": 0, "retention_risks": 0, "cap_hits": 0,
+                "records": 0, "requests": 0}
     try:
         for account in accounts:
             wallet = account["wallet"].lower()
@@ -132,15 +137,18 @@ def collect(sample: Path, output: Path, now_ms: int, overlap_ms: int,
                                     "dedup_key": dedup_key(endpoint, row), "payload": row}
                         handles[endpoint].write(json.dumps(envelope, ensure_ascii=False, separators=(",", ":")) + "\n")
                     latest = max((source_time(endpoint, row) for row in rows), default=checkpoint.get("last_source_time_ms"))
+                    retention_risk = endpoint == "fills" and len(rows) >= 10_000
                     checkpoint.update({"last_success_poll_ms": now_ms, "last_source_time_ms": latest,
                                        "last_status": "success", "last_error": None, "consecutive_failures": 0,
                                        "requests": checkpoint["requests"] + requests,
                                        "records": checkpoint["records"] + len(rows),
                                        "page_safety_cap_hit": cap_hit,
-                                       "retention_risk": endpoint == "fills" and len(rows) >= 10_000})
+                                       "retention_risk": retention_risk})
                     result.update({"status": "success", "records": len(rows), "requests": requests,
-                                   "page_safety_cap_hit": cap_hit})
+                                   "page_safety_cap_hit": cap_hit, "retention_risk": retention_risk})
                     manifest["records"] += len(rows); manifest["requests"] += requests
+                    manifest["retention_risks"] += int(retention_risk)
+                    manifest["cap_hits"] += int(cap_hit)
                 except Exception as exc:
                     checkpoint.update({"last_status": "failed", "last_error": str(exc),
                                        "consecutive_failures": checkpoint.get("consecutive_failures", 0) + 1})
@@ -169,6 +177,10 @@ def main() -> None:
     now_ms = args.now_ms if args.now_ms is not None else int(time.time() * 1000)
     result = collect(args.sample, args.output, now_ms, args.overlap_minutes * 60_000,
                      args.request_delay_seconds, args.max_wallets)
+    quality_gate_failed = result["failures"] > 0 or result["retention_risks"] > 0 or result["cap_hits"] > 0
+    if github_output := os.environ.get("GITHUB_OUTPUT"):
+        with Path(github_output).open("a") as handle:
+            handle.write(f"quality_gate_failed={str(quality_gate_failed).lower()}\n")
     print(json.dumps({key: result[key] for key in ("run_id", "requested_wallets", "requests", "records", "failures")}, indent=2))
 
 

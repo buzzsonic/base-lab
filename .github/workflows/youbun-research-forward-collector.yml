@@ -8,7 +8,9 @@ on:
         required: false
         default: ""
   schedule:
-    - cron: "7,27,47 * * * *"
+    # GitHub schedule delivery is best-effort. Frequent triggers plus the
+    # serialized concurrency group keep one fresh run queued behind a long run.
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
@@ -35,6 +37,7 @@ jobs:
           PYTHONPATH=projects/hyperliquid-youbun-research \
           python -m unittest discover -s projects/hyperliquid-youbun-research/tests -v
       - name: Collect fixed-100 public user streams
+        id: collect
         env:
           MAX_WALLETS: ${{ inputs.max_wallets }}
         run: |
@@ -43,13 +46,13 @@ jobs:
           PYTHONPATH=projects/hyperliquid-youbun-research \
           python projects/hyperliquid-youbun-research/scripts/forward_collect.py \
             --sample projects/hyperliquid-youbun-research/sampling/pilot-100-v1/sampling_manifest.csv \
-            --output persisted/projects/hyperliquid-youbun-research/forward-data \
+            --output persisted/projects/hyperliquid-youbun-research/forward-data-v2 \
             "${args[@]}"
       - name: Upload immutable run evidence
         uses: actions/upload-artifact@v6
         with:
           name: youbun-forward-${{ github.run_id }}-${{ github.run_attempt }}
-          path: persisted/projects/hyperliquid-youbun-research/forward-data/
+          path: persisted/projects/hyperliquid-youbun-research/forward-data-v2/
           if-no-files-found: error
           retention-days: 30
       - name: Persist only Youbun forward data
@@ -57,8 +60,12 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -f projects/hyperliquid-youbun-research/forward-data
+          git add -f projects/hyperliquid-youbun-research/forward-data-v2
           if ! git diff --cached --quiet; then
             git commit -m 'data: append Youbun fixed-100 forward window'
             bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-research/scripts/push_data_branch.sh" data 3
           fi
+      - name: Enforce collector quality flags
+        env:
+          QUALITY_GATE_FAILED: ${{ steps.collect.outputs.quality_gate_failed }}
+        run: test "$QUALITY_GATE_FAILED" = "false"
