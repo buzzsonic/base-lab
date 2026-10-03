@@ -6,16 +6,18 @@
 
 - historical pilot: 不採用（rolling retentionにより56/100口座を技術除外）
 - eligible 44口座・完結22,973episode: quantity mismatch 0 / continuity error 0
-- fixed-100 forward collector: 実装・単体test・1口座ローカルcanary PASS
+- fixed-100 forward collector: main反映・GitHub canary・固定100口座初回run PASS
+- analysis start: `2026-10-03 21:12 JST` (`1791029567198` ms)
+- data branch: 300/300 checkpoint、failure 0、cap hit 0、retention risk 0
 - OHLCV / behavior label / 500口座拡大: HOLD
 
-## 次の実行単位: 7日Shadow Collection開始
+## 次の実行単位: 7日Shadow Collection監視
 
-1. collector変更をmainへmergeする。
-2. GitHub Actionsを`max_wallets=1`で手動実行し、data branchへのraw/state保存とpushを確認する。
-3. canary成功後、`max_wallets`を空にして固定100口座runを実行する。
-4. schedule（20分周期）を維持し、最低7日間のshadow evidenceを蓄積する。
-5. 各runのmanifestとcheckpointから品質サマリを作る。
+1. schedule（20分周期）を維持し、2026-10-10 21:12 JSTまでshadow evidenceを蓄積する。
+2. failure、cap hit、retention risk、data branch競合、checkpoint巻き戻りが出た場合だけ即時停止して原因監査する。
+3. 各runのmanifestとcheckpointから7日品質サマリを作る。
+4. canonical fillsへTWAPを統合し、continuity errorとquantity mismatchを再計算する。
+5. 全Shadow Gateを判定し、PASS時だけ次phaseへ進む。
 
 ## Shadow Gate
 
