@@ -1,0 +1,2713 @@
+{
+  "analysis_start_ms": 1791029567198,
+  "endpoint_results": [
+    {
+      "anon_wallet_id": "P079",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 3122,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P079",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P079",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 268,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P077",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P077",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P077",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P076",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P076",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P076",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P012",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 275,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P012",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P012",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 32,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P030",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 218,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P030",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P030",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 16,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P090",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 160,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P090",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P090",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 14,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P033",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P033",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P033",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P018",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P018",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P018",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P020",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P020",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P020",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P057",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P057",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P057",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P028",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 133,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P028",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P028",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P080",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P080",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P080",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P052",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 309,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P052",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P052",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 491,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P074",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P074",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P074",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P038",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 19,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P038",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P038",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 18,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P015",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 6034,
+      "requests": 4,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P015",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P015",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 613,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P023",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 1194,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P023",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P023",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 76,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P031",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 13898,
+      "requests": 7,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P031",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P031",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 532,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P096",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P096",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P096",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 72,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P067",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P067",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P067",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P088",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P088",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P088",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P070",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 32,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P070",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P070",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 26,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P046",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P046",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P046",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P095",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 137,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P095",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P095",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 6,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P098",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 1724,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P098",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P098",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 493,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P051",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 1374,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P051",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P051",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 8,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P059",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P059",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P059",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P034",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P034",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P034",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 180,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P060",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 632,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P060",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P060",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 196,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P078",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 419,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P078",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P078",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 24,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P081",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P081",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P081",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P043",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 85,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P043",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P043",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 8,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P092",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 259,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P092",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P092",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P085",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 77,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P085",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P085",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 11,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P017",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P017",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P017",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P093",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 38,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P093",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P093",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P062",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 354,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P062",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P062",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 492,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P084",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 77,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P084",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P084",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P032",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P032",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P032",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P021",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 3947,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P021",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P021",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 116,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P055",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 4577,
+      "requests": 3,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P055",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P055",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 216,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P025",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 284,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P025",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P025",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P002",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 934,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P002",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P002",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P100",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 292,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P100",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P100",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 16,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P064",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 250,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P064",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P064",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P069",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P069",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 66,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P069",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P049",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 6,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P049",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P049",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 1,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P001",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 99,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P001",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P001",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 8,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P094",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 900,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P094",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P094",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 68,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P026",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 3221,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P026",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P026",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 204,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P058",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 756,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P058",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P058",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 140,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P039",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 47,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P039",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P039",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 8,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P083",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 131,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P083",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P083",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 14,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P047",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P047",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P047",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P041",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 2468,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P041",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P041",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 234,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P037",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 927,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P037",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P037",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 8,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P044",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P044",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P044",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P087",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 176,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P087",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P087",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 3,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P065",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 20,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P065",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P065",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P007",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 6217,
+      "requests": 4,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P007",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P007",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 610,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P019",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P019",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P019",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P040",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 6368,
+      "requests": 4,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P040",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P040",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 611,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P035",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 11021,
+      "requests": 6,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P035",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P035",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 800,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P082",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P082",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P082",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 16,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P050",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 912,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P050",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P050",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P066",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P066",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 15,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P066",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 32,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P053",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 143,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P053",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P053",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 99,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P054",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 34,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P054",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P054",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 109,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P063",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P063",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P063",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 8,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P068",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P068",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 105,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P068",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 20,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P016",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 2592,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P016",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P016",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 191,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P042",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P042",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P042",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P004",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 7,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P004",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P004",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 10,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P003",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 40,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P003",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P003",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P014",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 3974,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P014",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P014",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 560,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P091",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P091",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P091",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P073",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 7,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P073",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P073",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P056",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 522,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P056",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P056",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 496,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P061",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 1182,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P061",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P061",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 96,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P027",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P027",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P027",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P045",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 298,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P045",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P045",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 116,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P011",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P011",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P011",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P048",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P048",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P048",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P006",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 6142,
+      "requests": 4,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P006",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P006",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 606,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P089",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P089",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P089",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 20,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P024",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 106,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P024",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P024",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P072",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 5435,
+      "requests": 3,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P072",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P072",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 92,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P005",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 33,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P005",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P005",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P071",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P071",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P071",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P010",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 351,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P010",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P010",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 455,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P075",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 1367,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P075",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P075",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 477,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P013",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P013",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P013",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P099",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 6374,
+      "requests": 4,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P099",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P099",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 614,
+      "requests": 2,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P008",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P008",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P008",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P029",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 415,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P029",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P029",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 16,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P036",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P036",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P036",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 4,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P086",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 281,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P086",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P086",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 148,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P022",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P022",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P022",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P009",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P009",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P009",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 12,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P097",
+      "endpoint": "fills",
+      "page_safety_cap_hit": false,
+      "records": 40,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P097",
+      "endpoint": "twap",
+      "page_safety_cap_hit": false,
+      "records": 293,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    },
+    {
+      "anon_wallet_id": "P097",
+      "endpoint": "funding",
+      "page_safety_cap_hit": false,
+      "records": 34,
+      "requests": 1,
+      "start_ms": 1791042530265,
+      "status": "success"
+    }
+  ],
+  "failures": 0,
+  "finished_at": "2026-10-03T19:50:14.238485+00:00",
+  "records": 114953,
+  "requested_wallets": 100,
+  "requests": 344,
+  "run_id": "20261003T192631Z",
+  "schema_version": 1,
+  "started_at_ms": 1791055591719
+}
