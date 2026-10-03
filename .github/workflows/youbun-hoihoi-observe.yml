@@ -52,5 +52,5 @@ jobs:
           git add projects/hyperliquid-youbun-hoihoi/outputs/current
           if ! git diff --cached --quiet; then
             git commit -m 'data: update Hoihoi daily observations'
-            git push origin HEAD:data
+            bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-hoihoi/scripts/push_data_branch.sh" data 3
           fi

@@ -65,5 +65,5 @@ jobs:
           git add projects/hyperliquid-youbun-hoihoi/outputs/current/discovery
           if ! git diff --cached --quiet; then
             git commit -m 'data: append Hoihoi public discovery window'
-            git push origin HEAD:data
+            bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-hoihoi/scripts/push_data_branch.sh" data 3
           fi
