@@ -1,0 +1,42 @@
+{
+  "analysis_start_ms": 1791064965698,
+  "checkpoints": {
+    "0xfc667adba8d4837586078f4fdcdc29804337ca06|fills": {
+      "consecutive_failures": 0,
+      "last_error": null,
+      "last_source_time_ms": null,
+      "last_status": "success",
+      "last_success_poll_ms": 1791064965698,
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "retention_risk": false
+    },
+    "0xfc667adba8d4837586078f4fdcdc29804337ca06|funding": {
+      "consecutive_failures": 0,
+      "last_error": null,
+      "last_source_time_ms": null,
+      "last_status": "success",
+      "last_success_poll_ms": 1791064965698,
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "retention_risk": false
+    },
+    "0xfc667adba8d4837586078f4fdcdc29804337ca06|twap": {
+      "consecutive_failures": 0,
+      "last_error": null,
+      "last_source_time_ms": null,
+      "last_status": "success",
+      "last_success_poll_ms": 1791064965698,
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1,
+      "retention_risk": false
+    }
+  },
+  "collector_version": "forward-v2",
+  "sample_sha256": "e7ef8b4c1373fee34c5f5dd4c91c8aaad196a538c18ac5f03e8c5e08bcf7f994",
+  "sample_version": "pilot-100-v1",
+  "schema_version": 2
+}
