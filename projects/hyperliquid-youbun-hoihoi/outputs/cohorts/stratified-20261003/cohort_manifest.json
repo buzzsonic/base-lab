@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "cohort_id": "stratified-20261003",
+  "role": "shadow",
+  "created_at": "2026-10-03T10:21:08.806248+00:00",
+  "source_run_id": 37116104107,
+  "source_artifact": "youbun-hoihoi-poc-preview-37116104107-1",
+  "selected_wallets": 100,
+  "discovery_pool_wallets": 200,
+  "current_cohort_replacement_allowed": false,
+  "automatic_merge_allowed": false,
+  "minimum_elapsed_days": 7,
+  "minimum_successful_jst_observation_days": 7,
+  "baseline": {
+    "complete_histories": 98,
+    "incomplete_histories": 2,
+    "small_alt_core": 9,
+    "bot_suspected": 29,
+    "mm_suspected": 4,
+    "farm_suspected": 6,
+    "inactive": 15,
+    "overlap_with_current": 42
+  }
+}
