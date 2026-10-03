@@ -22,6 +22,14 @@
 - 20件の層別レビューではheuristic閾値との不一致0件。ただしMM/farmは戦略確定ではないため、疑いラベルと保守的除外を維持する。
 - 詳細は `QUALITY_REPORT_STRATIFIED_POC_2026_10_03.md`。
 
+## 2026-10-03 shadow cohort 初回観察
+
+- [PR #28](https://github.com/buzzsonic/base-lab/pull/28)をmain@`71bce6e`へ統合。`stratified-20261003`を現行とは別namespaceで毎日03:20 JSTに観察する。
+- data branch `3b4c0ab`へseed後、[run 37120774019](https://github.com/buzzsonic/base-lab/actions/runs/37120774019)がsuccess。保存commitは`bb4709f`。
+- 変更パスはshadow配下のみ。`outputs/current/`のtree hashは実行前後とも`96e57802da37182ec82f0d5461cdbbf3c257d992`で一致。
+- shadowはregistry 100、pool 200、checkpoint 100、sample 0。成功観察日は98件が1日・2件が0日のまま。
+- live再取得では履歴完全97、不完全3。1 walletが完全→不完全へ変化し、成功日は加算されなかった。BOT 29、MM 4、farm 6は維持、small-altは10。
+
 ## Issue #8 の比較基準
 
 | 指標 | 旧100件 | 層化後100件 |
