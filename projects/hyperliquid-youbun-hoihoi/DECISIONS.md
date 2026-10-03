@@ -54,7 +54,7 @@
 
 - 決定: fresh 200→100再PoCの結果は採用候補として保存するが、現行registry 100件を即時置換しない。
 - 証拠: run 37116104107で履歴不完全21→2、small-alt 0→9、BOT疑い39→29、MM疑い12→4へ改善。現行との重複42件。20件レビューで閾値不一致0件。
-- 理由: 新cohortは観察0日で、7日・7 JST日分のpromotion gateを満たさない。MM/farmラベルも公開約定だけでは戦略確定できない。
+- 理由: 新cohortの成功観察日は完全取得98件が1日、欠損2件が0日で、7日・7 JST日分のpromotion gateを満たさない。MM/farmラベルも公開約定だけでは戦略確定できない。
 - 影響: 次は別cohortとして7日追跡し、既存観察を維持したまま比較する。1,000-wallet拡大はHOLD。
 
 ## 2026-10-03 data branch競合はrebase再試行
@@ -62,3 +62,10 @@
 - 決定: discovery/observationのdata branch pushは最大3回、失敗時にfetch・rebaseして再試行する。force pushは禁止。
 - 理由: run 37081829753は収集とartifact生成が成功した一方、並行workflowの更新でnon-fast-forwardとなり保存だけ失敗した。
 - 証拠: PR #25統合後の収集run 37116093295、観察run 37116402104、snapshot run 37116871931はすべてsuccess。
+
+## 2026-10-03 shadow cohortを別namespaceで観察
+
+- 決定: 新100件は`outputs/cohorts/stratified-20261003/`に固定し、現行`outputs/current/`とregistry、pool、checkpoint、cache、sampleを共有しない。
+- 決定: 毎日03:20 JSTに同じdata branch排他ロックで観察する。seed欠落時は現行cohortへフォールバックせず失敗させる。
+- 理由: 改善候補を7日評価しながら、観察2日目の現行100件を破壊・置換しないため。
+- 影響: 7日後の比較と明示判断なしにcohortの置換・統合・1,000件拡大は行わない。

@@ -35,4 +35,12 @@ It preserves first_seen and requires seven distinct successful JST observation
  dates after at least seven elapsed days. Missing or saturated history blocks promotion.
 Discovery runs four times daily; observation runs daily. Both persist only Hoihoi
 state to `data` under a shared concurrency lock. Snapshot/weekly remain gated.
-No live improvement figures have been measured for this implementation yet.
+
+## Isolated shadow cohort
+
+The improved `stratified-20261003` cohort is observed without replacing the
+current cohort. Its complete state lives at
+`outputs/cohorts/stratified-20261003/` on `data`; the daily workflow never
+writes to `outputs/current/`. Missing seed files fail closed. Membership cannot
+be promoted, merged, or substituted automatically. See `COHORTS.md` and
+`QUALITY_REPORT_STRATIFIED_POC_2026_10_03.md` for the contract and baseline.
