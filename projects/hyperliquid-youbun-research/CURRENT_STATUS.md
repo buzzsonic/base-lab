@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-固定100口座のappend-only forward collectorを実装済み。historical pilotは不採用のまま、7日間Shadow Gateの開始待ち。OHLCV・行動ラベル・500口座拡大はHOLD。
+固定100口座のappend-only forward collectorをmainへ反映し、2026-10-03 21:12 JSTから7日間Shadow Collectionを開始。historical pilotは不採用のまま、OHLCV・行動ラベル・500口座拡大はHOLD。
 
 ## Completed
 
@@ -52,6 +52,10 @@
 - 20分overlap、inclusive page boundary、dedup key、immutable raw run、wallet×endpoint checkpointを固定
 - 応答weightに応じて600 weight/minute以下へ抑える動的rate pacingを実装
 - 1口座公開API canaryで3/3 endpoint成功、failure 0、cap hit 0（観測開始直後のためrecord 0）
+- GitHub Actions canary run `37122082323`でtest・3 endpoint・artifact・data branch pushを全て確認
+- 固定100口座初回run `37122182275`成功。300/300 checkpoint、failure 0、cap hit 0、retention risk 0
+- 初回runはcanary済み1口座をcadence skipし、残り99口座×3系統=297 request成功、fills 507件をappend-only保存
+- data branch commit `cf82b02`、固定`analysis_start_ms=1791029567198`、sample SHA `e7ef8b4c...7f994`
 
 ## Latest Work
 
@@ -60,7 +64,7 @@
 - PHASE 3の実装差異は修正したが、API retentionによる56%除外でGateはFAIL。差異を推定・0埋めで隠していない。
 - 500口座拡大はHOLD。
 - user-specific WebSocketはIPあたり10 unique users制約のため、固定100口座の正本にしない。定期RESTを正本とする。
-- 7日Shadow Gateはまだ未開始／未通過。collector実装完了は分析再開条件の達成を意味しない。
+- 7日Shadow Gateは進行中／未通過。collector稼働開始は分析再開条件の達成を意味しない。
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
@@ -106,4 +110,4 @@
 
 ## Next
 
-mainへcollectorを反映後、GitHub Actionsを1口座canary→固定100口座の順で開始する。7日間、run成功率・gap・cap・raw破損・checkpoint巻き戻りを監視し、Gate判定までOHLCV、行動ラベル、500口座拡大へ進まない。
+2026-10-10 21:12 JST以降に、run成功率・gap・cap・raw破損・checkpoint巻き戻り・canonical continuity・quantityを集計してShadow Gateを判定する。それまではschedule収集だけを継続し、OHLCV、行動ラベル、500口座拡大へ進まない。
