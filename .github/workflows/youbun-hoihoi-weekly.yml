@@ -13,10 +13,10 @@ on:
     - cron: "0 15 * * 0"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: youbun-hoihoi-weekly
+  group: youbun-hoihoi-data
   cancel-in-progress: false
 
 jobs:
@@ -28,6 +28,10 @@ jobs:
         working-directory: projects/hyperliquid-youbun-hoihoi
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: data
+          path: persisted
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -38,7 +42,31 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -v
-      - name: Guard production activation
+      - name: Build read-only cohort comparison
+        env:
+          PYTHONPATH: src
         run: |
-          echo "Weekly production mutation/send remains gated until 7-day observation and data-branch integration pass."
-          echo "No stale snapshot depletion decision will be made by this skeleton."
+          current="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/current"
+          shadow="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/cohorts/stratified-20261003"
+          report="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/reports/weekly/$(date -u +%Y-%m-%d)/cohort_comparison.json"
+          test -f "$current/wallet_registry.parquet"
+          test -f "$shadow/wallet_registry.parquet"
+          python -m hoihoi.quality_gate --current "$current" --shadow "$shadow" --output "$report"
+      - name: Upload comparison artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: youbun-hoihoi-weekly-${{ github.run_id }}-${{ github.run_attempt }}
+          path: persisted/projects/hyperliquid-youbun-hoihoi/outputs/reports/weekly/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Persist report only
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        working-directory: persisted
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/hyperliquid-youbun-hoihoi/outputs/reports/weekly
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: add Hoihoi weekly cohort comparison'
+            bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-hoihoi/scripts/push_data_branch.sh" data 3
+          fi
