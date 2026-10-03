@@ -2,6 +2,7 @@ data/
 data_poc2/
 data_pilot100/
 data_pilot100_v2/
+forward-data/
 .env
 __pycache__/
 *.pyc
