@@ -30,6 +30,13 @@
 - shadowはregistry 100、pool 200、checkpoint 100、sample 0。成功観察日は98件が1日・2件が0日のまま。
 - live再取得では履歴完全97、不完全3。1 walletが完全→不完全へ変化し、成功日は加算されなかった。BOT 29、MM 4、farm 6は維持、small-altは10。
 
+## 2026-10-04 定刻観察
+
+- 現行[run 37147375366](https://github.com/buzzsonic/base-lab/actions/runs/37147375366)とshadow[run 37154398261](https://github.com/buzzsonic/base-lab/actions/runs/37154398261)はsuccess。
+- 現行: 成功観察日79件が3日、21件が0日。完全79、不完全21、OBSERVING 46、EXCLUDED 39、INACTIVE 15、sample 0。
+- shadow: 成功観察日97件が2日、1件が1日、2件が0日。完全97、不完全3、OBSERVING 54、EXCLUDED 30、INACTIVE 16、sample 0。
+- shadowのBOT 27、MM 4、farm 6、small-alt 11。現行比で完全履歴+18、BOT -11、MM -8、small-alt +9だが、7日gate未達のため置換判断はHOLD。
+
 ## Issue #8 の比較基準
 
 | 指標 | 旧100件 | 層化後100件 |

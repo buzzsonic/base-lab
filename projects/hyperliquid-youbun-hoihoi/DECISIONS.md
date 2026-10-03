@@ -69,3 +69,10 @@
 - 決定: 毎日03:20 JSTに同じdata branch排他ロックで観察する。seed欠落時は現行cohortへフォールバックせず失敗させる。
 - 理由: 改善候補を7日評価しながら、観察2日目の現行100件を破壊・置換しないため。
 - 影響: 7日後の比較と明示判断なしにcohortの置換・統合・1,000件拡大は行わない。
+
+## 2026-10-04 weeklyは比較報告のみ
+
+- 決定: weekly workflowは現行・shadowのregistry/pool/sampleを読み、構造、履歴完全性、成功JST日、flag、small-alt、ACTIVE/sample一致をJSON化する。
+- 決定: registryとsampleは変更せず、出力は`outputs/reports/weekly/YYYY-MM-DD/cohort_comparison.json`だけに限定する。
+- 決定: 全gate通過後も結果は`READY_FOR_HUMAN_REVIEW`までとし、置換・統合・通知・売買は自動化しない。
+- 理由: 日次promotionとcohort採否を分離し、欠測やsample不一致を隠さず人が比較判断できるようにするため。

@@ -44,3 +44,9 @@ current cohort. Its complete state lives at
 writes to `outputs/current/`. Missing seed files fail closed. Membership cannot
 be promoted, merged, or substituted automatically. See `COHORTS.md` and
 `QUALITY_REPORT_STRATIFIED_POC_2026_10_03.md` for the contract and baseline.
+
+The weekly workflow writes a comparison report under
+`outputs/reports/weekly/YYYY-MM-DD/cohort_comparison.json` on `data`. It reads
+both cohorts without mutating their registries. Even after all structural and
+seven-day checks pass, the strongest result is `READY_FOR_HUMAN_REVIEW`; cohort
+replacement, merge, notification, and trading remain outside the workflow.
