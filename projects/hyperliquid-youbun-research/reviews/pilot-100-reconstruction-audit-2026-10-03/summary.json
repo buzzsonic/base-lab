@@ -1,0 +1,18 @@
+{
+  "coverage_comparable_wallets": 64,
+  "eligible_completed_episodes": 22973,
+  "eligible_continuity_errors": 0,
+  "eligible_quantity_mismatches": 0,
+  "eligible_wallets": 44,
+  "excluded_wallets": 56,
+  "gate": "STOP_API_RETENTION_REQUIRES_FORWARD_COLLECTION_DESIGN",
+  "reason_counts": {
+    "no_completed_episode": 25,
+    "no_perp_fills": 18,
+    "quantity_mismatch": 5,
+    "refetch_coverage_loss": 36,
+    "twap_retention_gap": 5,
+    "unrecoverable_fill_gap": 2
+  },
+  "sample_wallets": 100
+}

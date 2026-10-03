@@ -1,8 +1,11 @@
 from decimal import Decimal
 import unittest
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
 
 from scripts.review_episodes import eligibility_reasons
-from src.poc import merge_fills
+from src.poc import fetch_fills, merge_fills
 
 
 def quality_row(**overrides):
@@ -18,6 +21,30 @@ def quality_row(**overrides):
 
 
 class AccountingReconciliationTest(unittest.TestCase):
+    def test_fill_pagination_repeats_boundary_timestamp_and_deduplicates(self):
+        first = [{"tid": i, "time": i, "coin": "BTC"} for i in range(1, 2001)]
+        second = [first[-1], {"tid": 2001, "time": 2000, "coin": "BTC"}]
+        calls = []
+
+        def fake_get_json(_url, payload):
+            calls.append(payload)
+            return first if len(calls) == 1 else second
+
+        with tempfile.TemporaryDirectory() as directory, patch("src.poc.get_json", side_effect=fake_get_json):
+            rows = fetch_fills("0xabc", 1, 3000, Path(directory), page_delay_seconds=0)
+        self.assertEqual(2001, len(rows))
+        self.assertEqual(2000, calls[1]["startTime"])
+
+    def test_twap_fill_is_interleaved_by_observed_position_chain(self):
+        regular = [
+            {"tid": 1, "time": 100, "coin": "BTC", "startPosition": "0", "side": "B", "sz": "1"},
+            {"tid": 3, "time": 100, "coin": "BTC", "startPosition": "2", "side": "B", "sz": "1"},
+        ]
+        twap = [{"tid": 2, "time": 100, "coin": "BTC", "startPosition": "1", "side": "B", "sz": "1"}]
+        merged, added = merge_fills(regular, twap)
+        self.assertEqual(1, added)
+        self.assertEqual([1, 2, 3], [row["tid"] for row in merged])
+
     def test_zero_perp_fill_account_is_excluded(self):
         reasons = eligibility_reasons(quality_row(completed_uncensored="0", perp_fills="0"))
         self.assertIn("no_completed_episode", reasons)

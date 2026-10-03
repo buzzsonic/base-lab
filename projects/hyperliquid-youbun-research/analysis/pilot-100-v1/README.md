@@ -24,3 +24,7 @@ PHASE 1はPASS、PHASE 2のwallet endpoint収集は100/100成功した。PHASE 3
 `quantity mismatch = 0` と `continuity errorは説明可能` のGateを満たさない。差異を除外や補完で隠さず、fill/TWAP merge、同時刻順序、APIページ境界、期間開始前positionの順にraw traceで原因分類する。原因解消前はOHLCV収集、label適用、結果比較、500口座拡大を行わない。
 
 rawとcheckpointはGit非管理の`data_pilot100/`に保存した。walletを含む個別品質表は公開レポートへ複製していない。
+
+## 2026-10-03追補
+
+原因監査でページ境界`+1ms`とTWAP同時刻順序を特定した。修正版でeligible 44口座はquantity mismatch 0・continuity error 0になったが、rolling retention等で56口座を除外する必要がありsampling biasが大きいため、pilotは引き続き停止。詳細は`reviews/pilot-100-reconstruction-audit-2026-10-03/`。

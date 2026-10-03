@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import time
+from collections import defaultdict
+from decimal import Decimal
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.error import HTTPError
@@ -68,19 +71,33 @@ def select_accounts(rows: list[dict], limit: int) -> list[dict]:
             for row, item in chosen]
 
 
+def _row_key(row: dict) -> str:
+    tid = str(row.get("tid") or "")
+    return tid or hashlib.sha256(json.dumps(row, sort_keys=True).encode()).hexdigest()
+
+
 def fetch_fills(wallet: str, start_ms: int, end_ms: int, raw_dir: Path,
                 page_delay_seconds: float = 4.0) -> list[dict]:
     cache = raw_dir / f"fills_{wallet.lower()}_{start_ms}_{end_ms}.json"
     if cache.exists():
         return json.loads(cache.read_text())
-    rows, cursor = [], start_ms
+    rows, seen, cursor = [], set(), start_ms
     for _ in range(100):
         batch = get_json(INFO, {"type": "userFillsByTime", "user": wallet, "startTime": cursor,
                                 "endTime": end_ms, "aggregateByTime": False})
-        rows.extend(batch)
+        added = 0
+        for row in batch:
+            key = _row_key(row)
+            if key not in seen:
+                seen.add(key)
+                rows.append(row)
+                added += 1
         if len(batch) < 2000:
             break
-        cursor = max(int(row["time"]) for row in batch) + 1
+        next_cursor = max(int(row["time"]) for row in batch)
+        if next_cursor < cursor or added == 0:
+            raise RuntimeError(f"fills pagination stalled at {cursor}")
+        cursor = next_cursor
         if cursor >= end_ms:
             break
         time.sleep(page_delay_seconds)
@@ -108,14 +125,23 @@ def fetch_funding(wallet: str, start_ms: int, end_ms: int, raw_dir: Path,
     cache = raw_dir / f"funding_{wallet.lower()}_{start_ms}_{end_ms}.json"
     if cache.exists():
         return json.loads(cache.read_text())
-    rows, cursor = [], start_ms
+    rows, seen, cursor = [], set(), start_ms
     for _ in range(100):
         batch = get_json(INFO, {"type": "userFunding", "user": wallet,
                                 "startTime": cursor, "endTime": end_ms})
-        rows.extend(batch)
+        added = 0
+        for row in batch:
+            key = hashlib.sha256(json.dumps(row, sort_keys=True).encode()).hexdigest()
+            if key not in seen:
+                seen.add(key)
+                rows.append(row)
+                added += 1
         if len(batch) < 500:
             break
-        cursor = max(int(row["time"]) for row in batch) + 1
+        next_cursor = max(int(row["time"]) for row in batch)
+        if next_cursor < cursor or added == 0:
+            raise RuntimeError(f"funding pagination stalled at {cursor}")
+        cursor = next_cursor
         if cursor >= end_ms:
             break
         time.sleep(page_delay_seconds)
@@ -136,7 +162,48 @@ def merge_fills(regular: list[dict], twap: list[dict]) -> tuple[list[dict], int]
             copy["source_kind"] = source
             out.append(copy)
             added += source == "twap"
-    return out, added
+    return order_same_timestamp_by_position(out), added
+
+
+def order_same_timestamp_by_position(rows: list[dict], tolerance: Decimal = Decimal("0.00000001")) -> list[dict]:
+    """Interleave fills from separate endpoints using their observed position chain."""
+    indexed_by_coin: dict[str, list[tuple[int, dict]]] = defaultdict(list)
+    for index, row in enumerate(rows):
+        indexed_by_coin[str(row.get("coin"))].append((index, row))
+    ranked: list[tuple[int, int, dict]] = []
+    for coin_rows in indexed_by_coin.values():
+        by_time: dict[int, list[tuple[int, dict]]] = defaultdict(list)
+        for index, row in coin_rows:
+            by_time[int(row["time"])].append((index, row))
+        expected: Decimal | None = None
+        rank = 0
+        for timestamp in sorted(by_time):
+            remaining = list(by_time[timestamp])
+            while remaining:
+                matches = [item for item in remaining if expected is not None and
+                           abs(Decimal(str(item[1].get("startPosition") or 0)) - expected) <= tolerance]
+                if matches:
+                    chosen = min(matches, key=lambda item: item[0])
+                elif expected is None:
+                    afters = []
+                    for _, candidate in remaining:
+                        qty = Decimal(str(candidate.get("sz") or 0))
+                        before = Decimal(str(candidate.get("startPosition") or 0))
+                        afters.append(before + (qty if candidate.get("side") == "B" else -qty))
+                    heads = [item for item in remaining if not any(
+                        abs(Decimal(str(item[1].get("startPosition") or 0)) - after) <= tolerance
+                        for after in afters)]
+                    chosen = min(heads or remaining, key=lambda item: item[0])
+                else:
+                    chosen = min(remaining, key=lambda item: item[0])
+                remaining.remove(chosen)
+                row = chosen[1]
+                before = Decimal(str(row.get("startPosition") or 0))
+                qty = Decimal(str(row.get("sz") or 0))
+                expected = before + (qty if row.get("side") == "B" else -qty)
+                ranked.append((timestamp, rank, row))
+                rank += 1
+    return [row for _, _, row in sorted(ranked, key=lambda item: (item[0], item[1]))]
 
 
 def main() -> None:
