@@ -21,10 +21,10 @@
 
 ## 保存
 
-data branch:
+data branch。v1は2026-10-04にpoll間隔不足で凍結し、v2を新しい観測期間として分離する。
 
 ```text
-projects/hyperliquid-youbun-research/forward-data/
+projects/hyperliquid-youbun-research/forward-data-v2/
   state/collector_state.json
   raw/date=YYYY-MM-DD/run=YYYYMMDDTHHMMSSZ/
     fills.jsonl
@@ -73,5 +73,7 @@ wallet×endpointごとに以下を保存する。
 - checkpoint巻き戻り0
 - sampling manifest不変
 - raw run fileの破損0
+
+GitHub Actionsのscheduleはbest-effortのため5分ごとに起動要求し、shared concurrencyで同時実行を1本に制限する。各runはcheckpoint cadenceにより不要endpointをskipする。`retention_risk`、endpoint failure、page capのいずれかが1件でもあればraw/stateを保存した後にworkflowを失敗させ、Gateを停止する。
 
 OHLCV、behavior label、500 wallet拡大はShadow Gate後のみ。

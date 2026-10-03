@@ -1,10 +1,10 @@
 # CURRENT_STATUS
 
-更新日: 2026-10-03 JST
+更新日: 2026-10-04 JST
 
 ## Current Phase
 
-固定100口座のappend-only forward collectorをmainへ反映し、2026-10-03 21:12 JSTから7日間Shadow Collectionを開始。historical pilotは不採用のまま、OHLCV・行動ラベル・500口座拡大はHOLD。
+固定100口座forward collector v1はschedule間隔不足で品質Gate FAILとなり凍結。v2の新観測期間へ移行準備中。historical pilotは不採用のまま、OHLCV・行動ラベル・500口座拡大はHOLD。
 
 ## Completed
 
@@ -56,6 +56,10 @@
 - 固定100口座初回run `37122182275`成功。300/300 checkpoint、failure 0、cap hit 0、retention risk 0
 - 初回runはcanary済み1口座をcadence skipし、残り99口座×3系統=297 request成功、fills 507件をappend-only保存
 - data branch commit `cf82b02`、固定`analysis_start_ms=1791029567198`、sample SHA `e7ef8b4c...7f994`
+- v1 scheduled runは2回だけで、開始間隔は約3時間56分／3時間18分
+- v1 scheduled run自体は2/2成功・endpoint failure 0・cap hit 0だが、fillsは109,786件／103,470件
+- 高頻度2口座（P031、P035）が各run 10,000 fills超となり`retention_risk=true`。v1期間の完全性は不成立
+- collector workflowを2026-10-04に`disabled_manually`確認。実行中・pending 0
 
 ## Latest Work
 
@@ -64,7 +68,8 @@
 - PHASE 3の実装差異は修正したが、API retentionによる56%除外でGateはFAIL。差異を推定・0埋めで隠していない。
 - 500口座拡大はHOLD。
 - user-specific WebSocketはIPあたり10 unique users制約のため、固定100口座の正本にしない。定期RESTを正本とする。
-- 7日Shadow Gateは進行中／未通過。collector稼働開始は分析再開条件の達成を意味しない。
+- v1 Shadow GateはFAIL。成功run数だけではcoverageを保証できないことを実証した。
+- v2は5分ごとに起動要求し、shared concurrencyで直列化する。retention/failure/capをraw保存後のworkflow失敗条件にする。
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
@@ -110,4 +115,4 @@
 
 ## Next
 
-2026-10-10 21:12 JST以降に、run成功率・gap・cap・raw破損・checkpoint巻き戻り・canonical continuity・quantityを集計してShadow Gateを判定する。それまではschedule収集だけを継続し、OHLCV、行動ラベル、500口座拡大へ進まない。
+collector v2を別の`forward-data-v2/`で開始し、新しいanalysis startを固定する。v1 rawは監査証跡として保持するがv2へ混ぜない。v2初回100口座runと連続runでretention risk 0を確認してから、7日Gateの終了日時を再設定する。

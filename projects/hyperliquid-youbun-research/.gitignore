@@ -3,6 +3,7 @@ data_poc2/
 data_pilot100/
 data_pilot100_v2/
 forward-data/
+forward-data-v2/
 .env
 __pycache__/
 *.pyc

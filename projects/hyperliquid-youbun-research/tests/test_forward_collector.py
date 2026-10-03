@@ -36,6 +36,7 @@ class ForwardCollectorTests(unittest.TestCase):
                 second = collect(sample, output, 2_200_000, 20 * 60_000, 0, max_wallets=1)
 
             self.assertEqual(first["failures"], 0)
+            self.assertEqual(first["retention_risks"], 0)
             self.assertEqual(first["records"], 3)
             self.assertEqual(second["requests"], 2)  # Funding is hourly.
             state = json.loads((output / "state" / "collector_state.json").read_text())
@@ -84,11 +85,32 @@ class ForwardCollectorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "sampling manifest changed"):
                 collect(sample, output, 2_200_000, 20 * 60_000, 0, max_wallets=1)
 
+    def test_retention_risk_is_a_manifest_quality_flag(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sample = root / "sample.csv"
+            output = root / "forward-data-v2"
+            write_sample(sample)
+            fills = [{"time": 1_000_000, "tid": index} for index in range(10_000)]
+
+            def fake_fetch(endpoint, *_args, **_kwargs):
+                return (fills, 5, False) if endpoint == "fills" else ([], 1, False)
+
+            with patch("scripts.forward_collect.fetch_pages", side_effect=fake_fetch):
+                manifest = collect(sample, output, 1_000_000, 20 * 60_000, 0, max_wallets=1)
+
+            self.assertEqual(manifest["retention_risks"], 1)
+            self.assertEqual(manifest["endpoint_results"][0]["retention_risk"], True)
+            state = json.loads((output / "state" / "collector_state.json").read_text())
+            self.assertEqual(state["collector_version"], "forward-v2")
+
     def test_workflow_is_read_only_and_uses_data_branch(self):
         workflow = Path(__file__).parents[3] / ".github" / "workflows" / "youbun-research-forward-collector.yml"
         text = workflow.read_text()
         self.assertIn("ref: data", text)
-        self.assertIn("forward-data", text)
+        self.assertIn("forward-data-v2", text)
+        self.assertIn('cron: "*/5 * * * *"', text)
+        self.assertIn("Enforce collector quality flags", text)
         self.assertIn("PYTHONPATH=projects/hyperliquid-youbun-research", text)
         self.assertIn("python -m unittest discover", text)
         for forbidden in ("privateKey", "placeOrder", "/exchange"):

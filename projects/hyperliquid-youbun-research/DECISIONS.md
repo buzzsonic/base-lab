@@ -118,3 +118,12 @@
 - Rate limit: 応答件数からweightを見積もり600 weight/minute以下に抑え、公式1200 weight/minute上限へ50%余裕を残す。
 - 保存: data branchの`forward-data/`へimmutable runとcheckpointを保存する。失敗時はcheckpointを進めず、gapを推定・前方補完しない。
 - Gate: 最低7日間のShadow Gateを通過するまでOHLCV、behavior label、500口座拡大を再開しない。
+
+## 2026-10-04 forward collector v1を凍結しv2へ分離する
+
+- 事実: 20分cronに対するscheduled runは約3〜4時間間隔で2回だけだった。runは2/2成功したが、各runのfillsは109,786件／103,470件。
+- 品質問題: P031とP035が各run 10,000 fillsを超え、`retention_risk=true`。成功statusだけでは保持範囲内の完全性を保証できない。
+- 決定: v1 workflowを停止し、`forward-data/`は監査証跡として凍結する。欠落を推定・補完せず分析対象にしない。
+- v2: `forward-data-v2/`へ新しいanalysis startを固定し、5分ごとの起動要求＋shared concurrencyで直列化する。
+- Fail-fast: endpoint failure、page cap、retention riskをmanifest/stateへ保存した後、workflowを失敗させる。
+- 影響範囲: v2の初回100口座runと次runが合格するまで7日Gate開始日は未確定。OHLCV、label、500口座拡大はHOLD。
