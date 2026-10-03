@@ -1,0 +1,62 @@
+name: Youbun Research Fixed-100 Forward Collector
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_wallets:
+        description: Optional canary wallet limit; blank means frozen 100
+        required: false
+        default: ""
+  schedule:
+    - cron: "7,27,47 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: youbun-hoihoi-data
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: data
+          path: persisted
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Test collector contract
+        run: python -m unittest discover -s projects/hyperliquid-youbun-research/tests -v
+      - name: Collect fixed-100 public user streams
+        env:
+          MAX_WALLETS: ${{ inputs.max_wallets }}
+        run: |
+          args=()
+          if [ -n "${MAX_WALLETS:-}" ]; then args+=(--max-wallets "$MAX_WALLETS"); fi
+          PYTHONPATH=projects/hyperliquid-youbun-research \
+          python projects/hyperliquid-youbun-research/scripts/forward_collect.py \
+            --sample projects/hyperliquid-youbun-research/sampling/pilot-100-v1/sampling_manifest.csv \
+            --output persisted/projects/hyperliquid-youbun-research/forward-data \
+            "${args[@]}"
+      - name: Upload immutable run evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: youbun-forward-${{ github.run_id }}-${{ github.run_attempt }}
+          path: persisted/projects/hyperliquid-youbun-research/forward-data/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Persist only Youbun forward data
+        working-directory: persisted
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f projects/hyperliquid-youbun-research/forward-data
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: append Youbun fixed-100 forward window'
+            bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-research/scripts/push_data_branch.sh" data 3
+          fi

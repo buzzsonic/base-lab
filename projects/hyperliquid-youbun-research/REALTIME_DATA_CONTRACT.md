@@ -3,6 +3,8 @@
 このDBは過去分析用データセットとは分離する。目的は、収集開始後の
 `Late Long → Trapped → Liquidation → Cascade` を観測事実として検証できるようにすること。
 
+固定100口座のfills / TWAP / Funding先行収集は`FORWARD_COLLECTOR_CONTRACT.md`を正本とする。この先行collectorはepisode完全性のための基盤であり、account state・liquidation・BBO/L2を含む本Realtime DBの完成を意味しない。
+
 ## 保存ストリーム
 
 | テーブル | 入力 | 最低限の保存内容 |

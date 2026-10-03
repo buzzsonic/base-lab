@@ -109,3 +109,12 @@
 - 制約: 修正版再取得時に36口座がrolling retentionで旧固定期間先頭を失い、追加のTWAP retention gap 5、復元不能fill gap 2等を含めeligibleは44/100に留まった。
 - 決定: eligible 44口座・完結22,973episodeはquantity mismatch 0 / continuity error 0だが、56%除外のhistorical pilotはsampling biasが大きいため不採用。固定100口座のappend-only forward collectorへ変更する。
 - 禁止: 欠落fill推定、口座差替え、OHLCV/label/500口座拡大。forward収集設計とshadow quality Gate後に再開する。
+
+## 2026-10-03 fixed-100 forward collectorはREST overlapを正本にする
+
+- 決定: 固定100口座の`userFillsByTime`、`userTwapSliceFillsByTime`、`userFunding`を定期RESTでappend-only保存する。fills/TWAPは20分、Fundingは60分周期。
+- WebSocket: user-specific subscriptionはIPあたり10 unique users上限のため、100口座を同条件で観測する正本にはしない。
+- 完全性: 前回成功pollから20分overlapし、末尾timestampをinclusiveで再取得する。raw重複は保持し、canonical viewでendpoint・wallet・dedup keyにより除外する。
+- Rate limit: 応答件数からweightを見積もり600 weight/minute以下に抑え、公式1200 weight/minute上限へ50%余裕を残す。
+- 保存: data branchの`forward-data/`へimmutable runとcheckpointを保存する。失敗時はcheckpointを進めず、gapを推定・前方補完しない。
+- Gate: 最低7日間のShadow Gateを通過するまでOHLCV、behavior label、500口座拡大を再開しない。

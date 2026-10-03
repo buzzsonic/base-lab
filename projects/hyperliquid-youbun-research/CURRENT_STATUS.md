@@ -1,10 +1,10 @@
 # CURRENT_STATUS
 
-更新日: 2026-10-02 JST
+更新日: 2026-10-03 JST
 
 ## Current Phase
 
-100口座pilot。初回再構成差異の原因は特定・修正したが、rolling retentionにより56%が技術除外となるため、forward収集への設計変更Gateで停止中。
+固定100口座のappend-only forward collectorを実装済み。historical pilotは不採用のまま、7日間Shadow Gateの開始待ち。OHLCV・行動ラベル・500口座拡大はHOLD。
 
 ## Completed
 
@@ -48,6 +48,10 @@
 - 修正版fillsと旧固定期間を完全比較できたのは64/100口座。36口座はrolling retentionで期間先頭を再取得不能
 - 全品質条件を満たす44口座・完結22,973episodeではquantity mismatch 0、continuity error 0
 - 56口座除外はsampling biasが大きいためOHLCV・label・500口座拡大を停止
+- 固定100口座のfills / TWAP slice fills / FundingをRESTで継続取得するforward collectorを実装
+- 20分overlap、inclusive page boundary、dedup key、immutable raw run、wallet×endpoint checkpointを固定
+- 応答weightに応じて600 weight/minute以下へ抑える動的rate pacingを実装
+- 1口座公開API canaryで3/3 endpoint成功、failure 0、cap hit 0（観測開始直後のためrecord 0）
 
 ## Latest Work
 
@@ -55,6 +59,8 @@
 - PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
 - PHASE 3の実装差異は修正したが、API retentionによる56%除外でGateはFAIL。差異を推定・0埋めで隠していない。
 - 500口座拡大はHOLD。
+- user-specific WebSocketはIPあたり10 unique users制約のため、固定100口座の正本にしない。定期RESTを正本とする。
+- 7日Shadow Gateはまだ未開始／未通過。collector実装完了は分析再開条件の達成を意味しない。
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
@@ -74,7 +80,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 46 tests passed
+- 51 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -100,4 +106,4 @@
 
 ## Next
 
-固定100口座を維持したappend-only forward collectorの期間・保存・gap復旧契約を設計し、新しい観測開始時刻を固定する。56%除外のhistorical pilotではOHLCV、行動ラベル、500口座拡大へ進まない。
+mainへcollectorを反映後、GitHub Actionsを1口座canary→固定100口座の順で開始する。7日間、run成功率・gap・cap・raw破損・checkpoint巻き戻りを監視し、Gate判定までOHLCV、行動ラベル、500口座拡大へ進まない。
