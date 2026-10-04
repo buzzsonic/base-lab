@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-04T14:54:46.154474+00:00",
-  "sample_version": "sample_20261004",
+  "generated_at": "2026-10-04T15:08:33.452152+00:00",
+  "sample_version": "sample_20261005",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "1e6f65b215c905a24fb7fc46f1aadfb729c33964d34879d8a0dccd0c8a132f21",
+  "market_snapshot_version": "c0e0a3b45b2e3feb55d2f81efacd61fe5ab5b2cb1f341b77f3e559ec834ef449",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
