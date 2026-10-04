@@ -10,7 +10,7 @@
 | flags in selected 100 | BOT 39、MM 12、arbitrage 1、farm 1（重複し得る） |
 | historical fills | 79/100で30日区間を完全取得、21/100はAPIの直近10,000件保持制約で不完全 |
 | small-alt-centric | 現行0/100、新隔離cohort 9/100 |
-| latest snapshot / weekly | [37116871931](https://github.com/buzzsonic/base-lab/actions/runs/37116871931) success / NOT RUN |
+| latest snapshot / weekly | [37116871931](https://github.com/buzzsonic/base-lab/actions/runs/37116871931) success / [37172824334](https://github.com/buzzsonic/base-lab/actions/runs/37172824334) success |
 | last completed observation | [37116402104](https://github.com/buzzsonic/base-lab/actions/runs/37116402104) success（79件が2成功JST日、21件が0日） |
 | current blocker | 7日間・7 JST日分の完全取得はまだ満たさない。1,000-wallet拡大はHOLD |
 
@@ -36,6 +36,13 @@
 - 現行: 成功観察日79件が3日、21件が0日。完全79、不完全21、OBSERVING 46、EXCLUDED 39、INACTIVE 15、sample 0。
 - shadow: 成功観察日97件が2日、1件が1日、2件が0日。完全97、不完全3、OBSERVING 54、EXCLUDED 30、INACTIVE 16、sample 0。
 - shadowのBOT 27、MM 4、farm 6、small-alt 11。現行比で完全履歴+18、BOT -11、MM -8、small-alt +9だが、7日gate未達のため置換判断はHOLD。
+
+## 2026-10-04 weekly品質Gate
+
+- [PR #33](https://github.com/buzzsonic/base-lab/pull/33)で現行・shadowのreport-only比較を実装し、[PR #35](https://github.com/buzzsonic/base-lab/pull/35)で保存日付をJST固定、report専用queueへ分離した。32テスト成功。
+- [run 37172824334](https://github.com/buzzsonic/base-lab/actions/runs/37172824334)はsuccess。data branch `1b7786e`が`outputs/reports/weekly/2026-10-04/cohort_comparison.json`だけを追加した。
+- current / shadowとも構造GateはPASS。promotion Gateとreplacement Gateは7成功JST日未達のためHOLD。
+- 初回runの`2026-10-03`はUTC日付で保存された既存記録として残し、以後はJST日付を正とする。自動置換・統合・通知・売買は行わない。
 
 ## Issue #8 の比較基準
 
