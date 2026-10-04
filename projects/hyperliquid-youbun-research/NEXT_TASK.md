@@ -18,7 +18,7 @@
 
 VPS runtime package自体は実装・CI PASS済みだが、収集契約を再設計するまで本番VPS Shadowは開始しない。
 
-## PHASE 0: BTC event-study data contract【最優先】
+## PHASE 0: BTC event-study data contract【完了】
 
 Codexは既存collector/APIで取得可能な項目を棚卸しし、以下を「取得可能 / forwardなら取得可能 / 取得不能」に分類する。
 
@@ -52,7 +52,12 @@ Codexは既存collector/APIで取得可能な項目を棚卸しし、以下を�
 
 欠損を推定で埋めない。APIで任意の過去stateを復元できないものはforward snapshot対象にする。
 
-## PHASE 1: event schemaとaggregation設計
+完了内容:
+- 28項目を`取得可能 / forwardなら取得可能 / 取得不能`へ分類
+- position/leverage/margin/liquidation price/account stateをforward snapshotへ限定
+- BTC market-wide liquidation flowは公式公開APIで直接取得不能と確定
+
+## PHASE 1: event schemaとaggregation設計【次】
 
 1分/5分windowを候補に、BTCについて最低限以下を定義する。
 

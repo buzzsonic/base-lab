@@ -146,3 +146,13 @@
 - data push: dirty checkout、pending push失敗、fast-forward失敗、push conflictでは収集・次runを停止する。
 - CI: scheduleなしの専用workflowで55 testsとDocker buildだけを検証する。run `37173864803`でPASS。
 - 影響範囲: VPS canaryとfixed-100 3連続runが全Gateを満たすまで7日Shadow Gateは未開始。
+
+## 2026-10-04 BTC event-study PHASE 0 data contractを固定する
+
+- wallet履歴: fills、TWAP slice、Fundingは公式time-range endpointから取得し、retention/cap/gapを品質flagとして残す。
+- wallet state: current position、entry price、configured leverage、margin mode、liquidation price、account equity、margin usageは任意過去へ復元せず、`clearinghouseState`等のforward snapshotだけを使う。
+- 派生値: effective leverageは同一snapshot内のposition valueとapplicable account valueから計算し、分母非正値またはaccount mode不明はNULLにする。
+- liquidation: 観測walletは明示的`userEvents` liquidationまたはfill liquidationだけをTRUEとする。通常の損失closeを清算とみなさない。
+- BTC市場: candle、Funding履歴は取得可能。mark/OI、trades、L2/BBOはforward streamを正本にする。公式S3 archiveは遅延・欠測可能な補助sourceとして分離する。
+- 取得不能: market-wide liquidation flowを網羅する公式公開feedは確認できないため`取得不能`とし、proxyを同名保存しない。
+- 次: PHASE 1で1分/5分windowのevent schema、coverage条件、post-event outcomeを固定する。PHASE 0〜2完了までVPS Shadowは開始しない。
