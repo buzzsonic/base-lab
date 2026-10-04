@@ -1,0 +1,30 @@
+{
+  "schema_version": "hoihoi-btc-handoff-v0.1",
+  "selection_version": "btc-research-selection-v0.1.0-draft",
+  "profile_version": "btc-behavior-profile-v0.1.0-draft",
+  "sample_version": "btc-research-sample-example",
+  "generated_at": "2026-10-04T12:00:00+09:00",
+  "observation_window": {"start_ms": 1790982000000, "end_ms": 1791586800000, "successful_jst_days": 7},
+  "source_snapshot": {"cohort_id": "example-only", "registry_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "input_commit": "0000000"},
+  "wallets": [
+    {
+      "wallet": "0x1111111111111111111111111111111111111111",
+      "eligibility": "ELIGIBLE",
+      "exclusion_reasons": [],
+      "quality": {"data_complete": true, "unresolved_gap_count": 0, "continuity_error_count": 0, "quantity_mismatch_count": 0, "twap_capped": false},
+      "btc_activity": {"active_days": 4, "fill_count": 25, "completed_episode_count": 5, "entry_fill_count": 5, "add_fill_count": 3, "reduce_fill_count": 2, "close_fill_count": 5},
+      "behavior_profile": {
+        "high_price_chase_candidate": {"status": "UNAVAILABLE", "evidence_episodes": 0, "reason": "past-only BTC market window not yet attached"},
+        "averaging_down_candidate": {"status": "TRUE", "evidence_episodes": 3, "reason": "three reviewed episodes include adverse adds under the frozen thresholds"},
+        "size_surge_candidate": {"status": "FALSE", "evidence_episodes": 5, "reason": "no initial notional reached 2x the prior-five median"}
+      },
+      "episodes": [
+        {"episode_id": "example-BTC-001", "first_entry_time_ms": 1791000000000, "last_exit_time_ms": 1791003600000, "side": "LONG", "initial_size": "0.01", "max_size": "0.02", "entry_vwap": "62000", "entry_fill_count": 1, "add_fill_count": 1, "reduce_fill_count": 0, "close_fill_count": 1, "reconstruction_status": "COMPLETE"},
+        {"episode_id": "example-BTC-002", "first_entry_time_ms": 1791100000000, "last_exit_time_ms": 1791103600000, "side": "SHORT", "initial_size": "0.01", "max_size": "0.01", "entry_vwap": "62500", "entry_fill_count": 1, "add_fill_count": 0, "reduce_fill_count": 1, "close_fill_count": 1, "reconstruction_status": "COMPLETE"},
+        {"episode_id": "example-BTC-003", "first_entry_time_ms": 1791200000000, "last_exit_time_ms": 1791203600000, "side": "LONG", "initial_size": "0.02", "max_size": "0.03", "entry_vwap": "63000", "entry_fill_count": 1, "add_fill_count": 1, "reduce_fill_count": 0, "close_fill_count": 1, "reconstruction_status": "COMPLETE"},
+        {"episode_id": "example-BTC-004", "first_entry_time_ms": 1791300000000, "last_exit_time_ms": 1791303600000, "side": "SHORT", "initial_size": "0.01", "max_size": "0.01", "entry_vwap": "62800", "entry_fill_count": 1, "add_fill_count": 0, "reduce_fill_count": 1, "close_fill_count": 1, "reconstruction_status": "COMPLETE"},
+        {"episode_id": "example-BTC-005", "first_entry_time_ms": 1791400000000, "last_exit_time_ms": 1791403600000, "side": "LONG", "initial_size": "0.01", "max_size": "0.02", "entry_vwap": "63200", "entry_fill_count": 1, "add_fill_count": 1, "reduce_fill_count": 0, "close_fill_count": 1, "reconstruction_status": "COMPLETE"}
+      ]
+    }
+  ]
+}
