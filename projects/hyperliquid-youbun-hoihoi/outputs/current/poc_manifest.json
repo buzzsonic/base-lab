@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T14:07:44.496598+00:00",
+  "generated_at": "2026-10-04T14:54:46.154474+00:00",
   "sample_version": "sample_20261004",
   "quality": {
     "wallets": 100,
@@ -41,10 +41,10 @@
       "jst_12_17": 13
     },
     "active_days_bands": {
-      "11_plus": 48,
+      "11_plus": 47,
       "none": 16,
       "1_3": 11,
-      "4_10": 25
+      "4_10": 26
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "6be01cdbc1f3f3efd0f20193d2104dd6cb77f0736f74b275615d664d8d1bdc5d",
+  "market_snapshot_version": "1e6f65b215c905a24fb7fc46f1aadfb729c33964d34879d8a0dccd0c8a132f21",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -100,10 +100,10 @@
       "jst_12_17": 13
     },
     "active_days_bands": {
-      "11_plus": 48,
+      "11_plus": 47,
       "none": 16,
       "1_3": 11,
-      "4_10": 25
+      "4_10": 26
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
