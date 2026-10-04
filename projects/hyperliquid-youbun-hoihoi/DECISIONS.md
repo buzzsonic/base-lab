@@ -92,3 +92,11 @@
 - 決定: 高値飛び乗りは養分くんのpast-only FOMO定義、ナンピンは5% size・5bp adverse定義を再利用する。size急拡大は直前5 BTC episode中央値の2倍をdraft初期値とする。
 - 決定: handoffにPnL、勝率、ROI、entry後return、markout、MFE/MAEを含めず、市場反応を見てwalletを選ばない。
 - 影響: v0.1はdry-run前draft。結果を見て同versionを調整せず、変更時は新versionを作る。1,000-wallet拡大は非優先HOLD。
+
+## 2026-10-04 BTC sample v0.1 dry-runはHOLD
+
+- 証拠: current 100件中BTC activity 3条件通過32、再構成品質clear 51、暫定Gate通過0。shadowは同25、59、2。最終handoff適格は双方0。
+- 決定: 全200件でTWAP evidenceが無く、全件7日未達のためsampleを生成しない。
+- 決定: checkpointは同一timestampをhash順に並べており、current 49 / shadow 40件のBTC順序を保証できない。既存値を推定修復せずlegacy扱いとする。
+- 決定: 次はserver orderを保持するappend-only fills、別TWAP raw、past-only BTC market windowを新forward namespaceで収集する。
+- 影響: shadowの履歴完全性改善は確認できるが、BTC research sampleとしての優位・置換判断はまだ行わない。1,000-wallet拡大はHOLD。

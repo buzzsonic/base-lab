@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "selection_version": "btc-research-selection-v0.1.0-draft",
+  "source_data_commit": "91c89b4",
+  "status": "DRY_RUN_NO_HANDOFF",
+  "decision": "HOLD",
+  "current": {
+    "wallets": 100,
+    "handoff_eligible": 0,
+    "btc_fills_ge_20": 41,
+    "btc_active_days_ge_3": 48,
+    "btc_episodes_ge_5": 37,
+    "btc_activity_all_three": 32,
+    "reconstruction_quality_clear": 51,
+    "preliminary_pass_excluding_observation_twap_and_market": 0,
+    "ambiguous_same_ms_order": 49,
+    "incomplete_fill_history": 21,
+    "twap_evidence_unavailable": 100,
+    "observation_days_lt_7": 100
+  },
+  "shadow": {
+    "wallets": 100,
+    "handoff_eligible": 0,
+    "btc_fills_ge_20": 33,
+    "btc_active_days_ge_3": 38,
+    "btc_episodes_ge_5": 27,
+    "btc_activity_all_three": 25,
+    "reconstruction_quality_clear": 59,
+    "preliminary_pass_excluding_observation_twap_and_market": 2,
+    "ambiguous_same_ms_order": 40,
+    "incomplete_fill_history": 3,
+    "twap_evidence_unavailable": 100,
+    "observation_days_lt_7": 100
+  },
+  "outcome_fields_used": false
+}
