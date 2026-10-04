@@ -68,12 +68,16 @@
 
 ## Latest Work
 
+- BTC event-study PHASE 0として公式API・WebSocket・archiveを棚卸しし、28項目を`取得可能 / forwardなら取得可能 / 取得不能`へ分類。
+- walletのposition/leverage/margin/liquidation price/account stateは任意過去へ遡及せず、観測開始後のsnapshotだけを採用する契約を固定。
+- BTCのmarket-wide liquidation flowは公式公開APIで直接取得不能とし、観測walletの明示的liquidation eventとは分離。
+- 成果物は`design/btc-event-study/data_contract.md`と`field_matrix.csv`。collectorとVPS runtimeは未変更。
 - v3のDocker / Compose / systemd service+timer / flock / 19分timeout / structured log / health check / VPS手順を実装。
 - collector stateをrun単位transactionへ変更し、endpoint failure・retention・cap時はraw manifestを残してcheckpointを進めない。
 - v3専用namespace `forward-data-v3/`、collector version `forward-v3`を固定。
 - data branchがdirty、pending push失敗、fast-forward失敗、push conflictの場合は新規runまたは次runへ進まない。
 - v3 runtime CIはscheduleを持たず、unit testとDocker buildだけを行う。
-- local 55 tests PASS。Ubuntu CI run `37173864803`で55 testsとDocker image buildもPASS。
+- local 57 tests PASS（PHASE 0契約テスト2件を追加）。Ubuntu CI run `37173864803`では当時の55 testsとDocker image buildがPASS。
 
 - PHASE 1 GateはPASS。
 - PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
@@ -102,7 +106,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 55 tests passed
+- 57 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -128,4 +132,4 @@
 
 ## Next
 
-VPSで1-wallet canaryを行う。timer有効化とfixed-100連続runはcanary PASS後だけ進める。
+BTC event-study PHASE 1として、market-event schemaとpost-event outcome schemaを固定する。1分/5分window、coverage、future leakage境界を確定するまでVPS canaryは開始しない。
