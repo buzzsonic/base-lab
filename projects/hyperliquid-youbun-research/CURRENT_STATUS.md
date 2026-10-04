@@ -68,6 +68,12 @@
 
 ## Latest Work
 
+- BTC event-study PHASE 1として`btc-market-event-v0.1.0`と`btc-post-event-outcome-v0.1.0`を事前登録。
+- 1分raw bucketを保持し、連続5分windowを主分析単位、5/15/30/60分をpost-event horizonに固定。
+- event featureは`cutoff_ms`以前、outcomeは別file・別namespaceとし、future price/PnL/MFE/MAEのevent table混入を禁止。
+- Hoihoi `hoihoi-btc-handoff-v0.1`をversion/hash/quality検証後のみ受け入れる境界を定義。
+- core coverageはwallet flow + BTC candle + asset ctx。state/trade/bookはoptional groupとして欠測列だけNULLにする。
+- schema契約テスト4件を追加しlocal 61 tests PASS。collector、VPS、実データ収集は未変更。
 - BTC event-study PHASE 0として公式API・WebSocket・archiveを棚卸しし、28項目を`取得可能 / forwardなら取得可能 / 取得不能`へ分類。
 - walletのposition/leverage/margin/liquidation price/account stateは任意過去へ遡及せず、観測開始後のsnapshotだけを採用する契約を固定。
 - BTCのmarket-wide liquidation flowは公式公開APIで直接取得不能とし、観測walletの明示的liquidation eventとは分離。
@@ -77,7 +83,7 @@
 - v3専用namespace `forward-data-v3/`、collector version `forward-v3`を固定。
 - data branchがdirty、pending push失敗、fast-forward失敗、push conflictの場合は新規runまたは次runへ進まない。
 - v3 runtime CIはscheduleを持たず、unit testとDocker buildだけを行う。
-- local 57 tests PASS（PHASE 0契約テスト2件を追加）。Ubuntu CI run `37173864803`では当時の55 testsとDocker image buildがPASS。
+- local 61 tests PASS（PHASE 0/1契約テスト6件を追加）。Ubuntu CI run `37173864803`では当時の55 testsとDocker image buildがPASS。
 
 - PHASE 1 GateはPASS。
 - PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
@@ -106,7 +112,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 57 tests passed
+- 61 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -132,4 +138,4 @@
 
 ## Next
 
-BTC event-study PHASE 1として、market-event schemaとpost-event outcome schemaを固定する。1分/5分window、coverage、future leakage境界を確定するまでVPS canaryは開始しない。
+BTC event-study PHASE 2として、schema準拠の仮データで期待レポートをmock化する。ユーザーが研究の出口を確認するまでVPS canaryは開始しない。

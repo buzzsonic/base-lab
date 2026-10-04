@@ -57,7 +57,7 @@ Codexは既存collector/APIで取得可能な項目を棚卸しし、以下を�
 - position/leverage/margin/liquidation price/account stateをforward snapshotへ限定
 - BTC market-wide liquidation flowは公式公開APIで直接取得不能と確定
 
-## PHASE 1: event schemaとaggregation設計【次】
+## PHASE 1: event schemaとaggregation設計【完了】
 
 1分/5分windowを候補に、BTCについて最低限以下を定義する。
 
@@ -80,7 +80,13 @@ future leakageを避け、entry時点で利用可能な特徴とpost-event outco
 - `design/btc-event-study/event_schema.md`
 - `design/btc-event-study/outcome_schema.md`
 
-## PHASE 2: 期待レポートを先にモック化
+完了内容:
+- 1分raw bucket、連続5分event window、5/15/30/60分outcomeを固定
+- wallet transition、crowd、entry concentration、market、optional state/flowの式を定義
+- event featureとpost-event outcomeを別namespaceへ物理分離
+- Hoihoi handoff v0.1の受入境界とcoverage/UNAVAILABLE契約を定義
+
+## PHASE 2: 期待レポートを先にモック化【次】
 
 データ収集前に、最終的に欲しいレポート形式を仮データで作る。
 

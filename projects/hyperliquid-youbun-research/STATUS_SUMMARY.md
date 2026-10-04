@@ -10,7 +10,7 @@
 
 ## Current Phase
 
-BTC event-studyのPHASE 0 data contractを完了。
+BTC event-studyのPHASE 0 data contractとPHASE 1 event/outcome schemaを完了。
 主目的を個別walletのFOMO/Late/Averaging Down分類から、**養分wallet群の集団行動とその後の市場反応をBTCからevent-studyすること**へ変更した。
 
 VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward data contractを固定するまで本番Shadowは開始しない。
@@ -23,7 +23,7 @@ VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward d
 - subset quality: quantity mismatch 0 / continuity error 0
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
-- tests: 57 passed
+- tests: 61 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
 - OHLCV本分析 / behavior label本適用 / 500-wallet expansion: HOLD
 
@@ -46,19 +46,20 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 
 ## Current Blocker
 
-VPSの有無ではなく、1分/5分market eventのaggregationとpost-event outcome schemaがまだ未固定。
+VPSの有無ではなく、仮データによる期待レポートmockが未作成で、研究の出口が視覚的に未確認。
 
 ## Next
 
-1. market-event schemaとpost-event outcome schemaを固定
-2. 1分/5分window、coverage、future leakage境界を明文化
-3. 仮データで期待する最終レポートを先にモック化
+1. PHASE 1 schema準拠の仮データを作る
+2. 期待する最終レポートをmock化
+3. event分布、条件別future return、MFE/MAE、opposite flow、exit chainの表示を確認
 4. モックが期待と合うことを確認してからcollector v3へ必要snapshotを追加しVPS Shadow開始
 
 詳細正本: `RESEARCH_DIRECTION.md`
 
 ## Last Important Decision
 
+主分析は連続5分window、一次保存は1分bucket。event featureは`cutoff_ms`以前、outcomeは5/15/30/60分を別namespaceへ物理分離する。optional state/trade/book欠測はcore eventを捨てず該当列だけNULLにする。
 wallet fills/TWAP/Fundingは履歴取得可能。position/leverage/margin/liquidation price/account stateはforward snapshotとしてのみ採用する。BTCのmarket-wide liquidation flowは公式公開APIで直接取得不能とし、proxyで同名保存しない。
 VPSは研究目的ではなく安定収集の手段。研究の出口が合うことを確認するまで、本番VPS Shadowを開始しない。
 欠落stateの推定・0埋め、wallet差替え、先回りしたinverse-signal結論は禁止。

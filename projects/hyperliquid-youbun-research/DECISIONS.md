@@ -156,3 +156,16 @@
 - BTC市場: candle、Funding履歴は取得可能。mark/OI、trades、L2/BBOはforward streamを正本にする。公式S3 archiveは遅延・欠測可能な補助sourceとして分離する。
 - 取得不能: market-wide liquidation flowを網羅する公式公開feedは確認できないため`取得不能`とし、proxyを同名保存しない。
 - 次: PHASE 1で1分/5分windowのevent schema、coverage条件、post-event outcomeを固定する。PHASE 0〜2完了までVPS Shadowは開始しない。
+
+## 2026-10-04 BTC event-study PHASE 1 schemaを固定する
+
+- grain: 一次保存はUTC 1分bucket、主分析は連続5分window。全windowを保持し、event thresholdで事前に標本を落とさない。
+- time boundary: event featureは`[cutoff-5m, cutoff)`とcutoff以前のpast-only系列だけ。outcomeはcutoff後5/15/30/60分を別file・別namespaceへ保存する。
+- crowd: fill transitionをnew/add/reduce/closeへ分け、flipはcloseと反対side new-entryへ数量分割。notional imbalanceはposition増加部分だけから計算する。
+- entry concentration: new-entryだけを使い、wallet中央値±25bp内のnotional shareとIQR bpsを保存する。ADDは混ぜない。
+- state coverage: cutoff以前120秒以内のwallet snapshotだけを使用し、coverage 80%未満ではleverage/liquidation-distance分布をNULLにする。
+- feature coverage: wallet flow、BTC candle、BTC asset ctxをcoreとする。wallet state、trades、bookはoptional groupとして、不足時は該当featureだけUNAVAILABLEにする。
+- large flow: cutoff以前60分のBTC trade notional p99を固定閾値として使い、post-event dataを閾値計算へ混ぜない。
+- liquidation: 観測walletの明示的event/fillだけを集計し、market-wide liquidationへ外挿しない。event chainの欠測はFALSEでなくNULL。
+- upstream: Hoihoi `hoihoi-btc-handoff-v0.1`はschema/hash/version/qualityを検証して受け入れ、behavior profileで再抽出しない。
+- 次: PHASE 2の仮データreport mockで研究の出口を確認するまで、collector拡張とVPS Shadowを開始しない。
