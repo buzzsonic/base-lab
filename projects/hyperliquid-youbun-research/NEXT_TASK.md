@@ -55,7 +55,7 @@ Codexは以下を実装する。
 
 既存collectorロジックは可能な限り再利用し、scheduler差替えだけで済ませる。
 
-実装済み。local 55 tests PASS。Docker image buildはPR CIで最終確認する。
+実装済み。local 55 testsとUbuntu CI run `37173864803`のDocker image buildがPASS。
 
 ### PHASE 2: local/CI dry-run
 
@@ -72,7 +72,7 @@ VPSへ入れる前にrepo上で以下を検証する。
 
 PHASE 2 PASS後のみVPS canaryへ進む。
 
-現在はPR CI待ち。CIでunit/runtime contract testsとDocker buildがPASSした場合だけPHASE 3へ進む。
+PHASE 2 PASS。次はVPS接続情報と認証を確認し、timerを有効化せず1-wallet canaryへ進む。
 
 ### PHASE 3: VPS canary → fixed-100連続run
 

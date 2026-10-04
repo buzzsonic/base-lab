@@ -73,7 +73,7 @@
 - v3専用namespace `forward-data-v3/`、collector version `forward-v3`を固定。
 - data branchがdirty、pending push失敗、fast-forward失敗、push conflictの場合は新規runまたは次runへ進まない。
 - v3 runtime CIはscheduleを持たず、unit testとDocker buildだけを行う。
-- local 55 tests PASS。MacのDocker daemon応答停止によりimage buildはPR CI確認待ち。
+- local 55 tests PASS。Ubuntu CI run `37173864803`で55 testsとDocker image buildもPASS。
 
 - PHASE 1 GateはPASS。
 - PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
@@ -128,4 +128,4 @@
 
 ## Next
 
-PR CIでDocker buildを確認後、VPSで1-wallet canaryを行う。timer有効化とfixed-100連続runはcanary PASS後だけ進める。
+VPSで1-wallet canaryを行う。timer有効化とfixed-100連続runはcanary PASS後だけ進める。

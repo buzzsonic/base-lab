@@ -144,5 +144,5 @@
 - transaction: endpoint failure、retention risk、cap hit、timeout時はcheckpointを進めない。raw manifestが完成した品質FAILは監査証跡として保存する。
 - namespace: `forward-data-v3/`と`forward-v3`を固定し、v1/v2 raw/stateを混ぜない。
 - data push: dirty checkout、pending push失敗、fast-forward失敗、push conflictでは収集・次runを停止する。
-- CI: scheduleなしの専用workflowで55 testsとDocker buildだけを検証する。CI PASS前にVPS canaryへ進まない。
+- CI: scheduleなしの専用workflowで55 testsとDocker buildだけを検証する。run `37173864803`でPASS。
 - 影響範囲: VPS canaryとfixed-100 3連続runが全Gateを満たすまで7日Shadow Gateは未開始。
