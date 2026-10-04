@@ -72,6 +72,14 @@ class QualityGateTests(unittest.TestCase):
             self.assertEqual(report["structural_gate"], "FAIL")
             self.assertEqual(report["promotion_gate"], "HOLD")
 
+    def test_weekly_workflow_uses_jst_date_and_dedicated_queue(self):
+        workflow = (
+            Path(__file__).parents[3] / ".github" / "workflows" / "youbun-hoihoi-weekly.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("group: youbun-hoihoi-weekly", workflow)
+        self.assertIn("TZ=Asia/Tokyo date +%Y-%m-%d", workflow)
+        self.assertNotIn("date -u +%Y-%m-%d", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
