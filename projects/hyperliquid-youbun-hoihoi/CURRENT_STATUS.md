@@ -15,6 +15,12 @@
 - 全200件でTWAP evidenceなし・7日未達。checkpointのhash tie-sortにより同一ms順序不明がcurrent 49・shadow 40。最終handoff適格は0でHOLD。
 - 次は既存checkpointを修復せず、server order保持fills・別TWAP raw・past-only BTC market windowの新forward contractを作る。
 
+## 2026-10-04 BTC forward collection contract
+
+- `BTC_FORWARD_COLLECTION_CONTRACT.md`で専用namespace、通常fills/TWAP別raw、source sequence、first-seen dedup、fail-closed Gateを定義した。
+- `hoihoi.forward_order`でAPI tie order保持、overlap dedup、直前positionを始点とする通常fill＋TWAP鎖統合を実装。曖昧な鎖は採用しない。
+- 43テスト成功。live API canary、data branch保存、定期workflowは未実施。次はtimer無効の1-wallet artifact-only canary。
+
 | item | state |
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |

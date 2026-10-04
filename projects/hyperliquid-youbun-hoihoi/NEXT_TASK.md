@@ -10,35 +10,38 @@
 
 ## Current Task
 
-BTC sample dry-runで判明したraw品質不足を解消する新forward collection contractを設計する。
+BTC forward v1をtimer無効の1-wallet canaryで検証する。
 
 契約正本: `contracts/btc-research-sample-v0.1/`
+収集契約: `BTC_FORWARD_COLLECTION_CONTRACT.md`
 
-### 1. Stable-order Raw Contract
+### 1. Canary Entrypoint
 
-- API response内の同一timestamp順を保持し、deduplicate時も順序を壊さない
-- 既存hash順checkpointはlegacyとして修復・昇格に使わない
-- append-only rawとcanonical viewを分離し、source orderを監査可能にする
+- walletを明示指定する手動entrypointを作る
+- 通常fillsとTWAP slicesを各1回取得する
+- data branchへ保存せずartifactのみとする
+- `analysis_start_ms`以前のrowを研究windowへ混ぜない
 
-### 2. TWAP Raw Contract
+### 2. Canary Gate
 
-- `userTwapSliceFillsByTime`を通常fillsと別raw sourceで取得する
-- endpoint cap、gap、checkpoint、dedup keyを独立管理する
-- 統合時は同一timestampの`startPosition`鎖を使い、解けない順序はUNAVAILABLEにする
+- source sequenceの欠落・重複0
+- endpoint failure / page cap / retention risk 0
+- 同一timestampのsource orderがAPI responseと一致
+- 通常fill＋TWAPのposition chainが一意、または曖昧理由を保存
 
-### 3. New Forward Window
+### 3. Overlap Re-run
 
-- current / shadowの既存観察を壊さず、BTC研究用raw namespaceを新設する
-- 最低7成功JST日、unresolved gap 0、同一ms未解決0、TWAP cap 0を要求する
-- entry以前のBTC market windowだけを保存し、post-entry outcomeは扱わない
+- 同じwalletを20分overlap付きで再実行する
+- raw重複を残し、canonical viewはfirst-seen rowを維持する
+- checkpointが成功時だけ進み、失敗時は進まないことを確認する
 
-### 4. Re-run and Handoff Acceptance
+### 4. Expansion Gate
 
-1. v0.1を新forward windowへ再適用する
-2. 適格数、除外理由、profile missingnessを報告する
-3. 少数walletをoutcome-blindで目視照合する
-4. 養分くん側でschema・hash・重複を検証する
-5. 問題がなければhandoff versionを固定する
+1. canary 2回のraw/canonical/stateを目視照合する
+2. 少数wallet 24時間の所要時間・API weight・欠測を測る
+3. Gate通過後だけ100/200 wallet forward windowを開始する
+4. 7成功JST日後にv0.1を再適用する
+5. 養分くん側の受入確認後だけhandoff versionを固定する
 
 ## Existing Snapshot
 
@@ -51,6 +54,7 @@ BTC sample dry-runで判明したraw品質不足を解消する新forward collec
 - contract tests: 36 PASS
 - dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
 - preliminary except observation/TWAP/market: current 0 / shadow 2（適格ではない）
+- forward contract/order primitives: 43 tests PASS、live canary NOT RUN
 - weekly: run 37172824334 success / JST report `2026-10-04` / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 

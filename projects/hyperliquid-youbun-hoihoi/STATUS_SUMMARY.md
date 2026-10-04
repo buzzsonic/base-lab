@@ -36,7 +36,7 @@ BTCの価格帯・市場局面との結合、その後の価格反応・markout�
 
 ## Current Phase
 
-BTC研究用sample v0.1を既存200 walletへoutcome-blind dry-run済み。最終handoff適格は0件でHOLD。次は同一ms server order保持、TWAP別raw取得、新forward windowの設計。
+BTC研究用sample v0.1 dry-runはHOLD。stable-order fills＋別TWAP rawの新forward collection contractと順序処理を実装済み。次はtimer無効の1-wallet canary。
 7日観察完了前のsample昇格は禁止。1,000-wallet拡大は優先せずHOLDを維持する。
 
 ## Key Status
@@ -52,6 +52,7 @@ BTC研究用sample v0.1を既存200 walletへoutcome-blind dry-run済み。最�
 - BTC sample handoff contract: `hoihoi-btc-handoff-v0.1`
 - contract verification: 36 tests PASS
 - BTC dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
+- BTC forward contract: `DESIGNED_NOT_STARTED`、43 tests PASS
 - weekly comparison: run 37172824334 success / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 
@@ -65,11 +66,11 @@ BTC研究用sample v0.1を既存200 walletへoutcome-blind dry-run済み。最�
 
 ## Next
 
-1. 新規収集から同一timestampのAPI返却順を保持し、legacy hash順checkpointと分離する
-2. `userTwapSliceFillsByTime`を別raw sourceとして保存し、欠測・capをfail-closed管理する
-3. 新forward windowで7成功JST日を観察する
-4. entry以前のBTC market windowをprofile入力として追加する
-5. v0.1を再dry-runし、outcome-blindレビュー後にのみhandoff versionを固定する
+1. timer無効の1-wallet canaryで通常fills＋TWAP raw envelopeをartifactへ保存する
+2. overlap付き2回目canaryでfirst-seen canonical orderとcheckpointを検証する
+3. 少数wallet 24時間でAPI weight・欠測・同一ms mergeを監査する
+4. Gate通過後のみ新forward windowを100/200 walletへ広げる
+5. 7成功JST日後にv0.1を再dry-runする
 
 ## Existing Observation Snapshot
 
