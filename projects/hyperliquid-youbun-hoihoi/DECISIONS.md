@@ -100,3 +100,11 @@
 - 決定: checkpointは同一timestampをhash順に並べており、current 49 / shadow 40件のBTC順序を保証できない。既存値を推定修復せずlegacy扱いとする。
 - 決定: 次はserver orderを保持するappend-only fills、別TWAP raw、past-only BTC market windowを新forward namespaceで収集する。
 - 影響: shadowの履歴完全性改善は確認できるが、BTC research sampleとしての優位・置換判断はまだ行わない。1,000-wallet拡大はHOLD。
+
+## 2026-10-04 BTC forward v1はcanaryから開始
+
+- 決定: 既存checkpointを変更せず、`outputs/btc-research-forward-v1/`へ通常fillsとTWAP slicesを別rawでappend-only保存する。
+- 決定: 同一timestampはAPI response内のrow順を保持する。overlap dedupはfirst-seen rowを採用し、hash/tid sortで順序を変えない。
+- 決定: endpoint間の同一ms rowは直前positionを始点とする`startPosition`鎖が一意な場合だけ統合し、0本または複数ならUNAVAILABLE。
+- 決定: 定期workflowはまだ作動させず、1-wallet artifact-only canaryを2回実施してから少数wallet 24時間へ進む。
+- 証拠: source order、overlap dedup、TWAP merge、曖昧時fail-closedをunit test化し43 tests PASS。
