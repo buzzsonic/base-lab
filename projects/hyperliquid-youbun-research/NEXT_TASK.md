@@ -10,110 +10,133 @@
 
 ## Current Task
 
-fixed-100 forward collector v1/v2はGate FAILで凍結済み。
-次版v3は、GitHub Actions scheduleを正本にせず、VPS上のDocker + systemd timerを正本schedulerとして実装する。
+研究方向を変更する。
 
-### PHASE 0: v3 scheduler事前登録
+主目的は個別walletの行動ラベル分類ではなく、**養分wallet群の集団行動と、その後の市場反応をBTCからevent-studyすること**。
 
-以下を先に固定する。
+詳細契約は `RESEARCH_DIRECTION.md` を正本とする。
 
-- runtime: Ubuntu VPS + Docker
-- scheduler: systemd timer
-- requested cadence: 5分
-- hard requirement: 実測20分以内に1回以上collectorが完走または明示的FAIL
-- overlap: 20分を維持
-- single-flight: 同時起動禁止。前run実行中なら次runは重複実行せず、skip理由を記録
-- timeout: 1 runの上限を明示し、timeout時はcheckpointを進めない
-- retry: endpoint単位で有限回。最終FAIL時はcheckpointを進めない
-- state: `forward-data-v3/`へ完全分離
-- v1/v2 raw/stateはread-only監査証跡として保持し、v3へ混ぜない
-- sample: fixed 100 wallets / sample SHA不変
-- notification: retention risk / endpoint failure / cap hit / timeout / checkpoint rollback / data push conflictは即Discord通知
-- GitHub Actions: unit/integration test、手動canary、fallback診断のみ。定期取得の正本にはしない
+VPS runtime package自体は実装・CI PASS済みだが、収集契約を再設計するまで本番VPS Shadowは開始しない。
 
-### PHASE 1: VPS実行パッケージをrepoへ追加
+## PHASE 0: BTC event-study data contract【最優先】
 
-Codexは以下を実装する。
+Codexは既存collector/APIで取得可能な項目を棚卸しし、以下を「取得可能 / forwardなら取得可能 / 取得不能」に分類する。
 
-1. collector用Dockerfile / compose設定
-2. `.env.example`（秘密値は含めない）
-3. systemd service unit
-4. systemd timer unit
-5. single-flight lock
-6. timeout / exit code / structured log
-7. health/status確認コマンド
-8. VPS初期セットアップ手順
-9. restart後もtimerが自動復帰することの確認手順
-10. data branch push競合時のfail-safe
+### 養分群
+- fills / TWAP / Funding
+- current position size
+- side
+- entry price
+- configured leverage
+- margin mode
+- liquidation price
+- account equity / margin usage
+- effective leverage proxy
+- add / reduce / close
+- realized-loss exit
 
-成果物例:
-- `deploy/vps/Dockerfile`
-- `deploy/vps/docker-compose.yml`
-- `deploy/vps/youbun-collector.service`
-- `deploy/vps/youbun-collector.timer`
-- `deploy/vps/README.md`
+### BTC市場
+- price / OHLCV
+- volume
+- OI / OI change
+- Funding
+- volatility
+- aggressive buy/sell flow
+- large trade flow
+- order-book imbalance
+- liquidation flow
 
-既存collectorロジックは可能な限り再利用し、scheduler差替えだけで済ませる。
+成果物:
+- `design/btc-event-study/data_contract.md`
+- `design/btc-event-study/field_matrix.csv`
 
-実装済み。local 55 testsとUbuntu CI run `37173864803`のDocker image buildがPASS。
+欠損を推定で埋めない。APIで任意の過去stateを復元できないものはforward snapshot対象にする。
 
-### PHASE 2: local/CI dry-run
+## PHASE 1: event schemaとaggregation設計
 
-VPSへ入れる前にrepo上で以下を検証する。
+1分/5分windowを候補に、BTCについて最低限以下を定義する。
 
-- service commandが既存collectorを正しく呼ぶ
-- lockで二重起動を防げる
-- timeout時checkpoint非更新
-- endpoint failure時checkpoint非更新
-- data branch conflict時fail
-- success時のみcheckpoint前進
-- structured logにrun id / started_at / finished_at / duration / wallet count / endpoint count / failure / cap / retention riskを残す
-- tests PASS
+- active_youbun_wallets
+- new_long_wallets / new_short_wallets
+- long_notional / short_notional
+- long_short_imbalance
+- entry_price_mean / median / concentration
+- distance_from_local_high_low
+- add / averaging_down / pyramiding counts
+- exit / realized_loss_exit intensity
+- leverage distribution（取得可能範囲）
+- liquidation-distance distribution（取得可能範囲）
+- BTC return / volume / OI / Funding / volatility
+- large opposite flow（取得可能なら）
 
-PHASE 2 PASS後のみVPS canaryへ進む。
+future leakageを避け、entry時点で利用可能な特徴とpost-event outcomeを物理的に分離する。
 
-PHASE 2 PASS。次はVPS接続情報と認証を確認し、timerを有効化せず1-wallet canaryへ進む。
+成果物:
+- `design/btc-event-study/event_schema.md`
+- `design/btc-event-study/outcome_schema.md`
 
-### PHASE 3: VPS canary → fixed-100連続run
+## PHASE 2: 期待レポートを先にモック化
 
-1. 1-wallet canary
-2. fixed-100初回run
-3. 少なくとも3回連続runを実測
-4. 各runのstart間隔・duration・retention riskを記録
-5. 20分以内条件を満たすことを確認
+データ収集前に、最終的に欲しいレポート形式を仮データで作る。
 
-Gate:
-- retention risk 0
-- endpoint failure 0
-- cap hit 0
-- unresolved gap 0
-- checkpoint rollback 0
-- data branch conflict 0
-- raw corruption 0
-- sample SHA不変
-- 連続runの実測間隔がすべて20分以内
+最低限:
+- 養分LONG/SHORT集中の分布
+- BTC価格位置とentry集中
+- leverage/size分布（取れる範囲）
+- crowd concentration percentile
+- 条件別5m/15m/30m/60m future return
+- downside/upside probability
+- MFE/MAE
+- opposite large flow occurrence
+- panic exit / liquidation-like flow occurrence
 
-PASSしたrun開始時刻をv3 analysis startとして固定し、その時点から7日Shadow Gateを開始する。
+レポートには、例えば
+「BTC上昇後・養分LONG比率高・高値近辺entry集中・OI増加・高値更新失敗」
+のような複合eventを表示できる形にする。
 
-## Shadow中に並行実装
+成果物:
+- `design/btc-event-study/report_mock/`
 
-- Shadow Gate evaluator
-- 中間quality summary
-- canonical fills / TWAP / Funding merge dry-run
-- episode reconstruction dry-run
+このモックを見て研究の出口が期待と一致することを確認してから、VPS収集契約を確定する。
 
-## 最終Gate
+## PHASE 3: collector v3拡張設計
 
-以下がすべて必要:
-- scheduled run success 100%
-- unresolved gap 0
-- cap hit 0
-- checkpoint rollback 0
-- sample SHA不変
-- raw corruption 0
-- canonical continuity error 0
-- quantity mismatch 0
+PHASE 0〜2を通過した後のみ実施。
 
-Gate完了まではOHLCV本分析・behavior label本適用・500-wallet expansionはHOLD。
+既存のUbuntu VPS + Docker + systemd timer packageを再利用し、event-studyに必要なforward snapshotを追加する。
 
-禁止: 欠落fill推定、前方補完、wallet差替え。
+最低限:
+- fills/TWAP/Funding append-only
+- BTC market series
+- wallet position/account snapshots（APIで取得可能なもの）
+- timestamp同期
+- immutable raw
+- gap/retention/checkpoint監査
+
+収集周期は、高頻度walletのretentionだけでなくposition/account snapshot粒度も考慮して決める。
+
+## PHASE 4: canary → Shadow
+
+1-wallet canary → fixed-100 → 3回以上連続run。
+
+Gate PASS後に新analysis startを固定し、7日Shadowを開始する。
+
+## 最終的な研究問い
+
+1. 養分walletはBTCのどの局面で片側へ偏るか
+2. その時のsize/leverage/add行動はどうか
+3. crowd集中後5m/15m/30m/60mの価格反応はどうか
+4. OI/Funding/高値更新失敗等との複合条件で反転確率は高まるか
+5. crowd集中→逆方向large flow→panic exit/liquidation-like flowというevent chainが再現するか
+
+「大口が意図的に狙った」とは断定せず、観測可能なevent chainと条件付き確率を検証する。
+
+## HOLD
+
+PHASE 0〜2完了まで:
+- VPS本番Shadow開始
+- behavior label本適用
+- 500-wallet expansion
+- inverse-signal結論
+
+は禁止。
