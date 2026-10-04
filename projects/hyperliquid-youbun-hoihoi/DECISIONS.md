@@ -108,3 +108,4 @@
 - 決定: endpoint間の同一ms rowは直前positionを始点とする`startPosition`鎖が一意な場合だけ統合し、0本または複数ならUNAVAILABLE。
 - 決定: 定期workflowはまだ作動させず、1-wallet artifact-only canaryを2回実施してから少数wallet 24時間へ進む。
 - 証拠: source order、overlap dedup、TWAP merge、曖昧時fail-closedをunit test化し43 tests PASS。
+- 実装: 手動workflowはartifact-only・contents read・scheduleなしとする。通常fills、TWAP、BTC 5分足、manifest/stateを隔離出力し、失敗時はstateを進めない。
