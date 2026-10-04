@@ -27,7 +27,9 @@ v3はVPS上のDocker + systemd timerを正本schedulerにする方針へ切替�
 - v2 scheduled interval: 約3時間35分
 - v2高頻度retention risk: P031 12,524 fills / P035 11,365 fills
 - v1/v2 workflow: disabled
-- tests: 52 passed
+- tests: 55 passed
+- v3 VPS runtime package: 実装済み、local 55 tests PASS
+- v3 Ubuntu CI / Docker build: PASS（run `37173864803`）
 - OHLCV / behavior label / 500-wallet expansion: HOLD
 
 ## Current Decision
@@ -38,10 +40,9 @@ GitHub Actionsはtest / 手動canary / fallback診断に限定する。
 
 ## Next
 
-1. VPS実行パッケージ（Docker / systemd service+timer / lock / timeout / structured log）をrepoへ実装
-2. local/CI dry-runで二重起動・timeout・checkpoint・data branch conflictのfail-safeを確認
-3. VPSで1-wallet canary → fixed-100 → 3回以上連続run
-4. 全run実測20分以内、retention risk / failure / cap / gap 0ならv3 analysis startを固定し7日Shadow Gate開始
+1. VPSへ配置し、timerを有効化する前に1-wallet canary
+2. fixed-100を3回以上連続実行し、実測間隔・duration・quality flagを確認
+3. 全run実測20分以内、retention risk / failure / cap / gap 0ならv3 analysis startを固定し7日Shadow Gate開始
 
 ## Gate
 

@@ -136,3 +136,13 @@
 - 決定: v2 workflowを`disabled_manually`へ戻し、実行中・queued 0を確認。v2 raw/stateは監査用に凍結し、次版へ混ぜない。
 - 次: GitHub Actions scheduleを正本schedulerにせず、20分以内の実行を外部から実測・監視できる方式を設計する。新namespace・新analysis startで再開する。
 - 影響範囲: 7日Shadow Gateは未開始。OHLCV本分析、behavior label本適用、500-wallet expansionはHOLDを継続する。
+
+## 2026-10-04 forward collector v3はVPS systemd timerを正本にする
+
+- runtime: Ubuntu VPS + Docker、schedulerはsystemd timer。GitHub Actions scheduleは使用しない。
+- cadence: 5分ごとに起動要求し、`flock`とoneshot serviceでsingle-flightにする。1 runは19分でtimeoutし、20分以内に完走または明示的FAILさせる。
+- transaction: endpoint failure、retention risk、cap hit、timeout時はcheckpointを進めない。raw manifestが完成した品質FAILは監査証跡として保存する。
+- namespace: `forward-data-v3/`と`forward-v3`を固定し、v1/v2 raw/stateを混ぜない。
+- data push: dirty checkout、pending push失敗、fast-forward失敗、push conflictでは収集・次runを停止する。
+- CI: scheduleなしの専用workflowで55 testsとDocker buildだけを検証する。run `37173864803`でPASS。
+- 影響範囲: VPS canaryとfixed-100 3連続runが全Gateを満たすまで7日Shadow Gateは未開始。

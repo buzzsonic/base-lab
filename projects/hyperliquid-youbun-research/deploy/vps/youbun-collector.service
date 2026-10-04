@@ -1,0 +1,16 @@
+[Unit]
+Description=Youbun fixed-100 forward v3 collector
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/base-lab/projects/hyperliquid-youbun-research/deploy/vps
+ExecStart=/usr/bin/docker compose run --rm collector
+TimeoutStartSec=20min
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

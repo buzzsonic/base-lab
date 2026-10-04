@@ -101,8 +101,24 @@ class ForwardCollectorTests(unittest.TestCase):
 
             self.assertEqual(manifest["retention_risks"], 1)
             self.assertEqual(manifest["endpoint_results"][0]["retention_risk"], True)
-            state = json.loads((output / "state" / "collector_state.json").read_text())
-            self.assertEqual(state["collector_version"], "forward-v2")
+            self.assertFalse((output / "state" / "collector_state.json").exists())
+
+    def test_failed_run_does_not_advance_existing_checkpoint(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sample = root / "sample.csv"
+            output = root / "forward-data-v3"
+            write_sample(sample)
+            with patch("scripts.forward_collect.get_json", return_value=[]):
+                collect(sample, output, 1_000_000, 20 * 60_000, 0, max_wallets=1,
+                        collector_version="forward-v3")
+            before = (output / "state" / "collector_state.json").read_bytes()
+            with patch("scripts.forward_collect.fetch_pages", side_effect=RuntimeError("endpoint failed")):
+                manifest = collect(sample, output, 2_200_000, 20 * 60_000, 0, max_wallets=1,
+                                   collector_version="forward-v3")
+            self.assertGreater(manifest["failures"], 0)
+            self.assertEqual((output / "state" / "collector_state.json").read_bytes(), before)
+            self.assertEqual(json.loads(before)["collector_version"], "forward-v3")
 
     def test_workflow_is_read_only_and_uses_data_branch(self):
         workflow = Path(__file__).parents[3] / ".github" / "workflows" / "youbun-research-forward-collector.yml"
