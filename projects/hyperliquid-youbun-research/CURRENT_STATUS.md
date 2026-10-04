@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-固定100口座forward collector v1はschedule間隔不足で品質Gate FAILとなり凍結。v2の新観測期間へ移行準備中。historical pilotは不採用のまま、OHLCV・行動ラベル・500口座拡大はHOLD。
+固定100口座forward collector v1/v2はschedule実間隔不足で品質Gate FAILとなり凍結。GitHub Actions scheduleに依存しないscheduler設計まで停止中。historical pilotは不採用のまま、OHLCV・行動ラベル・500口座拡大はHOLD。
 
 ## Completed
 
@@ -60,6 +60,11 @@
 - v1 scheduled run自体は2/2成功・endpoint failure 0・cap hit 0だが、fillsは109,786件／103,470件
 - 高頻度2口座（P031、P035）が各run 10,000 fills超となり`retention_risk=true`。v1期間の完全性は不成立
 - collector workflowを2026-10-04に`disabled_manually`確認。実行中・pending 0
+- v2 canary run `37156803479`とfixed-100初回run `37157149516`はfailure / retention / cap 0で成功
+- v2初回scheduled run `37169042021`は直前full runから約3時間35分後に開始
+- v2 scheduled runは99,854 recordsを保存後、P031 12,524 fills / P035 11,365 fillsの`retention_risk=true`を検出して意図どおりFAIL
+- v2 data branch commit `7d4c28e`に失敗runのraw / manifest / stateを監査証跡として保存
+- v2 workflowも`disabled_manually`へ戻し、実行中・queued 0を確認
 
 ## Latest Work
 
@@ -69,7 +74,8 @@
 - 500口座拡大はHOLD。
 - user-specific WebSocketはIPあたり10 unique users制約のため、固定100口座の正本にしない。定期RESTを正本とする。
 - v1 Shadow GateはFAIL。成功run数だけではcoverageを保証できないことを実証した。
-- v2は5分ごとに起動要求し、shared concurrencyで直列化する。retention/failure/capをraw保存後のworkflow失敗条件にする。
+- v2の5分cron・shared concurrency・fail-fastは品質問題を正しく検出したが、GitHub scheduled runの実起動遅延を解消できずGate FAIL。
+- 次版はGitHub Actions scheduleを正本にせず、20分以内の起動実績を外部から監視できるschedulerが必要。
 
 - TWAP上限2,000件に達し連続性エラー15件が残る1口座を分析対象外とした。
 - perp fill 0件の1口座を対象外とした。
@@ -89,7 +95,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 51 tests passed
+- 52 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -115,4 +121,4 @@
 
 ## Next
 
-collector v2を別の`forward-data-v2/`で開始し、新しいanalysis startを固定する。v1 rawは監査証跡として保持するがv2へ混ぜない。v2初回100口座runと連続runでretention risk 0を確認してから、7日Gateの終了日時を再設定する。
+GitHub Actions scheduleに依存しないschedulerを設計する。v1/v2 rawは監査証跡として保持するが次版へ混ぜない。新namespaceで20分以内の連続runとretention risk 0を確認してから、7日Gateの開始・終了日時を設定する。

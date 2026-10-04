@@ -10,16 +10,16 @@
 
 ## Current Task
 
-fixed-100 forward collector v1はGate FAILで凍結済み。
-v2を `forward-data-v2/` に完全分離し、新しいanalysis startで再開する。
+fixed-100 forward collector v1/v2はGate FAILで凍結済み。
+GitHub Actions scheduleに依存しないschedulerを設計し、次版の観測契約を事前登録する。
 
-1. v2をmainへ反映しworkflow再enable
-2. 1-wallet canary
-3. fixed-100初回run
-4. 直後runまで確認
-5. retention risk / endpoint failure / cap / data branch conflict が0なら新しい7日Shadow Gate開始時刻を固定
+1. 20分以内の起動を実測・監視できるscheduler候補を比較する
+2. timeout、重複起動、retry、checkpoint、data branch競合、通知条件を設計する
+3. `forward-data-v3/`等の新namespaceと新analysis startを事前登録する
+4. 1-wallet canary → fixed-100初回run → 20分以内の連続runを確認する
+5. retention risk / endpoint failure / cap / unresolved gap / data branch conflict が0なら新しい7日Shadow Gate開始時刻を固定
 
-v1 raw/stateをv2へ混ぜない。
+v1/v2 raw/stateを次版へ混ぜない。scheduler確定前にworkflowを再enableしない。
 
 ## Shadow中に並行実装
 
@@ -27,6 +27,8 @@ v1 raw/stateをv2へ混ぜない。
 - 中間quality summary
 - canonical fills / TWAP / Funding merge dry-run
 - episode reconstruction dry-run
+
+ただしscheduler未確定中は、新しい観測データを前提にした本分析へ進まない。
 
 ## Gate
 

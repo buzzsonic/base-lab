@@ -10,8 +10,8 @@
 
 ## Current Phase
 
-fixed-100 forward collector v1はschedule間隔不足でGate FAILし凍結済み。
-v2を`forward-data-v2/`へ完全分離し、新しいanalysis startで再開準備中。
+fixed-100 forward collector v1/v2はいずれもGitHub scheduled runの実間隔不足でGate FAILし凍結済み。
+v2 rawは監査証跡として保持し、安定した外部schedulerを設計するまで収集を停止中。
 
 ## Key Status
 
@@ -23,19 +23,24 @@ v2を`forward-data-v2/`へ完全分離し、新しいanalysis startで再開準�
 - v1 scheduled interval: 約3〜4時間
 - v1高頻度retention risk: P031 / P035
 - v1 workflow: disabled
-- tests: 51 passed
+- v2 canary / fixed-100初回run: PASS
+- v2初回scheduled run: FAIL（run `37169042021`）
+- v2 scheduled interval: 直前full runから約3時間35分
+- v2高頻度retention risk: P031 12,524 fills / P035 11,365 fills
+- v2 workflow: `disabled_manually`、実行中・queued 0
+- tests: 52 passed
 - OHLCV / behavior label / 500-wallet expansion: HOLD
 
 ## Current Blocker
 
-v1はrun自体は成功したが、間隔が長く高頻度口座で1run 10,000 fills超となり完全性を保証できなかった。
+workflow内の5分cron設定だけでは実際の起動周期を保証できず、v2でも高頻度2口座が1run 10,000 fillsを超えた。GitHub Actions scheduleを正本schedulerにできない。
 
 ## Next
 
-1. v2をmainへ反映しworkflow再enable
-2. 1-wallet canary → fixed-100初回run → 直後runを確認
-3. retention risk / failure / cap 0なら、その時点を新しい7日Shadow Gate開始時刻として固定
-4. Shadow中はGate evaluatorとcanonical reconstruction dry-runを並行実装
+1. GitHub Actions scheduleに依存しない、20分以内の実行を観測可能なschedulerを設計する
+2. timeout・重複起動・失敗時checkpoint非更新・data branch競合の扱いを事前登録する
+3. 新しい保存namespaceとanalysis startでcanary → fixed-100初回run → 20分以内の連続runを確認する
+4. retention risk / failure / cap / unresolved gap 0を確認してから7日Shadow Gateを開始する
 
 ## Gate
 
@@ -51,4 +56,4 @@ PASS必須:
 
 ## Last Important Decision
 
-欠落fill推定・前方補完・wallet差替えは禁止。v1 raw/stateは監査用に保持し、v2へ混ぜない。
+欠落fill推定・前方補完・wallet差替えは禁止。v1/v2 raw/stateは監査用に保持し、次版へ混ぜない。
