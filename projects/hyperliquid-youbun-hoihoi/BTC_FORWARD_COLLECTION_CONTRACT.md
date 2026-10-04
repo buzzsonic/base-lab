@@ -2,7 +2,7 @@
 
 ## 状態
 
-`DESIGNED_NOT_STARTED`。既存current/shadow checkpointは変更しない。定期workflowはまだ有効化しない。
+`CANARY_READY_NOT_STARTED`。collectorと手動artifact-only workflowを実装済み。既存current/shadow checkpointは変更しない。定期workflowはまだ有効化しない。
 
 ## 目的
 

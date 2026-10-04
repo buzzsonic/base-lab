@@ -21,6 +21,13 @@
 - `hoihoi.forward_order`でAPI tie order保持、overlap dedup、直前positionを始点とする通常fill＋TWAP鎖統合を実装。曖昧な鎖は採用しない。
 - 43テスト成功。live API canary、data branch保存、定期workflowは未実施。次はtimer無効の1-wallet artifact-only canary。
 
+## 2026-10-04 BTC forward canary ready
+
+- 通常fillsとTWAPを別rawへsource order付きで保存し、BTC 5分足を将来のpast-only profile入力用に保存するcollectorを実装した。
+- endpoint failure/cap/gap時はraw manifestを残すがstateを進めない。walletは初回成功後に固定され、legacy checkpoint/data branchとは完全分離する。
+- `Yobun Hoihoi BTC Forward Canary`は`workflow_dispatch`のみでscheduleなし、artifact-only、contents read。47テスト・workflow YAML検証成功。
+- 状態は`CANARY_READY_NOT_STARTED`。live 1-wallet canaryはまだ実行していない。
+
 | item | state |
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |

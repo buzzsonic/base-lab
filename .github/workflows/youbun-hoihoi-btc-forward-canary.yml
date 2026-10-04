@@ -1,0 +1,54 @@
+name: Yobun Hoihoi BTC Forward Canary
+
+on:
+  workflow_dispatch:
+    inputs:
+      wallet:
+        description: "One public wallet address for the isolated canary"
+        required: true
+        type: string
+      initial_lookback_minutes:
+        description: "Initial forward window lookback (canary only)"
+        required: false
+        default: "20"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: youbun-hoihoi-btc-forward-canary
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install -r projects/hyperliquid-youbun-hoihoi/requirements.txt
+      - name: Verify collector
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+        run: python -m unittest discover -s projects/hyperliquid-youbun-hoihoi/tests -v
+      - name: Collect one-wallet artifact only
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+          CANARY_WALLET: ${{ inputs.wallet }}
+          INITIAL_LOOKBACK_MINUTES: ${{ inputs.initial_lookback_minutes }}
+        run: |
+          python projects/hyperliquid-youbun-hoihoi/scripts/collect_btc_forward_canary.py \
+            --wallet "$CANARY_WALLET" \
+            --initial-lookback-minutes "$INITIAL_LOOKBACK_MINUTES" \
+            --output "$RUNNER_TEMP/btc-research-forward-v1"
+      - name: Upload immutable canary evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: youbun-hoihoi-btc-forward-canary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/btc-research-forward-v1/
+          if-no-files-found: error
+          retention-days: 30

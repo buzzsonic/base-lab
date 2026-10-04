@@ -36,7 +36,7 @@ BTCの価格帯・市場局面との結合、その後の価格反応・markout�
 
 ## Current Phase
 
-BTC研究用sample v0.1 dry-runはHOLD。stable-order fills＋別TWAP rawの新forward collection contractと順序処理を実装済み。次はtimer無効の1-wallet canary。
+BTC研究用sample v0.1 dry-runはHOLD。新forward collectorとtimerなしartifact-only workflowまで実装し、1-wallet canaryを開始できる状態。live canaryは未実行。
 7日観察完了前のsample昇格は禁止。1,000-wallet拡大は優先せずHOLDを維持する。
 
 ## Key Status
@@ -52,7 +52,7 @@ BTC研究用sample v0.1 dry-runはHOLD。stable-order fills＋別TWAP rawの新f
 - BTC sample handoff contract: `hoihoi-btc-handoff-v0.1`
 - contract verification: 36 tests PASS
 - BTC dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
-- BTC forward contract: `DESIGNED_NOT_STARTED`、43 tests PASS
+- BTC forward window: `CANARY_READY_NOT_STARTED`、47 tests PASS
 - weekly comparison: run 37172824334 success / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 

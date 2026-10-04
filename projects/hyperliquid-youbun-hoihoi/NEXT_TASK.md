@@ -55,6 +55,7 @@ BTC forward v1をtimer無効の1-wallet canaryで検証する。
 - dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
 - preliminary except observation/TWAP/market: current 0 / shadow 2（適格ではない）
 - forward contract/order primitives: 43 tests PASS、live canary NOT RUN
+- canary collector/manual workflow: 47 tests PASS、scheduleなし、live canary NOT RUN
 - weekly: run 37172824334 success / JST report `2026-10-04` / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 
