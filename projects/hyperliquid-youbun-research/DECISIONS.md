@@ -127,3 +127,12 @@
 - v2: `forward-data-v2/`へ新しいanalysis startを固定し、5分ごとの起動要求＋shared concurrencyで直列化する。
 - Fail-fast: endpoint failure、page cap、retention riskをmanifest/stateへ保存した後、workflowを失敗させる。
 - 影響範囲: v2の初回100口座runと次runが合格するまで7日Gate開始日は未確定。OHLCV、label、500口座拡大はHOLD。
+
+## 2026-10-04 forward collector v2も凍結する
+
+- 事実: canary run `37156803479`とfixed-100初回run `37157149516`は合格したが、初回scheduled run `37169042021`は直前full runから約3時間35分後に開始した。
+- 品質問題: P031で12,524 fills、P035で11,365 fillsとなり、2口座で`retention_risk=true`。endpoint failure 0、cap hit 0でもcoverage完全性は成立しない。
+- Fail-fast検証: raw・manifest・stateをdata branch commit `7d4c28e`へ保存した後、quality flagによりworkflowが意図どおりfailureとなった。
+- 決定: v2 workflowを`disabled_manually`へ戻し、実行中・queued 0を確認。v2 raw/stateは監査用に凍結し、次版へ混ぜない。
+- 次: GitHub Actions scheduleを正本schedulerにせず、20分以内の実行を外部から実測・監視できる方式を設計する。新namespace・新analysis startで再開する。
+- 影響範囲: 7日Shadow Gateは未開始。OHLCV本分析、behavior label本適用、500-wallet expansionはHOLDを継続する。
