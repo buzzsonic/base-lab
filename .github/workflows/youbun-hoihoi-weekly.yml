@@ -16,7 +16,10 @@ permissions:
   contents: write
 
 concurrency:
-  group: youbun-hoihoi-data
+  # This workflow only reads cohort snapshots and writes a dated report. Keep it
+  # out of the shared data-writer queue so a newer pending collector cannot
+  # cancel the weekly report; push_data_branch.sh handles rebase/retry.
+  group: youbun-hoihoi-weekly
   cancel-in-progress: false
 
 jobs:
@@ -48,7 +51,8 @@ jobs:
         run: |
           current="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/current"
           shadow="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/cohorts/stratified-20261003"
-          report="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/reports/weekly/$(date -u +%Y-%m-%d)/cohort_comparison.json"
+          report_date="$(TZ=Asia/Tokyo date +%Y-%m-%d)"
+          report="$GITHUB_WORKSPACE/persisted/projects/hyperliquid-youbun-hoihoi/outputs/reports/weekly/$report_date/cohort_comparison.json"
           test -f "$current/wallet_registry.parquet"
           test -f "$shadow/wallet_registry.parquet"
           python -m hoihoi.quality_gate --current "$current" --shadow "$shadow" --output "$report"
