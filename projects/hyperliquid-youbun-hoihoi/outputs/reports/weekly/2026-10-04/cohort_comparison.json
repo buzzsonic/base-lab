@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-04T03:01:59.748100+00:00",
+  "minimum_successful_jst_observation_days": 7,
+  "decision_policy": "report only; never replace, merge, promote, trade, or notify automatically",
+  "current": {
+    "cohort_id": "current",
+    "registry_wallets": 100,
+    "pool_wallets": 200,
+    "sample_wallets": 0,
+    "duplicates": 0,
+    "sample_duplicates": 0,
+    "complete_histories": 79,
+    "incomplete_histories": 21,
+    "status_counts": {
+      "EXCLUDED": 39,
+      "INACTIVE": 15,
+      "OBSERVING": 46
+    },
+    "successful_observation_days": {
+      "0": 21,
+      "3": 79
+    },
+    "bot_suspected": 38,
+    "mm_suspected": 12,
+    "farm_suspected": 1,
+    "arbitrage_suspected": 1,
+    "small_alt_core": 2,
+    "valid_candidates": 46,
+    "elapsed_ready_candidates": 0,
+    "observation_ready_candidates": 0,
+    "active_wallets": 0,
+    "active_sample_mismatch": 0,
+    "structural_gate": "PASS",
+    "promotion_gate": "HOLD"
+  },
+  "shadow": {
+    "cohort_id": "stratified-20261003",
+    "registry_wallets": 100,
+    "pool_wallets": 200,
+    "sample_wallets": 0,
+    "duplicates": 0,
+    "sample_duplicates": 0,
+    "complete_histories": 97,
+    "incomplete_histories": 3,
+    "status_counts": {
+      "EXCLUDED": 30,
+      "INACTIVE": 16,
+      "OBSERVING": 54
+    },
+    "successful_observation_days": {
+      "0": 2,
+      "1": 1,
+      "2": 97
+    },
+    "bot_suspected": 27,
+    "mm_suspected": 4,
+    "farm_suspected": 6,
+    "arbitrage_suspected": 0,
+    "small_alt_core": 11,
+    "valid_candidates": 54,
+    "elapsed_ready_candidates": 0,
+    "observation_ready_candidates": 0,
+    "active_wallets": 0,
+    "active_sample_mismatch": 0,
+    "structural_gate": "PASS",
+    "promotion_gate": "HOLD"
+  },
+  "shadow_minus_current": {
+    "complete_histories": 18,
+    "incomplete_histories": -18,
+    "bot_suspected": -11,
+    "mm_suspected": -8,
+    "farm_suspected": 5,
+    "small_alt_core": 9,
+    "valid_candidates": 8
+  },
+  "replacement_gate": "HOLD"
+}
