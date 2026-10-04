@@ -76,3 +76,10 @@
 - 決定: registryとsampleは変更せず、出力は`outputs/reports/weekly/YYYY-MM-DD/cohort_comparison.json`だけに限定する。
 - 決定: 全gate通過後も結果は`READY_FOR_HUMAN_REVIEW`までとし、置換・統合・通知・売買は自動化しない。
 - 理由: 日次promotionとcohort採否を分離し、欠測やsample不一致を隠さず人が比較判断できるようにするため。
+
+## 2026-10-04 weekly reportをJST日付・専用queueへ分離
+
+- 決定: report保存日は`Asia/Tokyo`の暦日とし、weeklyは`youbun-hoihoi-weekly`専用concurrency groupを使う。
+- 理由: 初回runはUTC日付へ保存され、共有data queueでは新しいpending collectorにweeklyが取り消され得たため。
+- 安全境界: weeklyはcohort stateを変更せず、日付付きreportだけを追加する。data branch競合はforce pushせずrebase再試行で解決する。
+- 証拠: PR #35統合後のrun 37172824334はsuccess、data `1b7786e`はJST `2026-10-04`のreport 1ファイルだけを追加した。

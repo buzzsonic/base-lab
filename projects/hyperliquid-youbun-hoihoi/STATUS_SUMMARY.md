@@ -22,6 +22,7 @@
 - shadow flags: BOT 27 / MM 4 / farm 6 / small-alt 11
 - current sample: 0
 - shadow sample: 0
+- weekly comparison: run 37172824334 success / data `1b7786e`
 - 1,000-wallet expansion: HOLD
 
 ## Current Blocker
@@ -33,7 +34,7 @@ shadowで1 walletがcomplete→incompleteへ変化しており、retention/gap�
 
 1. current / shadowを日次観察し7成功JST日まで蓄積
 2. shadowのcomplete→incomplete 1 walletとfarm/MM疑いを重点監査
-3. weekly比較workflowで構造・promotion・置換判断をreport-only検証
+3. weekly比較のJSTレポートを継続し、7日到達時にpromotion・置換Gateを判定
 4. 7日比較とAPI所要時間Gateを通過した場合のみcohort置換/統合と1,000-wallet拡大を検討
 
 ## Comparison Snapshot
@@ -48,4 +49,4 @@ shadowはcurrent比で:
 
 ## Last Important Decision
 
-欠測・retention gapは成功観察日に数えない。7日観察前の即時昇格は禁止。shadowは現行registryを変更しない隔離namespaceで運用する。
+欠測・retention gapは成功観察日に数えない。7日観察前の即時昇格は禁止。shadowは現行registryを変更しない隔離namespaceで運用する。weeklyはJST日付・専用queueでreportのみを保存する。
