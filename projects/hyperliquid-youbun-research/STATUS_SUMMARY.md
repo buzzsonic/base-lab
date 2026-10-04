@@ -10,52 +10,54 @@
 
 ## Current Phase
 
-fixed-100 forward collector v1/v2はいずれもGitHub scheduled runの実間隔不足でGate FAILし凍結済み。
-v3はVPS上のDocker + systemd timerを正本schedulerにする方針へ切替済み。
+研究方向を再定義中。
+主目的を個別walletのFOMO/Late/Averaging Down分類から、**養分wallet群の集団行動とその後の市場反応をBTCからevent-studyすること**へ変更した。
+
+VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward data contractを固定するまで本番Shadowは開始しない。
 
 ## Key Status
 
 - historical pilot: 不採用
 - fixed sample: 100 wallets
 - historical再構成で品質条件を満たしたsubset: 44 wallets / completed 22,973 episodes
-- 上記subset: quantity mismatch 0 / continuity error 0
-- v1 forward collector: FAIL / 凍結
-- v1 scheduled interval: 約3〜4時間
-- v1高頻度retention risk: P031 / P035
-- v2 canary / fixed-100初回run: PASS
-- v2初回scheduled run: FAIL（run `37169042021`）
-- v2 scheduled interval: 約3時間35分
-- v2高頻度retention risk: P031 12,524 fills / P035 11,365 fills
-- v1/v2 workflow: disabled
+- subset quality: quantity mismatch 0 / continuity error 0
+- v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
+- v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
 - tests: 55 passed
-- v3 VPS runtime package: 実装済み、local 55 tests PASS
-- v3 Ubuntu CI / Docker build: PASS（run `37173864803`）
-- OHLCV / behavior label / 500-wallet expansion: HOLD
+- behavior label v1: 既存PoCとして保持するが主研究単位ではない
+- OHLCV本分析 / behavior label本適用 / 500-wallet expansion: HOLD
 
-## Current Decision
+## New Research Goal
 
-GitHub Actions scheduleは正本schedulerにしない。
-v3はUbuntu VPS + Docker + systemd timerを正本とし、5分起動要求・実測20分以内を品質要件にする。
-GitHub Actionsはtest / 手動canary / fallback診断に限定する。
+BTCを第一対象に、1分/5分などのmarket window単位で:
+- 養分の新規LONG/SHORT数
+- LONG/SHORT notional偏り
+- entry価格帯の集中
+- add / averaging down / pyramiding
+- size / leverage / liquidation-distance（取得可能範囲）
+- BTC price / volume / OI / Funding / volatility
+- large opposite flow / liquidation-like flow（取得可能なら）
+
+を同期し、その後5m / 15m / 30m / 60mのprice reactionを検証する。
+
+「大口が意図的に狙った」とは断定せず、
+養分片側集中 → 逆方向large flow → price reversal → panic exit / liquidation-like flow
+という観測可能なevent chainの再現性を調べる。
+
+## Current Blocker
+
+VPSの有無ではなく、最終レポートから逆算したforward data contractがまだ未固定。
 
 ## Next
 
-1. VPSへ配置し、timerを有効化する前に1-wallet canary
-2. fixed-100を3回以上連続実行し、実測間隔・duration・quality flagを確認
-3. 全run実測20分以内、retention risk / failure / cap / gap 0ならv3 analysis startを固定し7日Shadow Gate開始
+1. BTC event-studyに必要な項目をAPI別に「取得可能 / forwardなら可能 / 不可能」へ分類
+2. market-event schemaとpost-event outcome schemaを固定
+3. 仮データで期待する最終レポートを先にモック化
+4. モックが期待と合うことを確認してからcollector v3へ必要snapshotを追加しVPS Shadow開始
 
-## Gate
-
-PASS必須:
-- scheduled run success 100%
-- unresolved gap 0
-- cap hit 0
-- checkpoint rollback 0
-- sample SHA不変
-- raw corruption 0
-- canonical continuity error 0
-- quantity mismatch 0
+詳細正本: `RESEARCH_DIRECTION.md`
 
 ## Last Important Decision
 
-欠落fill推定・前方補完・wallet差替えは禁止。v1/v2 raw/stateは監査用に保持し、v3へ混ぜない。
+VPSは研究目的ではなく安定収集の手段。研究の出口が合うことを確認するまで、本番VPS Shadowを開始しない。
+欠落stateの推定・0埋め、wallet差替え、先回りしたinverse-signal結論は禁止。
