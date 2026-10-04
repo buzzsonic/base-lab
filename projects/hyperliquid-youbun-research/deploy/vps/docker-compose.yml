@@ -1,0 +1,10 @@
+services:
+  collector:
+    build:
+      context: ../../../..
+      dockerfile: projects/hyperliquid-youbun-research/deploy/vps/Dockerfile
+    env_file: /etc/youbun-collector.env
+    volumes:
+      - /var/lib/youbun-collector/data-repo:/data/repo
+      - /var/lib/youbun-collector/runtime:/runtime
+    restart: "no"

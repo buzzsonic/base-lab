@@ -68,6 +68,13 @@
 
 ## Latest Work
 
+- v3のDocker / Compose / systemd service+timer / flock / 19分timeout / structured log / health check / VPS手順を実装。
+- collector stateをrun単位transactionへ変更し、endpoint failure・retention・cap時はraw manifestを残してcheckpointを進めない。
+- v3専用namespace `forward-data-v3/`、collector version `forward-v3`を固定。
+- data branchがdirty、pending push失敗、fast-forward失敗、push conflictの場合は新規runまたは次runへ進まない。
+- v3 runtime CIはscheduleを持たず、unit testとDocker buildだけを行う。
+- local 55 tests PASS。MacのDocker daemon応答停止によりimage buildはPR CI確認待ち。
+
 - PHASE 1 GateはPASS。
 - PHASE 2はwallet endpoint収集まで完了。OHLCV/BTC seriesは重大再構成差異の停止条件により未実行。
 - PHASE 3の実装差異は修正したが、API retentionによる56%除外でGateはFAIL。差異を推定・0埋めで隠していない。
@@ -95,7 +102,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 52 tests passed
+- 55 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -121,4 +128,4 @@
 
 ## Next
 
-GitHub Actions scheduleに依存しないschedulerを設計する。v1/v2 rawは監査証跡として保持するが次版へ混ぜない。新namespaceで20分以内の連続runとretention risk 0を確認してから、7日Gateの開始・終了日時を設定する。
+PR CIでDocker buildを確認後、VPSで1-wallet canaryを行う。timer有効化とfixed-100連続runはcanary PASS後だけ進める。

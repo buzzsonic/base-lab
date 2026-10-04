@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Youbun forward v3 collector every five minutes
+
+[Timer]
+OnBootSec=2min
+OnCalendar=*:0/5
+AccuracySec=10s
+Persistent=true
+Unit=youbun-collector.service
+
+[Install]
+WantedBy=timers.target

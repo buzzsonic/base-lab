@@ -88,7 +88,8 @@ def load_sample(path: Path, max_wallets: int | None) -> list[dict]:
 
 
 def collect(sample: Path, output: Path, now_ms: int, overlap_ms: int,
-            request_delay_seconds: float, max_wallets: int | None = None) -> dict:
+            request_delay_seconds: float, max_wallets: int | None = None,
+            collector_version: str = COLLECTOR_VERSION) -> dict:
     accounts = load_sample(sample, max_wallets)
     state_path = output / "state" / "collector_state.json"
     sample_sha = hashlib.sha256(sample.read_bytes()).hexdigest()
@@ -99,17 +100,19 @@ def collect(sample: Path, output: Path, now_ms: int, overlap_ms: int,
         if now_ms < state["analysis_start_ms"]:
             raise ValueError("run time precedes fixed analysis start")
     else:
-        state = {"schema_version": SCHEMA_VERSION, "collector_version": COLLECTOR_VERSION,
+        state = {"schema_version": SCHEMA_VERSION, "collector_version": collector_version,
                  "sample_version": SAMPLE_VERSION,
                  "sample_sha256": sample_sha, "analysis_start_ms": now_ms, "checkpoints": {}}
     run_id = datetime.fromtimestamp(now_ms / 1000, timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     date = datetime.fromtimestamp(now_ms / 1000, timezone.utc).strftime("%Y-%m-%d")
-    run_dir = output / "raw" / f"date={date}" / f"run={run_id}"
+    run_parent = output / "raw" / f"date={date}"
+    run_dir = run_parent / f"run={run_id}"
+    temporary_run_dir = run_parent / f".run={run_id}.tmp"
     if run_dir.exists():
         raise ValueError(f"immutable run already exists: {run_id}")
-    run_dir.mkdir(parents=True)
-    handles = {name: (run_dir / f"{name}.jsonl").open("w") for name in ENDPOINTS}
-    manifest = {"schema_version": SCHEMA_VERSION, "collector_version": COLLECTOR_VERSION,
+    temporary_run_dir.mkdir(parents=True)
+    handles = {name: (temporary_run_dir / f"{name}.jsonl").open("w") for name in ENDPOINTS}
+    manifest = {"schema_version": SCHEMA_VERSION, "collector_version": collector_version,
                 "run_id": run_id, "analysis_start_ms": state["analysis_start_ms"],
                 "started_at_ms": now_ms, "requested_wallets": len(accounts), "endpoint_results": [],
                 "failures": 0, "retention_risks": 0, "cap_hits": 0,
@@ -155,13 +158,15 @@ def collect(sample: Path, output: Path, now_ms: int, overlap_ms: int,
                     result.update({"status": "failed", "error": str(exc)})
                     manifest["failures"] += 1
                 manifest["endpoint_results"].append(result)
-                atomic_json(state_path, state)
     finally:
         for handle in handles.values():
             handle.close()
     manifest["finished_at"] = datetime.now(timezone.utc).isoformat()
-    atomic_json(run_dir / "manifest.json", manifest)
-    atomic_json(state_path, state)
+    atomic_json(temporary_run_dir / "manifest.json", manifest)
+    temporary_run_dir.replace(run_dir)
+    quality_gate_failed = manifest["failures"] > 0 or manifest["retention_risks"] > 0 or manifest["cap_hits"] > 0
+    if not quality_gate_failed:
+        atomic_json(state_path, state)
     return manifest
 
 
@@ -173,15 +178,18 @@ def main() -> None:
     parser.add_argument("--overlap-minutes", type=int, default=20)
     parser.add_argument("--request-delay-seconds", type=float, default=2.2)
     parser.add_argument("--max-wallets", type=int)
+    parser.add_argument("--collector-version", default=COLLECTOR_VERSION)
     args = parser.parse_args()
     now_ms = args.now_ms if args.now_ms is not None else int(time.time() * 1000)
     result = collect(args.sample, args.output, now_ms, args.overlap_minutes * 60_000,
-                     args.request_delay_seconds, args.max_wallets)
+                     args.request_delay_seconds, args.max_wallets, args.collector_version)
     quality_gate_failed = result["failures"] > 0 or result["retention_risks"] > 0 or result["cap_hits"] > 0
     if github_output := os.environ.get("GITHUB_OUTPUT"):
         with Path(github_output).open("a") as handle:
             handle.write(f"quality_gate_failed={str(quality_gate_failed).lower()}\n")
     print(json.dumps({key: result[key] for key in ("run_id", "requested_wallets", "requests", "records", "failures")}, indent=2))
+    if quality_gate_failed:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
