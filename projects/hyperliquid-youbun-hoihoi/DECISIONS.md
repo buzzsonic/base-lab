@@ -83,3 +83,12 @@
 - 理由: 初回runはUTC日付へ保存され、共有data queueでは新しいpending collectorにweeklyが取り消され得たため。
 - 安全境界: weeklyはcohort stateを変更せず、日付付きreportだけを追加する。data branch競合はforce pushせずrebase再試行で解決する。
 - 証拠: PR #35統合後のrun 37172824334はsuccess、data `1b7786e`はJST `2026-10-04`のreport 1ファイルだけを追加した。
+
+## 2026-10-04 BTC研究sample契約をdry-run前に固定
+
+- 決定: v0.1 draftの最低Gateを7成功JST日、BTC 3活動日、20 fills、5完結zero-to-zero episode、profile根拠3 episodeとする。
+- 決定: BOT / MM / arbitrage / funding arbitrage / farm疑い、未解消gap、continuity error、quantity mismatch、page/TWAP capはfail-closedで除外する。
+- 決定: add行動の存在自体は必須にしない。完全なordered fillsからadd 0を観測できればよい。存在を必須化するとナンピンwalletを選抜段階で過剰抽出するため。
+- 決定: 高値飛び乗りは養分くんのpast-only FOMO定義、ナンピンは5% size・5bp adverse定義を再利用する。size急拡大は直前5 BTC episode中央値の2倍をdraft初期値とする。
+- 決定: handoffにPnL、勝率、ROI、entry後return、markout、MFE/MAEを含めず、市場反応を見てwalletを選ばない。
+- 影響: v0.1はdry-run前draft。結果を見て同versionを調整せず、変更時は新versionを作る。1,000-wallet拡大は非優先HOLD。

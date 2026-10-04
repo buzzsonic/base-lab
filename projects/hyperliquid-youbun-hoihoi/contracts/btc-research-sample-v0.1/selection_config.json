@@ -1,0 +1,47 @@
+{
+  "selection_version": "btc-research-selection-v0.1.0-draft",
+  "status": "DRAFT_BEFORE_DRY_RUN",
+  "created_at": "2026-10-04T00:00:00+09:00",
+  "outcome_blind": true,
+  "minimums": {
+    "successful_jst_observation_days": 7,
+    "btc_active_days": 3,
+    "btc_fills": 20,
+    "completed_btc_episodes": 5,
+    "profile_evidence_episodes": 3
+  },
+  "hard_quality_gates": {
+    "data_complete": true,
+    "unresolved_gap_count": 0,
+    "continuity_error_count": 0,
+    "quantity_mismatch_count": 0,
+    "page_safety_cap_hit": false,
+    "twap_capped": false,
+    "requires_entry_and_close_observation": true,
+    "requires_stable_same_timestamp_order": true
+  },
+  "excluded_flags": [
+    "BOT_SUSPECTED",
+    "MM_SUSPECTED",
+    "ARBITRAGE_SUSPECTED",
+    "FUNDING_ARBITRAGE_SUSPECTED",
+    "FARM_SUSPECTED"
+  ],
+  "behavior_profiles": {
+    "high_price_chase_candidate": {
+      "definition_source": "youbun-research preregistered-v1 FOMO",
+      "past_only": true,
+      "post_entry_fields_forbidden": true
+    },
+    "averaging_down_candidate": {
+      "minimum_add_vs_existing_position": 0.05,
+      "minimum_adverse_price_distance_bps": 5.0
+    },
+    "size_surge_candidate": {
+      "minimum_prior_completed_btc_episodes": 5,
+      "initial_notional_vs_prior_5_median_min": 2.0
+    }
+  },
+  "missing_policy": "Missing required evidence yields UNAVAILABLE or exclusion, never FALSE or zero.",
+  "revision_policy": "Dry-run results cannot change this version. Any threshold change creates a new version and retains this file."
+}

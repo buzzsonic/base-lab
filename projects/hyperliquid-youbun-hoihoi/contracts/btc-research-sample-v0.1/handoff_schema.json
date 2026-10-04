@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://base-lab.local/schemas/hoihoi-btc-research-handoff-v0.1.json",
+  "title": "Hoihoi BTC research sample handoff v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "selection_version", "profile_version", "sample_version", "generated_at", "observation_window", "source_snapshot", "wallets"],
+  "properties": {
+    "schema_version": {"const": "hoihoi-btc-handoff-v0.1"},
+    "selection_version": {"type": "string", "minLength": 1},
+    "profile_version": {"type": "string", "minLength": 1},
+    "sample_version": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "observation_window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["start_ms", "end_ms", "successful_jst_days"],
+      "properties": {
+        "start_ms": {"type": "integer", "minimum": 0},
+        "end_ms": {"type": "integer", "minimum": 0},
+        "successful_jst_days": {"type": "integer", "minimum": 7}
+      }
+    },
+    "source_snapshot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cohort_id", "registry_sha256", "input_commit"],
+      "properties": {
+        "cohort_id": {"type": "string", "minLength": 1},
+        "registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "input_commit": {"type": "string", "minLength": 7}
+      }
+    },
+    "wallets": {"type": "array", "items": {"$ref": "#/$defs/wallet"}}
+  },
+  "$defs": {
+    "profile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "evidence_episodes", "reason"],
+      "properties": {
+        "status": {"enum": ["TRUE", "FALSE", "UNAVAILABLE"]},
+        "evidence_episodes": {"type": "integer", "minimum": 0},
+        "reason": {"type": "string"}
+      }
+    },
+    "episode": {
+      "type": "object", "additionalProperties": false,
+      "required": ["episode_id", "first_entry_time_ms", "last_exit_time_ms", "side", "initial_size", "max_size", "entry_fill_count", "add_fill_count", "reduce_fill_count", "close_fill_count", "reconstruction_status"],
+      "properties": {
+        "episode_id": {"type": "string", "minLength": 1},
+        "first_entry_time_ms": {"type": "integer", "minimum": 0},
+        "last_exit_time_ms": {"type": "integer", "minimum": 0},
+        "side": {"enum": ["LONG", "SHORT"]},
+        "initial_size": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "max_size": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+        "entry_vwap": {"type": ["string", "null"]},
+        "entry_fill_count": {"type": "integer", "minimum": 1},
+        "add_fill_count": {"type": "integer", "minimum": 0},
+        "reduce_fill_count": {"type": "integer", "minimum": 0},
+        "close_fill_count": {"type": "integer", "minimum": 1},
+        "reconstruction_status": {"const": "COMPLETE"}
+      }
+    },
+    "wallet": {
+      "type": "object", "additionalProperties": false,
+      "required": ["wallet", "eligibility", "exclusion_reasons", "quality", "btc_activity", "behavior_profile", "episodes"],
+      "properties": {
+        "wallet": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"},
+        "eligibility": {"const": "ELIGIBLE"},
+        "exclusion_reasons": {"type": "array", "maxItems": 0},
+        "quality": {
+          "type": "object", "additionalProperties": false,
+          "required": ["data_complete", "unresolved_gap_count", "continuity_error_count", "quantity_mismatch_count", "twap_capped"],
+          "properties": {
+            "data_complete": {"const": true},
+            "unresolved_gap_count": {"const": 0},
+            "continuity_error_count": {"const": 0},
+            "quantity_mismatch_count": {"const": 0},
+            "twap_capped": {"const": false}
+          }
+        },
+        "btc_activity": {
+          "type": "object", "additionalProperties": false,
+          "required": ["active_days", "fill_count", "completed_episode_count", "entry_fill_count", "add_fill_count", "reduce_fill_count", "close_fill_count"],
+          "properties": {
+            "active_days": {"type": "integer", "minimum": 3},
+            "fill_count": {"type": "integer", "minimum": 20},
+            "completed_episode_count": {"type": "integer", "minimum": 5},
+            "entry_fill_count": {"type": "integer", "minimum": 5},
+            "add_fill_count": {"type": "integer", "minimum": 0},
+            "reduce_fill_count": {"type": "integer", "minimum": 0},
+            "close_fill_count": {"type": "integer", "minimum": 5}
+          }
+        },
+        "behavior_profile": {
+          "type": "object", "additionalProperties": false,
+          "required": ["high_price_chase_candidate", "averaging_down_candidate", "size_surge_candidate"],
+          "properties": {
+            "high_price_chase_candidate": {"$ref": "#/$defs/profile"},
+            "averaging_down_candidate": {"$ref": "#/$defs/profile"},
+            "size_surge_candidate": {"$ref": "#/$defs/profile"}
+          }
+        },
+        "episodes": {"type": "array", "minItems": 5, "items": {"$ref": "#/$defs/episode"}}
+      }
+    }
+  }
+}

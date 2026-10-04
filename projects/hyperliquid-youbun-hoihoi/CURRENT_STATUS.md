@@ -2,6 +2,12 @@
 
 更新: 2026-10-03 JST（翌日観察、4時間帯coverage、隔離200→100再PoC成功）
 
+## 2026-10-04 BTC研究sample契約
+
+- 養分ホイホイの役割をBTC event-studyの上流へ変更し、`contracts/btc-research-sample-v0.1/`に選抜config、handoff JSON Schema、exampleを追加した。
+- `hoihoi.handoff.validate_handoff`は品質Gate、重複、最低BTC activity、profile根拠、outcome field混入をfail-closedで検査する。
+- 36テスト成功。実sampleは未生成で、現行・shadow registryも変更していない。次は既存200 walletへのoutcome-blind dry-run。
+
 | item | state |
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |
