@@ -8,6 +8,13 @@
 - `hoihoi.handoff.validate_handoff`は品質Gate、重複、最低BTC activity、profile根拠、outcome field混入をfail-closedで検査する。
 - 36テスト成功。実sampleは未生成で、現行・shadow registryも変更していない。次は既存200 walletへのoutcome-blind dry-run。
 
+## 2026-10-04 BTC研究sample dry-run
+
+- data `91c89b4`のcurrent 100件・shadow 100件へv0.1をoutcome-blind適用。39テスト成功、registry/sample変更なし。
+- BTC activity 3条件通過はcurrent 32・shadow 25、再構成品質clearはcurrent 51・shadow 59。観察日・TWAP・市場window以外の暫定Gate通過はcurrent 0・shadow 2。
+- 全200件でTWAP evidenceなし・7日未達。checkpointのhash tie-sortにより同一ms順序不明がcurrent 49・shadow 40。最終handoff適格は0でHOLD。
+- 次は既存checkpointを修復せず、server order保持fills・別TWAP raw・past-only BTC market windowの新forward contractを作る。
+
 | item | state |
 |---|---|
 | active wallets / research sample | 0 / 0（7日観察前の即時昇格は禁止） |

@@ -10,39 +10,35 @@
 
 ## Current Task
 
-v0.1 draft契約を現行100件とshadow 100件へoutcome-blindでdry-runし、BTC研究適格性と欠測を測る。
+BTC sample dry-runで判明したraw品質不足を解消する新forward collection contractを設計する。
 
 契約正本: `contracts/btc-research-sample-v0.1/`
 
-### 1. BTC Episode Coverage Builder
+### 1. Stable-order Raw Contract
 
-- BTC fillsだけをstable server orderで抽出する
-- `startPosition`・side・sizeからzero-to-zero episodeを再構成する
-- entry / add / reduce / close / reversal件数を保存する
-- quantity mismatch、continuity error、retention gap、期間端censoringをwallet別に保存する
-- 現行registryを上書きせず、dry-run成果物を別namespaceへ保存する
+- API response内の同一timestamp順を保持し、deduplicate時も順序を壊さない
+- 既存hash順checkpointはlegacyとして修復・昇格に使わない
+- append-only rawとcanonical viewを分離し、source orderを監査可能にする
 
-### 2. Selection Dry-run
+### 2. TWAP Raw Contract
 
-- 7成功JST日、BTC 3活動日、20 fills、5完結episodeを初期Gateとして適用する
-- BOT / MM / arbitrage / funding arbitrage / farm疑いを除外する
-- 適格数だけでなく、全walletの複数除外理由とUNAVAILABLEを保存する
-- cohort別の差は報告するが、適格数を増やすために同じversionの閾値を変更しない
+- `userTwapSliceFillsByTime`を通常fillsと別raw sourceで取得する
+- endpoint cap、gap、checkpoint、dedup keyを独立管理する
+- 統合時は同一timestampの`startPosition`鎖を使い、解けない順序はUNAVAILABLEにする
 
-### 3. Behavior Profile Dry-run
+### 3. New Forward Window
 
-- ナンピン候補は5% size・5bp adverseの既存事前登録定義を再利用する
-- size急拡大候補は直前5完結BTC episodeのinitial notional中央値に対する2倍を初期値とする
-- 高値飛び乗り候補はentry以前の市場windowが無ければ`UNAVAILABLE`にする
-- TRUE / FALSEは最低3 episodeの根拠を要求し、欠測をFALSEへ変換しない
+- current / shadowの既存観察を壊さず、BTC研究用raw namespaceを新設する
+- 最低7成功JST日、unresolved gap 0、同一ms未解決0、TWAP cap 0を要求する
+- entry以前のBTC market windowだけを保存し、post-entry outcomeは扱わない
 
-### 4. Validation and Handoff Acceptance
+### 4. Re-run and Handoff Acceptance
 
-1. 現行100件とshadow 100件へ同一versionを適用する
-2. BTC適格数、各除外理由、episode/profile coverage、欠測を比較する
+1. v0.1を新forward windowへ再適用する
+2. 適格数、除外理由、profile missingnessを報告する
 3. 少数walletをoutcome-blindで目視照合する
-4. schema再実行一致と養分くん側のexample読込確認を行う
-5. 問題がなければ次versionを事前固定し、BTC research sample v1を作る
+4. 養分くん側でschema・hash・重複を検証する
+5. 問題がなければhandoff versionを固定する
 
 ## Existing Snapshot
 
@@ -53,6 +49,8 @@ v0.1 draft契約を現行100件とshadow 100件へoutcome-blindでdry-runし、B
 - BTC research selection: `btc-research-selection-v0.1.0-draft`
 - BTC handoff schema: `hoihoi-btc-handoff-v0.1`
 - contract tests: 36 PASS
+- dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
+- preliminary except observation/TWAP/market: current 0 / shadow 2（適格ではない）
 - weekly: run 37172824334 success / JST report `2026-10-04` / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 

@@ -36,7 +36,7 @@ BTCの価格帯・市場局面との結合、その後の価格反応・markout�
 
 ## Current Phase
 
-BTC研究用sampleの選抜基準とhandoff仕様v0.1 draftを定義済み。現行cohortとshadow cohortの日次観察を継続しながら、次は既存200 walletへのoutcome-blind dry-runを実装する。
+BTC研究用sample v0.1を既存200 walletへoutcome-blind dry-run済み。最終handoff適格は0件でHOLD。次は同一ms server order保持、TWAP別raw取得、新forward windowの設計。
 7日観察完了前のsample昇格は禁止。1,000-wallet拡大は優先せずHOLDを維持する。
 
 ## Key Status
@@ -51,28 +51,30 @@ BTC研究用sampleの選抜基準とhandoff仕様v0.1 draftを定義済み。現
 - BTC research selection contract: `btc-research-selection-v0.1.0-draft`
 - BTC sample handoff contract: `hoihoi-btc-handoff-v0.1`
 - contract verification: 36 tests PASS
+- BTC dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
 - weekly comparison: run 37172824334 success / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 
 ## Current Blocker
 
-- 現行registryにBTC専用fills / active days / episode coverageがまだ保存されていない
-- v0.1はdry-run前draftであり、実データでの適格数・除外理由・profile missingnessは未検証
-- high-price-chase判定に必要なentry以前のBTC市場windowはhandoff前に用意する必要がある
+- 全200 walletでTWAP slice evidenceが未取得
+- checkpointの同一ms順序がhash順で、current 49 / shadow 40 walletはBTC fill順序を保証できない
+- 全200 walletが7成功JST日未達
+- high-price-chase用のentry以前BTC市場windowが未結合
 - 既存cohortは7成功JST日未達。欠測やretention gapを成功観察として扱えない
 
 ## Next
 
-1. 現行100件とshadow 100件からBTC fillsを抽出し、zero-to-zero episodeとcoverageを再構成する
-2. v0.1 Gateをdry-runし、適格数・除外理由・profile missingnessをcohort別に比較する
-3. TRUE / FALSE / UNAVAILABLEを層別にoutcome-blind目視照合する
-4. 養分くん側でexample handoffのschema・hash・重複検証を行う
-5. 品質確認後に新versionを事前固定し、BTC research sample v1を作成する
+1. 新規収集から同一timestampのAPI返却順を保持し、legacy hash順checkpointと分離する
+2. `userTwapSliceFillsByTime`を別raw sourceとして保存し、欠測・capをfail-closed管理する
+3. 新forward windowで7成功JST日を観察する
+4. entry以前のBTC market windowをprofile入力として追加する
+5. v0.1を再dry-runし、outcome-blindレビュー後にのみhandoff versionを固定する
 
 ## Existing Observation Snapshot
 
-shadowはcurrent比でcomplete history +18、BOT suspected -11、MM suspected -8だが、これはBTC研究適格性の確定評価ではない。
-small-alt比率は新目的の主要KPIから外し、BTC取引coverageと行動再構成可能性を優先する。
+dry-runのBTC activity 3条件通過はcurrent 32、shadow 25。再構成品質clearはcurrent 51、shadow 59。観察日・TWAP・市場window以外の暫定Gate通過はcurrent 0、shadow 2だが、最終適格ではない。
+small-alt比率はBTC研究適格性の主要KPIではない。
 
 ## Last Important Decision
 
