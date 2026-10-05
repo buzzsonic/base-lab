@@ -1,0 +1,133 @@
+{
+  "analysis_start_ms": 1791213345616,
+  "automatic_sample_promotion": false,
+  "cohort_id": "btc-forward-canary24h-20261006",
+  "collector_version": "btc-forward-v1-canary24h",
+  "config_sha256": "1afb47b9558c3d53863f3b0c985996691e60c6da11edd8c930ef2e5325c74f72",
+  "quality_gate": "PASS",
+  "run_id": "20261005T220546Z",
+  "schema_version": 1,
+  "wallet_results": [
+    {
+      "endpoint_results": {
+        "fills": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 0,
+          "requests": 1
+        },
+        "twap": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 0,
+          "requests": 1
+        }
+      },
+      "market_result": {
+        "past_only_usage_policy": "filter candle close before episode entry",
+        "records": 25
+      },
+      "quality_gate": "PASS",
+      "run_id": "20261005T220546Z",
+      "state_advanced": true,
+      "wallet": "0x7b2dd048c04282c86f2f7e95b56e404c08451522"
+    },
+    {
+      "endpoint_results": {
+        "fills": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 214,
+          "requests": 1
+        },
+        "twap": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 1324,
+          "requests": 9
+        }
+      },
+      "market_result": {
+        "past_only_usage_policy": "filter candle close before episode entry",
+        "records": 25
+      },
+      "quality_gate": "PASS",
+      "run_id": "20261005T220546Z",
+      "state_advanced": true,
+      "wallet": "0x3bcae23e8c380dab4732e9a159c0456f12d866f3"
+    },
+    {
+      "endpoint_results": {
+        "fills": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 0,
+          "requests": 1
+        },
+        "twap": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 32,
+          "requests": 1
+        }
+      },
+      "market_result": {
+        "past_only_usage_policy": "filter candle close before episode entry",
+        "records": 25
+      },
+      "quality_gate": "PASS",
+      "run_id": "20261005T220546Z",
+      "state_advanced": true,
+      "wallet": "0x9f62e1dabbd41cdd10fe4cd9bd8c4ed57d77fbcd"
+    },
+    {
+      "endpoint_results": {
+        "fills": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 106,
+          "requests": 1
+        },
+        "twap": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 38,
+          "requests": 1
+        }
+      },
+      "market_result": {
+        "past_only_usage_policy": "filter candle close before episode entry",
+        "records": 25
+      },
+      "quality_gate": "PASS",
+      "run_id": "20261005T220546Z",
+      "state_advanced": true,
+      "wallet": "0xd7dc29918d5869a6715e94338316529d5847a6f9"
+    },
+    {
+      "endpoint_results": {
+        "fills": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 7,
+          "requests": 1
+        },
+        "twap": {
+          "gaps": [],
+          "page_safety_cap_hit": false,
+          "records": 23,
+          "requests": 1
+        }
+      },
+      "market_result": {
+        "past_only_usage_policy": "filter candle close before episode entry",
+        "records": 25
+      },
+      "quality_gate": "PASS",
+      "run_id": "20261005T220546Z",
+      "state_advanced": true,
+      "wallet": "0x3f9a0ee7bba80568a211b7b894dfda46e902fca1"
+    }
+  ],
+  "window_end_ms": 1791299745616
+}

@@ -1,8 +1,8 @@
 {
   "analysis_start_ms": 1791213345616,
   "collector_version": "btc-forward-v1-canary",
-  "last_run_id": "20261005T152519Z",
-  "last_success_poll_ms": 1791213919755,
+  "last_run_id": "20261005T220546Z",
+  "last_success_poll_ms": 1791237946529,
   "schema_version": 1,
   "wallet": "0xd7dc29918d5869a6715e94338316529d5847a6f9"
 }
