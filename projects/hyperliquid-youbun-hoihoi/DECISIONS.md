@@ -1,5 +1,13 @@
 # DECISIONS
 
+## 2026-10-06: 24時間canaryは5 wallet固定・sample外で開始
+
+- 1件のHoihoi暫定候補と、TWAP API経路検証専用4件を分離roleで固定した。
+- TWAP検証専用walletはBOT/MM等の選抜Gate未通過であり、研究sampleへ自動採用しない。
+- namespaceは`outputs/btc-research-forward-v1-canary24h/`。legacy checkpointへ混ぜない。
+- 初回成功時刻をanalysis startとして固定し、24時間後は`WINDOW_COMPLETE`として新規収集を止める。
+- 24時間後にTWAP実row、overlap重複、同一ms chain、run間隔、欠測を監査するまで7日windowへ昇格しない。
+
 ## 2026-10-05: 空応答をorder/dedup実証として数えない
 
 - fills/TWAP endpointが正常終了しても、実rowが0ならAPI返却順やfirst-seen重複保持のlive証拠とは扱わない。

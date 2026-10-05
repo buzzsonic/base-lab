@@ -1,5 +1,14 @@
 # CURRENT_STATUS
 
+## 2026-10-06 BTC forward 5-wallet・24時間window開始
+
+- PR #48（merge `d6350567`）で隔離canary cohortを実装し、run `37330544150`で開始した。
+- 観察期間は2026-10-06 00:15:45 JST〜2026-10-07 00:15:45 JST。
+- 5 wallet固定。1件はHoihoi暫定候補、4件は過去にTWAP rowが観測された経路検証専用walletで、自動sample採用は禁止。
+- 初回runは5/5 PASS、51 tests PASS、data branch `a0d35cca`へ専用namespaceだけを保存。
+- config SHA `1afb47b9558c3d53863f3b0c985996691e60c6da11edd8c930ef2e5325c74f72`、successful run 1。
+- legacy current/shadow checkpointと既存research sampleは不変。24時間監査完了前の限定cohort拡大もHOLD。
+
 ## 2026-10-05 BTC forward live canary
 
 - PR #45（merge `b2dcbf21`）で、同一artifact内の2回収集とoverlap監査を追加した。

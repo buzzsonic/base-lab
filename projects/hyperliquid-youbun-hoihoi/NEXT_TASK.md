@@ -10,7 +10,7 @@
 
 ## Current Task
 
-BTC forward v1を少数wallet・24時間のartifact-only canaryへ進め、TWAPとoverlapの実証を完了する。
+BTC forward v1の5-wallet・24時間canaryを完走させ、TWAPとoverlapの実証を監査する。
 
 契約正本: `contracts/btc-research-sample-v0.1/`
 収集契約: `BTC_FORWARD_COLLECTION_CONTRACT.md`
@@ -23,10 +23,14 @@ BTC forward v1を少数wallet・24時間のartifact-only canaryへ進め、TWAP�
 - source sequence欠落0、gap 0、cap 0、continuity error 0、same-ms ambiguity 0
 - stateは2回目成功へ進み、legacy checkpoint/data branchは不変
 - ただしoverlap期間の新規rowがなく、raw重複は0
+- PR #48 / merge `d6350567`で5-wallet固定windowを実装
+- initial run `37330544150` PASS、data `a0d35cca`
+- 観察期間: 2026-10-06 00:15:45 JST〜2026-10-07 00:15:45 JST
+- state/config SHA/legacy分離を確認。自動sample昇格はfalse
 
-### 2. Remaining Canary Gate
+### 2. Running Canary Gate
 
-- 少数walletを24時間観察し、TWAP実rowまたはoverlap重複を得る
+- 5 walletを24時間観察し、TWAP実rowまたはoverlap重複を得る
 - raw重複を残し、canonicalがfirst-seen rowを維持することを実データで確認する
 - 同一timestampの通常fill＋TWAP chainは一意な場合だけ採用し、曖昧ならFAILを維持する
 - 空応答を「順序検証済み」とは扱わない
@@ -57,8 +61,9 @@ BTC forward v1を少数wallet・24時間のartifact-only canaryへ進め、TWAP�
 - dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
 - preliminary except observation/TWAP/market: current 0 / shadow 2（適格ではない）
 - forward contract/order primitives: 43 tests PASS、live canary NOT RUN
-- canary collector/manual workflow: 49 tests PASS、scheduleなし
+- canary collector/manual workflow: 49 tests PASS
 - live canary: run 37328123994 PASS、BTC 12、TWAP 0、overlap重複0のためpartial evidence
+- 24h canary: `CANARY24H_RUNNING`、51 tests PASS、initial run 37330544150、data `a0d35cca`
 - weekly: run 37172824334 success / JST report `2026-10-04` / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 
