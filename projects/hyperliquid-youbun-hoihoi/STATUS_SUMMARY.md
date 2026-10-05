@@ -1,6 +1,6 @@
 # STATUS_SUMMARY
 
-更新: 2026-10-04 JST
+更新: 2026-10-05 JST
 
 ## 読み方
 
@@ -36,7 +36,8 @@ BTCの価格帯・市場局面との結合、その後の価格反応・markout�
 
 ## Current Phase
 
-BTC研究用sample v0.1 dry-runはHOLD。新forward collectorとtimerなしartifact-only workflowまで実装し、1-wallet canaryを開始できる状態。live canaryは未実行。
+BTC研究用sample v0.1 dry-runはHOLD。新forward collectorの1-wallet live canaryを実行し、通常fillのAPI順序・BTC position chain・成功時だけのstate更新をartifactで確認した。
+TWAP実rowとoverlap重複は今回0件のため、first-seen dedupの実データ検証は未完了。
 7日観察完了前のsample昇格は禁止。1,000-wallet拡大は優先せずHOLDを維持する。
 
 ## Key Status
@@ -52,7 +53,8 @@ BTC研究用sample v0.1 dry-runはHOLD。新forward collectorとtimerなしartif
 - BTC sample handoff contract: `hoihoi-btc-handoff-v0.1`
 - contract verification: 36 tests PASS
 - BTC dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
-- BTC forward window: `CANARY_READY_NOT_STARTED`、47 tests PASS
+- BTC forward window: `CANARY_PASS_PARTIAL_EVIDENCE`、49 tests PASS
+- live canary: run 37328123994 PASS / raw 14 / BTC 12 / TWAP 0 / gap・cap・sequence欠落・continuity error・same-ms ambiguity 0
 - weekly comparison: run 37172824334 success / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 
@@ -63,13 +65,14 @@ BTC研究用sample v0.1 dry-runはHOLD。新forward collectorとtimerなしartif
 - 全200 walletが7成功JST日未達
 - high-price-chase用のentry以前BTC市場windowが未結合
 - 既存cohortは7成功JST日未達。欠測やretention gapを成功観察として扱えない
+- live canaryでTWAP実rowとoverlap重複が0件。API経路は成功したがfirst-seen重複保持のlive証拠は未取得
 
 ## Next
 
-1. timer無効の1-wallet canaryで通常fills＋TWAP raw envelopeをartifactへ保存する
-2. overlap付き2回目canaryでfirst-seen canonical orderとcheckpointを検証する
-3. 少数wallet 24時間でAPI weight・欠測・同一ms mergeを監査する
-4. Gate通過後のみ新forward windowを100/200 walletへ広げる
+1. TWAPまたはoverlap重複が観測できる少数walletをartifact-onlyで24時間監査する
+2. 実rowでfirst-seen保持と同一ms mergeを検証する
+3. legacy checkpointと完全分離したdurable state/data保存設計を固定する
+4. Gate通過後のみ新forward windowを限定cohortで開始する
 5. 7成功JST日後にv0.1を再dry-runする
 
 ## Existing Observation Snapshot
