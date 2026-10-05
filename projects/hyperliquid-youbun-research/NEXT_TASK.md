@@ -86,7 +86,7 @@ future leakageを避け、entry時点で利用可能な特徴とpost-event outco
 - event featureとpost-event outcomeを別namespaceへ物理分離
 - Hoihoi handoff v0.1の受入境界とcoverage/UNAVAILABLE契約を定義
 
-## PHASE 2: 期待レポートを先にモック化【次】
+## PHASE 2: 期待レポートを先にモック化【作成完了・ユーザー確認待ち】
 
 データ収集前に、最終的に欲しいレポート形式を仮データで作る。
 
@@ -108,9 +108,16 @@ future leakageを避け、entry時点で利用可能な特徴とpost-event outco
 成果物:
 - `design/btc-event-study/report_mock/`
 
+完了内容:
+- 固定seedの合成120 event / 480 outcomeで再生成可能なmock datasetを作成
+- LONG/SHORT集中、entry集中、size/leverage（coverage範囲内）、5/15/30/60分return、逆行率、MFE/MAE、opposite flow、panic exit、明示的liquidationを表示
+- optional coverage不足を0埋めせず欠測表示
+- offline単体HTMLを生成し、ブラウザで全体レイアウトとchart/table描画を確認
+- 実測市場row 0、売買判断・期待収益・逆指標性の結論なしを画面上部と末尾に明記
+
 このモックを見て研究の出口が期待と一致することを確認してから、VPS収集契約を確定する。
 
-## PHASE 3: collector v3拡張設計
+## PHASE 3: collector v3拡張設計【PHASE 2ユーザー確認までHOLD】
 
 PHASE 0〜2を通過した後のみ実施。
 

@@ -1,0 +1,64 @@
+{
+  "synthetic": true,
+  "seed": 20261005,
+  "event_rows": 120,
+  "outcome_rows": 480,
+  "horizons": [
+    5,
+    15,
+    30,
+    60
+  ],
+  "scenarios": [
+    {
+      "scenario": "BASELINE",
+      "label": "通常window",
+      "events": 48,
+      "median_imbalance": 0.037342,
+      "mean_return_30m": 0.001697,
+      "against_crowd_rate_30m": 0.395833,
+      "opposite_flow_rate_30m": 0.145833,
+      "trade_coverage_30m": 1.0
+    },
+    {
+      "scenario": "LONG_CROWD_HIGH_FAIL",
+      "label": "LONG集中・高値近辺・高値更新失敗",
+      "events": 24,
+      "median_imbalance": 0.778724,
+      "mean_return_30m": -0.005315,
+      "against_crowd_rate_30m": 0.875,
+      "opposite_flow_rate_30m": 0.625,
+      "trade_coverage_30m": 1.0
+    },
+    {
+      "scenario": "SHORT_CROWD_LOW_FAIL",
+      "label": "SHORT集中・安値近辺・安値更新失敗",
+      "events": 20,
+      "median_imbalance": -0.724791,
+      "mean_return_30m": 0.007393,
+      "against_crowd_rate_30m": 0.9,
+      "opposite_flow_rate_30m": 0.55,
+      "trade_coverage_30m": 1.0
+    },
+    {
+      "scenario": "LONG_CROWD_OI_UP",
+      "label": "LONG集中・OI増加",
+      "events": 20,
+      "median_imbalance": 0.722498,
+      "mean_return_30m": -0.00241,
+      "against_crowd_rate_30m": 0.75,
+      "opposite_flow_rate_30m": 0.25,
+      "trade_coverage_30m": 1.0
+    },
+    {
+      "scenario": "OPTIONAL_COVERAGE_MISSING",
+      "label": "optional coverage不足",
+      "events": 8,
+      "median_imbalance": 0.610929,
+      "mean_return_30m": 0.000849,
+      "against_crowd_rate_30m": 0.375,
+      "opposite_flow_rate_30m": null,
+      "trade_coverage_30m": 0.0
+    }
+  ]
+}

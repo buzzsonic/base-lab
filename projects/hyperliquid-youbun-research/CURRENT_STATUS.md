@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-更新日: 2026-10-04 JST
+更新日: 2026-10-05 JST
 
 ## Current Phase
 
@@ -68,6 +68,10 @@
 
 ## Latest Work
 
+- BTC event-study PHASE 2として固定seedの合成120 event / 480 outcomeから期待レポートmockを作成。
+- LONG/SHORT集中、entry集中、size/leverage、5/15/30/60分return、逆行率、MFE/MAE、opposite flow、panic exit、明示的liquidationを1つのoffline HTMLで確認可能にした。
+- optional coverage不足はleverage/liquidation distance/opposite flowを0埋めせず欠測表示。実測市場row 0と売買判断不可を明記。
+- ブラウザで全chart/tableと完成状態を目視確認。PHASE 3はユーザーのmock確認までHOLD。
 - BTC event-study PHASE 1として`btc-market-event-v0.1.0`と`btc-post-event-outcome-v0.1.0`を事前登録。
 - 1分raw bucketを保持し、連続5分windowを主分析単位、5/15/30/60分をpost-event horizonに固定。
 - event featureは`cutoff_ms`以前、outcomeは別file・別namespaceとし、future price/PnL/MFE/MAEのevent table混入を禁止。
@@ -112,7 +116,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 61 tests passed
+- 65 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -138,4 +142,4 @@
 
 ## Next
 
-BTC event-study PHASE 2として、schema準拠の仮データで期待レポートをmock化する。ユーザーが研究の出口を確認するまでVPS canaryは開始しない。
+BTC event-study PHASE 2のoffline report mockをユーザーが確認する。研究の出口が期待と一致した後だけPHASE 3 collector拡張設計へ進み、VPS canaryはまだ開始しない。

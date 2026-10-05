@@ -1,6 +1,6 @@
 # STATUS_SUMMARY
 
-更新: 2026-10-04 JST
+更新: 2026-10-05 JST
 
 ## 読み方
 
@@ -10,7 +10,7 @@
 
 ## Current Phase
 
-BTC event-studyのPHASE 0 data contractとPHASE 1 event/outcome schemaを完了。
+BTC event-studyのPHASE 0 data contract、PHASE 1 event/outcome schema、PHASE 2 synthetic report mockの作成を完了。
 主目的を個別walletのFOMO/Late/Averaging Down分類から、**養分wallet群の集団行動とその後の市場反応をBTCからevent-studyすること**へ変更した。
 
 VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward data contractを固定するまで本番Shadowは開始しない。
@@ -23,7 +23,8 @@ VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward d
 - subset quality: quantity mismatch 0 / continuity error 0
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
-- tests: 61 passed
+- report mock: synthetic 120 events / 480 outcomes / observed market rows 0
+- tests: 65 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
 - OHLCV本分析 / behavior label本適用 / 500-wallet expansion: HOLD
 
@@ -44,21 +45,22 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 養分片側集中 → 逆方向large flow → price reversal → panic exit / liquidation-like flow
 という観測可能なevent chainの再現性を調べる。
 
-## Current Blocker
+## Current Gate
 
-VPSの有無ではなく、仮データによる期待レポートmockが未作成で、研究の出口が視覚的に未確認。
+仮データによる期待レポートmockは作成・表示検証済み。ユーザーが研究の出口と表示項目を確認するまでPHASE 3 collector拡張設計へ進まない。
 
 ## Next
 
-1. PHASE 1 schema準拠の仮データを作る
-2. 期待する最終レポートをmock化
-3. event分布、条件別future return、MFE/MAE、opposite flow、exit chainの表示を確認
-4. モックが期待と合うことを確認してからcollector v3へ必要snapshotを追加しVPS Shadow開始
+1. `design/btc-event-study/report_mock/btc_event_study_report_mock.html`をユーザーが確認
+2. 表示項目・粒度・研究の出口が期待と一致するか判定
+3. 合意後だけcollector v3拡張設計へ進む
+4. collector実装・canary・Shadowは各品質Gateを順に通過してから開始
 
 詳細正本: `RESEARCH_DIRECTION.md`
 
 ## Last Important Decision
 
+PHASE 2 mockは固定seedの合成120 event / 480 outcomeだけを使い、実測市場rowは0。coverage不足は欠測のまま表示し、画面上の合成値を相場判断や期待値へ読み替えない。mockのユーザー確認が終わるまでPHASE 3はHOLD。
 主分析は連続5分window、一次保存は1分bucket。event featureは`cutoff_ms`以前、outcomeは5/15/30/60分を別namespaceへ物理分離する。optional state/trade/book欠測はcore eventを捨てず該当列だけNULLにする。
 wallet fills/TWAP/Fundingは履歴取得可能。position/leverage/margin/liquidation price/account stateはforward snapshotとしてのみ採用する。BTCのmarket-wide liquidation flowは公式公開APIで直接取得不能とし、proxyで同名保存しない。
 VPSは研究目的ではなく安定収集の手段。研究の出口が合うことを確認するまで、本番VPS Shadowを開始しない。
