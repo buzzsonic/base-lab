@@ -34,7 +34,7 @@ jobs:
         env:
           PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
         run: python -m unittest discover -s projects/hyperliquid-youbun-hoihoi/tests -v
-      - name: Collect one-wallet artifact only
+      - name: Collect first one-wallet artifact
         env:
           PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
           CANARY_WALLET: ${{ inputs.wallet }}
@@ -43,6 +43,19 @@ jobs:
           python projects/hyperliquid-youbun-hoihoi/scripts/collect_btc_forward_canary.py \
             --wallet "$CANARY_WALLET" \
             --initial-lookback-minutes "$INITIAL_LOOKBACK_MINUTES" \
+            --output "$RUNNER_TEMP/btc-research-forward-v1"
+      - name: Collect overlap and audit first-seen state
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+          CANARY_WALLET: ${{ inputs.wallet }}
+          INITIAL_LOOKBACK_MINUTES: ${{ inputs.initial_lookback_minutes }}
+        run: |
+          sleep 2
+          python projects/hyperliquid-youbun-hoihoi/scripts/collect_btc_forward_canary.py \
+            --wallet "$CANARY_WALLET" \
+            --initial-lookback-minutes "$INITIAL_LOOKBACK_MINUTES" \
+            --output "$RUNNER_TEMP/btc-research-forward-v1"
+          python projects/hyperliquid-youbun-hoihoi/scripts/audit_btc_forward_canary.py \
             --output "$RUNNER_TEMP/btc-research-forward-v1"
       - name: Upload immutable canary evidence
         if: always()
