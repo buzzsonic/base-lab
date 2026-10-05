@@ -1,0 +1,29 @@
+{
+  "analysis_start_ms": 1791213345616,
+  "collector_version": "btc-forward-v1-canary",
+  "end_ms": 1791213345616,
+  "endpoint_results": {
+    "fills": {
+      "gaps": [],
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1
+    },
+    "twap": {
+      "gaps": [],
+      "page_safety_cap_hit": false,
+      "records": 0,
+      "requests": 1
+    }
+  },
+  "market_result": {
+    "past_only_usage_policy": "filter candle close before episode entry",
+    "records": 25
+  },
+  "quality_gate": "PASS",
+  "run_id": "20261005T151545Z",
+  "schema_version": 1,
+  "start_ms": 1791213345616,
+  "state_advanced": true,
+  "wallet": "0x7b2dd048c04282c86f2f7e95b56e404c08451522"
+}
