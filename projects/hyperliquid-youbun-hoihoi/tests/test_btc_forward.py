@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hoihoi.btc_forward import collect_canary
+from hoihoi.btc_forward import audit_canary_overlap, collect_canary
 
 
 class FakeApi:
@@ -16,7 +16,7 @@ class FakeApi:
         if payload["type"] == "userTwapSliceFillsByTime":
             if self.fail_twap:
                 raise RuntimeError("twap unavailable")
-            return [{"fill": {"tid": 2, "coin": "BTC", "time": payload["startTime"], "startPosition": "1", "side": "A", "sz": "1"}}]
+            return [{"fill": {"tid": 2, "coin": "BTC", "time": payload["startTime"] + 1, "startPosition": "1", "side": "A", "sz": "1"}}]
         return [{"tid": 1, "coin": "BTC", "time": payload["startTime"], "startPosition": "0", "side": "B", "sz": "1"}]
 
 
@@ -54,6 +54,28 @@ class BtcForwardCanaryTests(unittest.TestCase):
             collect_canary(FakeApi(), "0x" + "1" * 40, output, 2_000_000)
             with self.assertRaisesRegex(ValueError, "wallet cannot change"):
                 collect_canary(FakeApi(), "0x" + "2" * 40, output, 3_200_000)
+
+    def test_two_poll_overlap_audit_preserves_first_seen_and_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            wallet = "0x" + "1" * 40
+            first = collect_canary(FakeApi(), wallet, output, 2_000_000)
+            second = collect_canary(FakeApi(), wallet, output, 2_002_000)
+            report = audit_canary_overlap(output)
+            self.assertEqual(report["quality_gate"], "PASS", report)
+            self.assertEqual(report["run_count"], 2)
+            self.assertEqual(report["overlap_duplicates_retained_raw"], 2)
+            self.assertTrue(report["first_seen_preserved"])
+            self.assertEqual(report["state_last_run_id"], second["run_id"])
+            self.assertNotEqual(first["run_id"], second["run_id"])
+
+    def test_audit_fails_closed_with_only_one_poll(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            collect_canary(FakeApi(), "0x" + "1" * 40, output, 2_000_000)
+            report = audit_canary_overlap(output)
+            self.assertEqual(report["quality_gate"], "FAIL")
+            self.assertIn("RUN_COUNT_NOT_TWO", report["failure_reasons"])
 
 
 if __name__ == "__main__":

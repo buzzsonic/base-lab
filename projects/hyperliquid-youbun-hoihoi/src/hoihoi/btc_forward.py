@@ -3,11 +3,13 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections import defaultdict
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 
 from .api import INFO_URL
-from .forward_order import envelope_rows
+from .forward_order import canonical_first_seen, envelope_rows, payload_for, unique_position_chain
 
 
 ENDPOINTS = {
@@ -135,3 +137,144 @@ def collect_canary(api, wallet: str, output: Path, now_ms: int,
         manifest["state_advanced"] = True
         atomic_json(run_dir / "manifest.json", manifest)
     return manifest
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+
+def _after_position(row: dict) -> Decimal:
+    payload = payload_for(row["source_endpoint"], row["payload"])
+    before = Decimal(str(payload.get("startPosition") or "0"))
+    size = Decimal(str(payload.get("sz") or "0"))
+    return before + (size if payload.get("side") == "B" else -size)
+
+
+def audit_canary_overlap(output: Path) -> dict:
+    """Fail closed unless two successful, stateful canary polls are auditable."""
+    run_dirs = sorted(output.glob("raw/date=*/run=*"))
+    reasons: list[str] = []
+    if len(run_dirs) != 2:
+        reasons.append("RUN_COUNT_NOT_TWO")
+
+    manifests = [json.loads((path / "manifest.json").read_text()) for path in run_dirs]
+    if any(item.get("quality_gate") != "PASS" for item in manifests):
+        reasons.append("COLLECTOR_GATE_FAILED")
+    if len(manifests) == 2:
+        first, second = manifests
+        if first.get("wallet") != second.get("wallet"):
+            reasons.append("WALLET_CHANGED")
+        if first.get("analysis_start_ms") != second.get("analysis_start_ms"):
+            reasons.append("ANALYSIS_START_CHANGED")
+        if not (second.get("start_ms", 0) <= first.get("end_ms", -1) < second.get("end_ms", 0)):
+            reasons.append("OVERLAP_WINDOW_INVALID")
+
+    rows: list[dict] = []
+    per_run: list[dict] = []
+    for run_dir in run_dirs:
+        run_rows: list[dict] = []
+        missing = []
+        for endpoint in ENDPOINTS:
+            path = run_dir / f"{endpoint}.jsonl"
+            if not path.exists():
+                missing.append(endpoint)
+                continue
+            run_rows.extend(_read_jsonl(path))
+        candle_path = run_dir / "btc_5m.jsonl"
+        candles = _read_jsonl(candle_path) if candle_path.exists() else []
+        if missing:
+            reasons.append("RAW_SOURCE_MISSING")
+        if not candles:
+            reasons.append("ENTRY_PRE_MARKET_WINDOW_MISSING")
+        sequences = [int(row["source_sequence"]) for row in run_rows]
+        sequence_ok = sequences == list(range(len(sequences)))
+        if not sequence_ok:
+            reasons.append("SOURCE_SEQUENCE_INVALID")
+        response_order_ok = True
+        grouped: dict[tuple[str, int], list[int]] = defaultdict(list)
+        for row in run_rows:
+            grouped[(row["source_endpoint"], int(row["page_index"]))].append(int(row["row_index"]))
+        for indexes in grouped.values():
+            if indexes != list(range(len(indexes))):
+                response_order_ok = False
+        if not response_order_ok:
+            reasons.append("API_RESPONSE_ORDER_INVALID")
+        rows.extend(run_rows)
+        per_run.append({
+            "run_id": run_dir.name.removeprefix("run="),
+            "raw_records": len(run_rows),
+            "btc_5m_records": len(candles),
+            "source_sequence_ok": sequence_ok,
+            "api_response_order_ok": response_order_ok,
+        })
+
+    canonical = canonical_first_seen(rows)
+    first_seen_ok = all(row is rows[next(
+        index for index, raw in enumerate(rows)
+        if (raw["source_endpoint"], raw["wallet"], raw["dedup_key"])
+        == (row["source_endpoint"], row["wallet"], row["dedup_key"])
+    )] for row in canonical)
+    if not first_seen_ok:
+        reasons.append("FIRST_SEEN_NOT_PRESERVED")
+
+    # A TWAP slice can also appear in ordinary fills. Position-chain validation
+    # therefore uses the first observed transaction id across both raw sources.
+    btc_rows = []
+    seen_tids = set()
+    for row in canonical:
+        payload = payload_for(row["source_endpoint"], row["payload"])
+        if payload.get("coin") != "BTC":
+            continue
+        tid = payload.get("tid")
+        key = ("tid", str(tid)) if tid is not None else (row["source_endpoint"], row["dedup_key"])
+        if key not in seen_tids:
+            seen_tids.add(key)
+            btc_rows.append(row)
+    by_time: dict[int, list[dict]] = defaultdict(list)
+    for row in btc_rows:
+        by_time[int(row["source_time_ms"])].append(row)
+    expected = None
+    ambiguous_times = []
+    continuity_errors = 0
+    for time_ms in sorted(by_time):
+        chain = unique_position_chain(by_time[time_ms], expected)
+        if chain is None:
+            ambiguous_times.append(time_ms)
+            expected = None
+            continue
+        if expected is not None:
+            payload = payload_for(chain[0]["source_endpoint"], chain[0]["payload"])
+            if Decimal(str(payload.get("startPosition") or "0")) != expected:
+                continuity_errors += 1
+        expected = _after_position(chain[-1])
+    if ambiguous_times:
+        reasons.append("POSITION_CHAIN_AMBIGUOUS")
+    if continuity_errors:
+        reasons.append("POSITION_CHAIN_DISCONTINUITY")
+
+    state_path = output / "state" / "collector_state.json"
+    state = json.loads(state_path.read_text()) if state_path.exists() else {}
+    if len(manifests) == 2 and (
+        state.get("last_run_id") != manifests[-1].get("run_id")
+        or state.get("last_success_poll_ms") != manifests[-1].get("end_ms")
+    ):
+        reasons.append("STATE_NOT_AT_SECOND_SUCCESS")
+
+    report = {
+        "schema_version": 1,
+        "audit_version": "btc-forward-v1-canary-overlap",
+        "quality_gate": "PASS" if not reasons else "FAIL",
+        "failure_reasons": sorted(set(reasons)),
+        "run_count": len(run_dirs),
+        "runs": per_run,
+        "raw_records": len(rows),
+        "canonical_records": len(canonical),
+        "overlap_duplicates_retained_raw": len(rows) - len(canonical),
+        "first_seen_preserved": first_seen_ok,
+        "btc_position_rows": len(btc_rows),
+        "ambiguous_same_ms_times": ambiguous_times,
+        "position_continuity_errors": continuity_errors,
+        "state_last_run_id": state.get("last_run_id"),
+    }
+    atomic_json(output / "canary_audit.json", report)
+    return report
