@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import hashlib
 from collections import defaultdict
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -277,4 +278,78 @@ def audit_canary_overlap(output: Path) -> dict:
         "state_last_run_id": state.get("last_run_id"),
     }
     atomic_json(output / "canary_audit.json", report)
+    return report
+
+
+def collect_canary_cohort(api, config_path: Path, output: Path, now_ms: int) -> dict:
+    """Collect an isolated, frozen, at-most-five-wallet 24h validation window."""
+    config_bytes = config_path.read_bytes()
+    config = json.loads(config_bytes)
+    wallets = config.get("wallets") or []
+    if not 1 <= len(wallets) <= 5:
+        raise ValueError("canary cohort must contain 1 to 5 wallets")
+    addresses = [str(item.get("wallet", "")).lower() for item in wallets]
+    if len(set(addresses)) != len(addresses):
+        raise ValueError("canary cohort contains duplicate wallets")
+    if any(not re.fullmatch(r"0x[0-9a-f]{40}", wallet) for wallet in addresses):
+        raise ValueError("canary cohort contains invalid wallet")
+    window_hours = int(config.get("window_hours") or 0)
+    if window_hours != 24:
+        raise ValueError("canary cohort window_hours must be 24")
+    config_sha = hashlib.sha256(config_bytes).hexdigest()
+    state_path = output / "cohort_state.json"
+    state = json.loads(state_path.read_text()) if state_path.exists() else None
+    if state and state["config_sha256"] != config_sha:
+        raise ValueError("canary cohort config changed after window start")
+    analysis_start_ms = state["analysis_start_ms"] if state else now_ms
+    window_end_ms = analysis_start_ms + window_hours * 60 * 60_000
+    if now_ms > window_end_ms:
+        return {
+            "schema_version": 1,
+            "cohort_id": config["cohort_id"],
+            "quality_gate": "WINDOW_COMPLETE",
+            "analysis_start_ms": analysis_start_ms,
+            "window_end_ms": window_end_ms,
+            "wallet_results": [],
+        }
+
+    results = []
+    for wallet in addresses:
+        wallet_output = output / "wallets" / wallet
+        result = collect_canary(api, wallet, wallet_output, now_ms, initial_lookback_ms=0)
+        results.append({
+            "wallet": wallet,
+            "run_id": result["run_id"],
+            "quality_gate": result["quality_gate"],
+            "endpoint_results": result["endpoint_results"],
+            "market_result": result.get("market_result", {}),
+            "state_advanced": result["state_advanced"],
+        })
+    quality_gate = "PASS" if all(item["quality_gate"] == "PASS" for item in results) else "FAIL"
+    run_id = datetime.fromtimestamp(now_ms / 1000, timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    report = {
+        "schema_version": 1,
+        "collector_version": "btc-forward-v1-canary24h",
+        "cohort_id": config["cohort_id"],
+        "config_sha256": config_sha,
+        "run_id": run_id,
+        "quality_gate": quality_gate,
+        "analysis_start_ms": analysis_start_ms,
+        "window_end_ms": window_end_ms,
+        "wallet_results": results,
+        "automatic_sample_promotion": False,
+    }
+    atomic_json(output / "cohort_runs" / f"{run_id}.json", report)
+    if quality_gate == "PASS":
+        prior_runs = int(state.get("successful_run_count", 0)) if state else 0
+        atomic_json(state_path, {
+            "schema_version": 1,
+            "cohort_id": config["cohort_id"],
+            "config_sha256": config_sha,
+            "analysis_start_ms": analysis_start_ms,
+            "window_end_ms": window_end_ms,
+            "last_success_poll_ms": now_ms,
+            "last_run_id": run_id,
+            "successful_run_count": prior_runs + 1,
+        })
     return report

@@ -1,0 +1,58 @@
+name: Yobun Hoihoi BTC Forward Canary 24h
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7,27,47 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: youbun-hoihoi-data
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: data
+          path: persisted
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install -r projects/hyperliquid-youbun-hoihoi/requirements.txt
+      - name: Verify isolated collector
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+        run: python -m unittest discover -s projects/hyperliquid-youbun-hoihoi/tests -v
+      - name: Collect frozen five-wallet validation cohort
+        env:
+          PYTHONPATH: projects/hyperliquid-youbun-hoihoi/src
+        run: |
+          python projects/hyperliquid-youbun-hoihoi/scripts/collect_btc_forward_canary24h.py \
+            --config projects/hyperliquid-youbun-hoihoi/config/btc-forward-canary24h.json \
+            --output persisted/projects/hyperliquid-youbun-hoihoi/outputs/btc-research-forward-v1-canary24h
+      - name: Upload immutable evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: youbun-hoihoi-btc-forward-canary24h-${{ github.run_id }}-${{ github.run_attempt }}
+          path: persisted/projects/hyperliquid-youbun-hoihoi/outputs/btc-research-forward-v1-canary24h/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Persist only isolated BTC canary window
+        if: always()
+        working-directory: persisted
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f projects/hyperliquid-youbun-hoihoi/outputs/btc-research-forward-v1-canary24h
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: append Hoihoi BTC canary24h window'
+            bash "$GITHUB_WORKSPACE/projects/hyperliquid-youbun-hoihoi/scripts/push_data_branch.sh" data 3
+          fi

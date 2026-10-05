@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "cohort_id": "btc-forward-canary24h-20261006",
+  "purpose": "collection-path validation only; never promote automatically",
+  "window_hours": 24,
+  "wallets": [
+    {
+      "wallet": "0x7b2dd048c04282c86f2f7e95b56e404c08451522",
+      "role": "hoihoi_preliminary_candidate"
+    },
+    {
+      "wallet": "0x3bcae23e8c380dab4732e9a159c0456f12d866f3",
+      "role": "twap_path_canary"
+    },
+    {
+      "wallet": "0x9f62e1dabbd41cdd10fe4cd9bd8c4ed57d77fbcd",
+      "role": "twap_path_canary"
+    },
+    {
+      "wallet": "0xd7dc29918d5869a6715e94338316529d5847a6f9",
+      "role": "twap_path_canary"
+    },
+    {
+      "wallet": "0x3f9a0ee7bba80568a211b7b894dfda46e902fca1",
+      "role": "twap_path_canary"
+    }
+  ]
+}

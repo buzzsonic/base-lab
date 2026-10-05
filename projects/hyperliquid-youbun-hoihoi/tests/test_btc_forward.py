@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hoihoi.btc_forward import audit_canary_overlap, collect_canary
+from hoihoi.btc_forward import audit_canary_overlap, collect_canary, collect_canary_cohort
 
 
 class FakeApi:
@@ -76,6 +76,36 @@ class BtcForwardCanaryTests(unittest.TestCase):
             report = audit_canary_overlap(output)
             self.assertEqual(report["quality_gate"], "FAIL")
             self.assertIn("RUN_COUNT_NOT_TWO", report["failure_reasons"])
+
+    def test_frozen_cohort_starts_forward_only_and_stops_after_24h(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "cohort.json"
+            config.write_text(json.dumps({
+                "schema_version": 1, "cohort_id": "test", "window_hours": 24,
+                "wallets": [{"wallet": "0x" + "1" * 40, "role": "test"}],
+            }))
+            output = root / "output"
+            first = collect_canary_cohort(FakeApi(), config, output, 2_000_000)
+            self.assertEqual(first["quality_gate"], "PASS")
+            self.assertEqual(first["analysis_start_ms"], 2_000_000)
+            manifest = first["wallet_results"][0]
+            self.assertEqual(manifest["endpoint_results"]["fills"]["records"], 1)
+            complete = collect_canary_cohort(FakeApi(), config, output, 2_000_000 + 24 * 60 * 60_000 + 1)
+            self.assertEqual(complete["quality_gate"], "WINDOW_COMPLETE")
+
+    def test_cohort_config_is_frozen_after_start(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "cohort.json"
+            config.write_text(json.dumps({
+                "schema_version": 1, "cohort_id": "test", "window_hours": 24,
+                "wallets": [{"wallet": "0x" + "1" * 40, "role": "test"}],
+            }))
+            collect_canary_cohort(FakeApi(), config, root / "output", 2_000_000)
+            config.write_text(config.read_text().replace('"role": "test"', '"role": "changed"'))
+            with self.assertRaisesRegex(ValueError, "config changed"):
+                collect_canary_cohort(FakeApi(), config, root / "output", 2_002_000)
 
 
 if __name__ == "__main__":
