@@ -169,3 +169,12 @@
 - liquidation: 観測walletの明示的event/fillだけを集計し、market-wide liquidationへ外挿しない。event chainの欠測はFALSEでなくNULL。
 - upstream: Hoihoi `hoihoi-btc-handoff-v0.1`はschema/hash/version/qualityを検証して受け入れ、behavior profileで再抽出しない。
 - 次: PHASE 2の仮データreport mockで研究の出口を確認するまで、collector拡張とVPS Shadowを開始しない。
+
+## 2026-10-05 BTC event-study PHASE 2 synthetic report mockを確認可能にする
+
+- dataset: 固定seed `20261005`の合成120 event / 480 outcome。実測Hyperliquid市場rowは0で、wallet addressを含めない。
+- 表示: LONG/SHORT集中、entry集中、size/leverage、5/15/30/60分return、逆行率、MFE/MAE、opposite large flow、panic exit、明示的liquidationを同一レポートで確認できる。
+- 欠測: optional coverage不足scenarioではleverage、liquidation distance、opposite flowを0埋めせずNULL/UNAVAILABLEのまま表示する。
+- 検証: offline HTMLを生成し、ブラウザで全chart/table、欠測表示、synthetic警告、完成状態を目視確認した。
+- 解釈: 合成値から期待収益・逆指標性・反転確率を結論しない。売買判断には使わない。
+- 次: ユーザーが研究の出口と表示項目を確認するまでPHASE 3 collector拡張設計とVPS ShadowはHOLDする。

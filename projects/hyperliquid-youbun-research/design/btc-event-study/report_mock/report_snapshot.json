@@ -1,0 +1,559 @@
+{
+  "title": "養分群の集中後に何を検証するか",
+  "generatedAt": "2026-10-05T09:00:00+09:00",
+  "buildStatus": "creating",
+  "report": {
+    "asOf": "2026-10-05",
+    "synthetic": true
+  },
+  "queries": {
+    "scenario-distribution": {
+      "id": "scenario-distribution",
+      "source": {
+        "provider": "local-synthetic-files",
+        "files": [
+          {
+            "name": "synthetic_events.csv"
+          },
+          {
+            "name": "generate_synthetic.py"
+          }
+        ],
+        "filters": [
+          "Deterministic seed 20261005",
+          "Schema demonstration only"
+        ],
+        "caveats": [
+          "All metrics are intentionally synthetic and must not be interpreted as performance evidence.",
+          "No row is an observed Hyperliquid event."
+        ],
+        "evidenceFlow": [
+          {
+            "kind": "method",
+            "title": "Synthetic contract check",
+            "detail": "Rows were generated only to verify report structure, missingness and feature/outcome separation."
+          }
+        ]
+      },
+      "rows": [
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "events": 48,
+          "median_imbalance": 0.0368755,
+          "median_entry_concentration": 0.33762349999999997,
+          "median_active_wallets": 17.0,
+          "wallet_state_coverage": 0.90675975
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "events": 24,
+          "median_imbalance": 0.777031,
+          "median_entry_concentration": 0.7489835,
+          "median_active_wallets": 21.0,
+          "wallet_state_coverage": 0.92259075
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "events": 20,
+          "median_imbalance": -0.740713,
+          "median_entry_concentration": 0.7189,
+          "median_active_wallets": 19.5,
+          "wallet_state_coverage": 0.9110596
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "events": 20,
+          "median_imbalance": 0.7217305,
+          "median_entry_concentration": 0.568244,
+          "median_active_wallets": 21.0,
+          "wallet_state_coverage": 0.9091509999999999
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "events": 8,
+          "median_imbalance": 0.607696,
+          "median_entry_concentration": 0.6646654999999999,
+          "median_active_wallets": 24.0,
+          "wallet_state_coverage": 0.565390375
+        }
+      ]
+    },
+    "horizon-outcomes": {
+      "id": "horizon-outcomes",
+      "source": {
+        "provider": "local-synthetic-files",
+        "files": [
+          {
+            "name": "synthetic_outcomes.csv"
+          },
+          {
+            "name": "outcome_schema.md"
+          }
+        ],
+        "filters": [
+          "Deterministic seed 20261005",
+          "Schema demonstration only"
+        ],
+        "caveats": [
+          "All metrics are intentionally synthetic and must not be interpreted as performance evidence.",
+          "No row is an observed Hyperliquid event."
+        ],
+        "evidenceFlow": [
+          {
+            "kind": "method",
+            "title": "Synthetic contract check",
+            "detail": "Rows were generated only to verify report structure, missingness and feature/outcome separation."
+          }
+        ]
+      },
+      "rows": [
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 5,
+          "mean_future_return_pct": -0.05275208333333333,
+          "against_crowd_rate_pct": 58.333333333333336,
+          "mean_mfe_pct": 0.20903333333333335,
+          "mean_mae_pct": -0.2746708333333333
+        },
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 15,
+          "mean_future_return_pct": 0.11653958333333332,
+          "against_crowd_rate_pct": 41.66666666666667,
+          "mean_mfe_pct": 0.49553749999999996,
+          "mean_mae_pct": -0.2763125
+        },
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 30,
+          "mean_future_return_pct": 0.1697104166666667,
+          "against_crowd_rate_pct": 39.58333333333333,
+          "mean_mfe_pct": 0.7533895833333334,
+          "mean_mae_pct": -0.41245208333333333
+        },
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 60,
+          "mean_future_return_pct": 0.03823958333333334,
+          "against_crowd_rate_pct": 58.333333333333336,
+          "mean_mfe_pct": 0.8288791666666666,
+          "mean_mae_pct": -0.7553145833333333
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 5,
+          "mean_future_return_pct": -0.2541583333333334,
+          "against_crowd_rate_pct": 91.66666666666666,
+          "mean_mfe_pct": 0.097625,
+          "mean_mae_pct": -0.46775833333333333
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 15,
+          "mean_future_return_pct": -0.42613750000000006,
+          "against_crowd_rate_pct": 79.16666666666666,
+          "mean_mfe_pct": 0.1642833333333333,
+          "mean_mae_pct": -0.8157208333333335
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 30,
+          "mean_future_return_pct": -0.5314916666666667,
+          "against_crowd_rate_pct": 87.5,
+          "mean_mfe_pct": 0.2191625,
+          "mean_mae_pct": -1.0178458333333333
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 60,
+          "mean_future_return_pct": -0.8462416666666667,
+          "against_crowd_rate_pct": 83.33333333333334,
+          "mean_mfe_pct": 0.281975,
+          "mean_mae_pct": -1.5748916666666664
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 5,
+          "mean_future_return_pct": 0.30096999999999996,
+          "against_crowd_rate_pct": 90.0,
+          "mean_mfe_pct": 0.49854999999999994,
+          "mean_mae_pct": -0.067605
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 15,
+          "mean_future_return_pct": 0.472755,
+          "against_crowd_rate_pct": 85.0,
+          "mean_mfe_pct": 0.83717,
+          "mean_mae_pct": -0.13806000000000002
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 30,
+          "mean_future_return_pct": 0.73935,
+          "against_crowd_rate_pct": 90.0,
+          "mean_mfe_pct": 1.2284899999999999,
+          "mean_mae_pct": -0.14721499999999998
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 60,
+          "mean_future_return_pct": 0.586365,
+          "against_crowd_rate_pct": 75.0,
+          "mean_mfe_pct": 1.30774,
+          "mean_mae_pct": -0.37567500000000004
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 5,
+          "mean_future_return_pct": 0.02577,
+          "against_crowd_rate_pct": 45.0,
+          "mean_mfe_pct": 0.24423500000000004,
+          "mean_mae_pct": -0.2151
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 15,
+          "mean_future_return_pct": -0.053729999999999986,
+          "against_crowd_rate_pct": 55.00000000000001,
+          "mean_mfe_pct": 0.32337,
+          "mean_mae_pct": -0.382465
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 30,
+          "mean_future_return_pct": -0.24098000000000003,
+          "against_crowd_rate_pct": 75.0,
+          "mean_mfe_pct": 0.42156,
+          "mean_mae_pct": -0.82773
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 60,
+          "mean_future_return_pct": -0.28502,
+          "against_crowd_rate_pct": 60.0,
+          "mean_mfe_pct": 0.6258900000000001,
+          "mean_mae_pct": -1.0143199999999999
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 5,
+          "mean_future_return_pct": 0.0388375,
+          "against_crowd_rate_pct": 37.5,
+          "mean_mfe_pct": 0.26535000000000003,
+          "mean_mae_pct": -0.22946249999999999
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 15,
+          "mean_future_return_pct": 0.028287500000000004,
+          "against_crowd_rate_pct": 37.5,
+          "mean_mfe_pct": 0.4814375,
+          "mean_mae_pct": -0.3709
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 30,
+          "mean_future_return_pct": 0.08493750000000001,
+          "against_crowd_rate_pct": 37.5,
+          "mean_mfe_pct": 0.624425,
+          "mean_mae_pct": -0.5170374999999999
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 60,
+          "mean_future_return_pct": 0.129525,
+          "against_crowd_rate_pct": 50.0,
+          "mean_mfe_pct": 0.8664625,
+          "mean_mae_pct": -0.7665624999999999
+        }
+      ]
+    },
+    "event-chain": {
+      "id": "event-chain",
+      "source": {
+        "provider": "local-synthetic-files",
+        "files": [
+          {
+            "name": "synthetic_outcomes.csv"
+          },
+          {
+            "name": "event_schema.md"
+          },
+          {
+            "name": "outcome_schema.md"
+          }
+        ],
+        "filters": [
+          "Deterministic seed 20261005",
+          "Schema demonstration only"
+        ],
+        "caveats": [
+          "All metrics are intentionally synthetic and must not be interpreted as performance evidence.",
+          "No row is an observed Hyperliquid event."
+        ],
+        "evidenceFlow": [
+          {
+            "kind": "method",
+            "title": "Synthetic contract check",
+            "detail": "Rows were generated only to verify report structure, missingness and feature/outcome separation."
+          }
+        ]
+      },
+      "rows": [
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 5,
+          "opposite_flow_rate_pct": 20.833333333333336,
+          "mean_panic_exit_wallets": 0.5208333333333334,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 15,
+          "opposite_flow_rate_pct": 22.916666666666664,
+          "mean_panic_exit_wallets": 1.0208333333333333,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 30,
+          "opposite_flow_rate_pct": 14.583333333333334,
+          "mean_panic_exit_wallets": 1.6458333333333333,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "BASELINE",
+          "scenario_label": "通常window",
+          "horizon_min": 60,
+          "opposite_flow_rate_pct": 25.0,
+          "mean_panic_exit_wallets": 2.2083333333333335,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 5,
+          "opposite_flow_rate_pct": 79.16666666666666,
+          "mean_panic_exit_wallets": 1.75,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 15,
+          "opposite_flow_rate_pct": 79.16666666666666,
+          "mean_panic_exit_wallets": 1.9166666666666667,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 30,
+          "opposite_flow_rate_pct": 62.5,
+          "mean_panic_exit_wallets": 2.5833333333333335,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_HIGH_FAIL",
+          "scenario_label": "LONG集中・高値近辺・高値更新失敗",
+          "horizon_min": 60,
+          "opposite_flow_rate_pct": 66.66666666666666,
+          "mean_panic_exit_wallets": 3.0416666666666665,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 5,
+          "opposite_flow_rate_pct": 55.00000000000001,
+          "mean_panic_exit_wallets": 1.35,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 15,
+          "opposite_flow_rate_pct": 75.0,
+          "mean_panic_exit_wallets": 2.35,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 30,
+          "opposite_flow_rate_pct": 55.00000000000001,
+          "mean_panic_exit_wallets": 1.95,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "SHORT_CROWD_LOW_FAIL",
+          "scenario_label": "SHORT集中・安値近辺・安値更新失敗",
+          "horizon_min": 60,
+          "opposite_flow_rate_pct": 60.0,
+          "mean_panic_exit_wallets": 3.7,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 5,
+          "opposite_flow_rate_pct": 15.0,
+          "mean_panic_exit_wallets": 0.4,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 15,
+          "opposite_flow_rate_pct": 50.0,
+          "mean_panic_exit_wallets": 1.1,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 30,
+          "opposite_flow_rate_pct": 25.0,
+          "mean_panic_exit_wallets": 1.35,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "LONG_CROWD_OI_UP",
+          "scenario_label": "LONG集中・OI増加",
+          "horizon_min": 60,
+          "opposite_flow_rate_pct": 40.0,
+          "mean_panic_exit_wallets": 3.0,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 100.0
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 5,
+          "opposite_flow_rate_pct": null,
+          "mean_panic_exit_wallets": 0.625,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 0.0
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 15,
+          "opposite_flow_rate_pct": null,
+          "mean_panic_exit_wallets": 1.625,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 0.0
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 30,
+          "opposite_flow_rate_pct": null,
+          "mean_panic_exit_wallets": 2.5,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 0.0
+        },
+        {
+          "scenario": "OPTIONAL_COVERAGE_MISSING",
+          "scenario_label": "optional coverage不足",
+          "horizon_min": 60,
+          "opposite_flow_rate_pct": null,
+          "mean_panic_exit_wallets": 1.875,
+          "explicit_liquidation_event_rate_pct": 0.0,
+          "trade_outcome_coverage_pct": 0.0
+        }
+      ]
+    },
+    "mock-scope": {
+      "id": "mock-scope",
+      "source": {
+        "provider": "local-synthetic-files",
+        "files": [
+          {
+            "name": "README.md"
+          },
+          {
+            "name": "synthetic_summary.json"
+          }
+        ],
+        "filters": [
+          "Deterministic seed 20261005",
+          "Schema demonstration only"
+        ],
+        "caveats": [
+          "All metrics are intentionally synthetic and must not be interpreted as performance evidence.",
+          "No row is an observed Hyperliquid event."
+        ],
+        "evidenceFlow": [
+          {
+            "kind": "method",
+            "title": "Synthetic contract check",
+            "detail": "Rows were generated only to verify report structure, missingness and feature/outcome separation."
+          }
+        ]
+      },
+      "rows": [
+        {
+          "metric": "Synthetic event windows",
+          "value": 120
+        },
+        {
+          "metric": "Synthetic outcome rows",
+          "value": 480
+        },
+        {
+          "metric": "Horizons",
+          "value": "5 / 15 / 30 / 60 min"
+        },
+        {
+          "metric": "Observed market rows",
+          "value": 0
+        }
+      ]
+    }
+  }
+}
