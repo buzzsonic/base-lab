@@ -1,6 +1,6 @@
 # STATUS_SUMMARY
 
-更新: 2026-10-05 JST
+更新: 2026-10-06 JST
 
 ## 読み方
 
@@ -10,10 +10,9 @@
 
 ## Current Phase
 
-BTC event-studyのPHASE 0 data contract、PHASE 1 event/outcome schema、PHASE 2 synthetic report mockの作成を完了。
-主目的を個別walletのFOMO/Late/Averaging Down分類から、**養分wallet群の集団行動とその後の市場反応をBTCからevent-studyすること**へ変更した。
+BTC event-studyのdata contractとevent/outcome schemaは固定済み。synthetic report mockも作成済みだが、今後はレポート作成を先行しない。
 
-VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward data contractを固定するまで本番Shadowは開始しない。
+現在取得済みの実データから仮説を作り、exploratory backtest、条件・閾値・regime修正、再backtest、別期間・別sampleのout-of-sample検証を順に行う。再現した仮説だけを最終レポートへ載せる。
 
 ## Key Status
 
@@ -23,10 +22,11 @@ VPS runtime packageは実装・CI PASS済みだが、研究の出口とforward d
 - subset quality: quantity mismatch 0 / continuity error 0
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
-- report mock: synthetic 120 events / 480 outcomes / observed market rows 0
-- tests: 65 passed
+- report mock: 参考UIとして保持。synthetic 120 events / 480 outcomes / observed market rows 0。研究判断には不使用
+- tests: 67 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
-- OHLCV本分析 / behavior label本適用 / 500-wallet expansion: HOLD
+- 現在の実データ: 品質条件を満たす44 wallets / 22,973 completed episodes。ただし56%除外によるsampling biasがあり、探索用途に限定
+- behavior label本適用 / 500-wallet expansion / inverse-signal結論: HOLD
 
 ## New Research Goal
 
@@ -45,23 +45,25 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 養分片側集中 → 逆方向large flow → price reversal → panic exit / liquidation-like flow
 という観測可能なevent chainの再現性を調べる。
 
-## Current Gate
+## Adoption Gate
 
-仮データによる期待レポートmockは作成・表示検証済み。ユーザーが研究の出口と表示項目を確認するまでPHASE 3 collector拡張設計へ進まない。
+単発の相関、同一期間だけの好結果、少数sample、特定regimeだけの結果は採用しない。sample数・期間・regime別の安定性を示し、固定した条件が別期間・別sampleのout-of-sampleでも同方向に再現した仮説だけを採用する。有意義な再現性がない仮説は棄却する。
 
 ## Next
 
-1. `design/btc-event-study/report_mock/btc_event_study_report_mock.html`をユーザーが確認
-2. 表示項目・粒度・研究の出口が期待と一致するか判定
-3. 合意後だけcollector v3拡張設計へ進む
-4. collector実装・canary・Shadowは各品質Gateを順に通過してから開始
+1. 取得済み実データのcoverage・bias・利用可能期間を仮説項目別に棚卸し
+2. BTC優先仮説をversion付きregistryへ事前登録し、exploratory / validation / held-outを時間順に固定
+3. LONG/SHORT集中、entry集中、高値/安値飛び乗りから実データbacktestを開始
+4. averaging down、size急拡大、OI/Funding/Volume複合条件をcoverageがある範囲だけ追加
+5. 5/15/30/60分return、MFE/MAE、反対方向flow、panic exit / liquidation-like flowを評価
+6. 条件修正はexploratory内だけでversionを上げ、validationとheld-outは固定条件で検証
 
 詳細正本: `RESEARCH_DIRECTION.md`
 
 ## Last Important Decision
 
-PHASE 2 mockは固定seedの合成120 event / 480 outcomeだけを使い、実測市場rowは0。coverage不足は欠測のまま表示し、画面上の合成値を相場判断や期待値へ読み替えない。mockのユーザー確認が終わるまでPHASE 3はHOLD。
+synthetic report mockは参考UIとして残すが、仮説作成・閾値選択・採否・相場判断には使わない。研究は実データのPDCAを先行し、再現性が確認できた結果だけを最終レポートへ載せる。
 主分析は連続5分window、一次保存は1分bucket。event featureは`cutoff_ms`以前、outcomeは5/15/30/60分を別namespaceへ物理分離する。optional state/trade/book欠測はcore eventを捨てず該当列だけNULLにする。
 wallet fills/TWAP/Fundingは履歴取得可能。position/leverage/margin/liquidation price/account stateはforward snapshotとしてのみ採用する。BTCのmarket-wide liquidation flowは公式公開APIで直接取得不能とし、proxyで同名保存しない。
-VPSは研究目的ではなく安定収集の手段。研究の出口が合うことを確認するまで、本番VPS Shadowを開始しない。
+VPSは研究目的ではなく不足データを安定収集する手段。readiness監査で必要性を確認し、canary品質Gateを通過するまで本番VPS Shadowを開始しない。
 欠落stateの推定・0埋め、wallet差替え、先回りしたinverse-signal結論は禁止。

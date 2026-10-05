@@ -10,9 +10,11 @@
 
 ## Current Task
 
-研究方向を変更する。
+研究順序を変更する。
 
 主目的は個別walletの行動ラベル分類ではなく、**養分wallet群の集団行動と、その後の市場反応をBTCからevent-studyすること**。
+
+レポート作成を先行しない。現在取得済みの実データから仮説を立て、backtest、条件修正、再backtest、別期間・別sampleのout-of-sample検証を行い、再現した仮説だけを最終レポートへ載せる。
 
 詳細契約は `RESEARCH_DIRECTION.md` を正本とする。
 
@@ -86,7 +88,7 @@ future leakageを避け、entry時点で利用可能な特徴とpost-event outco
 - event featureとpost-event outcomeを別namespaceへ物理分離
 - Hoihoi handoff v0.1の受入境界とcoverage/UNAVAILABLE契約を定義
 
-## PHASE 2: 期待レポートを先にモック化【作成完了・ユーザー確認待ち】
+## PHASE 2: synthetic report mock【完了・参考UIへ格下げ】
 
 データ収集前に、最終的に欲しいレポート形式を仮データで作る。
 
@@ -115,29 +117,67 @@ future leakageを避け、entry時点で利用可能な特徴とpost-event outco
 - offline単体HTMLを生成し、ブラウザで全体レイアウトとchart/table描画を確認
 - 実測市場row 0、売買判断・期待収益・逆指標性の結論なしを画面上部と末尾に明記
 
-このモックを見て研究の出口が期待と一致することを確認してから、VPS収集契約を確定する。
+synthetic mockは参考UIとして保持する。仮説作成、閾値選択、研究判断、採否には使わず、ユーザー確認を次工程の開始条件にしない。
 
-## PHASE 3: collector v3拡張設計【PHASE 2ユーザー確認までHOLD】
+## PHASE 3: 実データbacktest readiness監査【次】
 
-PHASE 0〜2を通過した後のみ実施。
+現在取得済みの実データについて、優先仮説ごとに次を定量化する。
 
-既存のUbuntu VPS + Docker + systemd timer packageを再利用し、event-studyに必要なforward snapshotを追加する。
+- usable event / episode数
+- 観測期間と独立なJST日数
+- wallet数、wallet集中度、除外率、sampling bias
+- exploratory / validation / held-outへ時間順に分割できるか
+- BTC OHLCV / Volume / Funding / OI coverage
+- entry concentration / local high-low / averaging down / size changeの算出可否
+- 5m / 15m / 30m / 60m return、MFE / MAEの算出可否
+- opposite flow / panic exit / explicit liquidation evidenceのcoverage
 
-最低限:
-- fills/TWAP/Funding append-only
-- BTC market series
-- wallet position/account snapshots（APIで取得可能なもの）
-- timestamp同期
-- immutable raw
-- gap/retention/checkpoint監査
+最初の成果物:
+- `analysis/btc-backtest-v1/data_readiness.md`
+- `analysis/btc-backtest-v1/hypothesis_registry.csv`
+- `analysis/btc-backtest-v1/split_manifest.json`
 
-収集周期は、高頻度walletのretentionだけでなくposition/account snapshot粒度も考慮して決める。
+停止条件:
+- outcomeにfuture leakageがある
+- event/outcome joinが一意でない
+- coverage不足を0埋めしないと成立しない
+- historical subsetの56%除外biasを代表sampleとして扱っている
+- validation / held-outを見て閾値を調整している
 
-## PHASE 4: canary → Shadow
+## PHASE 4: 仮説別exploratory backtest
 
-1-wallet canary → fixed-100 → 3回以上連続run。
+BTCで次の順に検証する。
 
-Gate PASS後に新analysis startを固定し、7日Shadowを開始する。
+1. 養分LONG/SHORT集中
+2. entry価格帯の集中
+3. 高値/安値付近での飛び乗り
+4. averaging down
+5. size急拡大
+6. OI / Funding / Volumeとの複合条件
+7. その後5m / 15m / 30m / 60m return、MFE / MAE
+8. 反対方向flow、panic exit / liquidation-like flow
+
+各仮説はID・version・必要field・閾値候補・regime・主metric・最低sample・欠測条件を事前登録する。閾値修正は元versionを上書きせず、新versionとしてexploratory内で再backtestする。
+
+## PHASE 5: validation / held-out再現性検証
+
+- exploratoryで固定した条件を変更しない
+- sample数と独立日数を併記する
+- bull / bear / range、高vol / 低volなど事前定義regime別に確認する
+- averageだけでなくmedian、分布、confidence interval、downside/upside probability、MFE/MAEを確認する
+- overlapping windowとwallet内相関を考慮する
+- 複数仮説・閾値探索による偶然の当たりを考慮する
+- 別期間・別sampleで方向と有意義なeffect sizeが再現しない仮説は棄却する
+
+validation / held-outを見て条件を変えた場合、その結果は探索へ格下げし、新しい未使用期間または未使用sampleを必要とする。
+
+## PHASE 6: collector追加設計
+
+実データreadiness監査で重要仮説の必要fieldが不足すると確定した場合だけ、既存Ubuntu VPS + Docker + systemd timer packageへforward snapshotを追加する。収集自体を目的化しない。
+
+## PHASE 7: 最終レポート
+
+再現性Gateを通過した仮説だけを掲載する。有意義な結果が出ない仮説は棄却し、空欄を埋めるための物語や相関は載せない。
 
 ## 最終的な研究問い
 
@@ -151,10 +191,13 @@ Gate PASS後に新analysis startを固定し、7日Shadowを開始する。
 
 ## HOLD
 
-PHASE 0〜2完了まで:
+readiness監査で必要性を確認し、個別の収集品質Gateを通過するまで:
 - VPS本番Shadow開始
 - behavior label本適用
 - 500-wallet expansion
+
+再現性Gate通過まで:
 - inverse-signal結論
+- 最終レポート作成
 
 は禁止。
