@@ -178,3 +178,12 @@
 - 検証: offline HTMLを生成し、ブラウザで全chart/table、欠測表示、synthetic警告、完成状態を目視確認した。
 - 解釈: 合成値から期待収益・逆指標性・反転確率を結論しない。売買判断には使わない。
 - 次: ユーザーが研究の出口と表示項目を確認するまでPHASE 3 collector拡張設計とVPS ShadowはHOLDする。
+
+## 2026-10-06 レポート先行を止め実データPDCAへ変更する
+
+- 順序: 取得済み実データから仮説登録 → exploratory backtest → 条件・閾値・regimeのversion更新 → 再backtest → validation → 別期間・別sampleのheld-out評価とする。
+- 優先仮説: BTCのLONG/SHORT集中、entry集中、高値/安値飛び乗り、averaging down、size急拡大、OI/Funding/Volume複合条件と、その後5/15/30/60分return、MFE/MAE、反対方向flow、panic exit/liquidation-like flow。
+- 採否: sample数、観測日数、regime別、out-of-sampleで方向と有意義なeffect sizeが再現したものだけ採用する。単発相関や再現しない仮説は棄却する。
+- 変更管理: validation / held-outを見て条件を変えた場合は探索へ格下げし、新しい未使用期間または未使用sampleを要求する。
+- report: synthetic mockは参考UIとして保持するが研究判断には使わない。最終reportは再現性を通過した仮説だけで作る。
+- 次: 現在の実データについて仮説別coverage・期間・sampling bias・outcome可用性を監査し、version付きhypothesis registryと時間順splitを固定する。

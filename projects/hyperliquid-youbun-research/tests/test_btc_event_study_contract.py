@@ -5,6 +5,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX = ROOT / "design" / "btc-event-study" / "field_matrix.csv"
+RESEARCH_DIRECTION = ROOT / "RESEARCH_DIRECTION.md"
+NEXT_TASK = ROOT / "NEXT_TASK.md"
 
 
 class BtcEventStudyContractTest(unittest.TestCase):
@@ -64,6 +66,26 @@ class BtcEventStudyContractTest(unittest.TestCase):
         for row in self.rows:
             for column in required_columns:
                 self.assertTrue(row[column].strip(), f"{row['field']}: empty {column}")
+
+    def test_research_order_is_real_data_pdca_before_reporting(self):
+        direction = RESEARCH_DIRECTION.read_text(encoding="utf-8")
+        next_task = NEXT_TASK.read_text(encoding="utf-8")
+        for phrase in (
+            "研究PDCA",
+            "exploratory期間で仮説ごとにbacktest",
+            "別期間・別sample",
+            "有意義なeffect size",
+            "最終レポートは研究の開始点ではなく",
+        ):
+            self.assertIn(phrase, direction)
+        self.assertIn("実データbacktest readiness監査【次】", next_task)
+        self.assertIn("validation / held-out再現性検証", next_task)
+
+    def test_synthetic_mock_is_not_research_evidence(self):
+        direction = RESEARCH_DIRECTION.read_text(encoding="utf-8")
+        next_task = NEXT_TASK.read_text(encoding="utf-8")
+        self.assertIn("synthetic report mockは参考UI", direction)
+        self.assertIn("研究判断、採否には使わず", next_task)
 
 
 if __name__ == "__main__":

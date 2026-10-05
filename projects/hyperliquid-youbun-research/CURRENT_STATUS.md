@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-更新日: 2026-10-05 JST
+更新日: 2026-10-06 JST
 
 ## Current Phase
 
@@ -68,6 +68,10 @@
 
 ## Latest Work
 
+- 研究順序を「実データ仮説 → exploratory backtest → 条件・閾値・regime修正 → 再backtest → 別期間・別sampleのout-of-sample検証 → 採否」へ変更。
+- synthetic report mockは参考UIとして保持するが、仮説作成・閾値選択・研究判断には使わない。最終レポートは再現性を通過した結果だけで作る。
+- 単発の相関、少数sample、同一期間だけの好結果は不採用。有意義な再現性がない仮説は棄却する。
+- 次は取得済み実データについて、優先仮説ごとのcoverage・期間・sampling bias・outcome利用可否を監査し、backtest可能範囲を固定する。
 - BTC event-study PHASE 2として固定seedの合成120 event / 480 outcomeから期待レポートmockを作成。
 - LONG/SHORT集中、entry集中、size/leverage、5/15/30/60分return、逆行率、MFE/MAE、opposite flow、panic exit、明示的liquidationを1つのoffline HTMLで確認可能にした。
 - optional coverage不足はleverage/liquidation distance/opposite flowを0埋めせず欠測表示。実測市場row 0と売買判断不可を明記。
@@ -116,7 +120,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 65 tests passed
+- 67 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -142,4 +146,4 @@
 
 ## Next
 
-BTC event-study PHASE 2のoffline report mockをユーザーが確認する。研究の出口が期待と一致した後だけPHASE 3 collector拡張設計へ進み、VPS canaryはまだ開始しない。
+取得済み実データのbacktest readinessを優先仮説ごとに監査し、version付きhypothesis registryと時間順splitを固定する。レポート作成は再現性確認後まで行わない。
