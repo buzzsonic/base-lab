@@ -1,5 +1,14 @@
 # CURRENT_STATUS
 
+## 2026-10-05 BTC forward live canary
+
+- PR #45（merge `b2dcbf21`）で、同一artifact内の2回収集とoverlap監査を追加した。
+- GitHub Actions run `37328123994` はPASS。公開wallet `0x7b2d...1522`、canary検証専用7日lookback。
+- raw 14件、BTC 12件、TWAP 0件。gap / cap / source sequence欠落 / position continuity error / same-ms ambiguityはすべて0。
+- BTC 5分足は各run 25本。stateは2回目成功時だけ更新。legacy checkpoint/data branchは変更していない。
+- TWAP実rowとoverlap重複が0件のため、first-seen重複保持はunit testのみで、live証拠は未取得。
+- 状態は `CANARY_PASS_PARTIAL_EVIDENCE`。sample昇格、100/200 wallet展開、1,000 wallet拡大はHOLD。
+
 更新: 2026-10-03 JST（翌日観察、4時間帯coverage、隔離200→100再PoC成功）
 
 ## 2026-10-04 BTC研究sample契約

@@ -10,36 +10,38 @@
 
 ## Current Task
 
-BTC forward v1をtimer無効の1-wallet canaryで検証する。
+BTC forward v1を少数wallet・24時間のartifact-only canaryへ進め、TWAPとoverlapの実証を完了する。
 
 契約正本: `contracts/btc-research-sample-v0.1/`
 収集契約: `BTC_FORWARD_COLLECTION_CONTRACT.md`
 
-### 1. Canary Entrypoint
+### 1. Completed Canary Evidence
 
-- walletを明示指定する手動entrypointを作る
-- 通常fillsとTWAP slicesを各1回取得する
-- data branchへ保存せずartifactのみとする
-- `analysis_start_ms`以前のrowを研究windowへ混ぜない
+- PR #45 / merge `b2dcbf21`で同一workflow内の2回収集とfail-closed監査を追加
+- run `37328123994` PASS
+- raw 14 / BTC 12 / TWAP 0 / BTC 5m 25本×2run
+- source sequence欠落0、gap 0、cap 0、continuity error 0、same-ms ambiguity 0
+- stateは2回目成功へ進み、legacy checkpoint/data branchは不変
+- ただしoverlap期間の新規rowがなく、raw重複は0
 
-### 2. Canary Gate
+### 2. Remaining Canary Gate
 
-- source sequenceの欠落・重複0
-- endpoint failure / page cap / retention risk 0
-- 同一timestampのsource orderがAPI responseと一致
-- 通常fill＋TWAPのposition chainが一意、または曖昧理由を保存
+- 少数walletを24時間観察し、TWAP実rowまたはoverlap重複を得る
+- raw重複を残し、canonicalがfirst-seen rowを維持することを実データで確認する
+- 同一timestampの通常fill＋TWAP chainは一意な場合だけ採用し、曖昧ならFAILを維持する
+- 空応答を「順序検証済み」とは扱わない
 
-### 3. Overlap Re-run
+### 3. Durable Window Design
 
-- 同じwalletを20分overlap付きで再実行する
-- raw重複を残し、canonical viewはfirst-seen rowを維持する
-- checkpointが成功時だけ進み、失敗時は進まないことを確認する
+- canary artifactからpromotionせず、legacyと完全分離した新state/data rootを定義する
+- 成功JST日はfills/TWAP/marketのrequired endpointが全て成功した日のみ加算する
+- schedule遅延、cap、gap、順序不明、state rollbackは当日失敗として扱う
 
 ### 4. Expansion Gate
 
-1. canary 2回のraw/canonical/stateを目視照合する
-2. 少数wallet 24時間の所要時間・API weight・欠測を測る
-3. Gate通過後だけ100/200 wallet forward windowを開始する
+1. 少数wallet 24時間の所要時間・API weight・欠測を測る
+2. TWAP/overlapの実row Gateを通す
+3. Gate通過後だけ限定cohortのforward windowを開始する
 4. 7成功JST日後にv0.1を再適用する
 5. 養分くん側の受入確認後だけhandoff versionを固定する
 
@@ -55,7 +57,8 @@ BTC forward v1をtimer無効の1-wallet canaryで検証する。
 - dry-run: current 0 / shadow 0 handoff eligible、39 tests PASS
 - preliminary except observation/TWAP/market: current 0 / shadow 2（適格ではない）
 - forward contract/order primitives: 43 tests PASS、live canary NOT RUN
-- canary collector/manual workflow: 47 tests PASS、scheduleなし、live canary NOT RUN
+- canary collector/manual workflow: 49 tests PASS、scheduleなし
+- live canary: run 37328123994 PASS、BTC 12、TWAP 0、overlap重複0のためpartial evidence
 - weekly: run 37172824334 success / JST report `2026-10-04` / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 

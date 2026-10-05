@@ -1,5 +1,12 @@
 # DECISIONS
 
+## 2026-10-05: 空応答をorder/dedup実証として数えない
+
+- fills/TWAP endpointが正常終了しても、実rowが0ならAPI返却順やfirst-seen重複保持のlive証拠とは扱わない。
+- run `37328123994` はcollector/state/通常BTC fill chainのcanary PASSだが、TWAPとoverlapはpartial evidenceとして残す。
+- 7成功JST日の新window開始前に、少数wallet 24時間でTWAPまたはoverlap重複の実rowを監査する。
+- このcanary artifactをsampleへ昇格せず、legacy checkpointへも混ぜない。
+
 ## 2026-10-01 養分くんから完全分離
 
 - 決定: `projects/hyperliquid-youbun-hoihoi`を独立entrypoint/data contractとする。
