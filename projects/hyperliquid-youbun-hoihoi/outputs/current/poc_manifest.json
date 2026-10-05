@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T15:17:01.539577+00:00",
+  "generated_at": "2026-10-05T22:45:46.469802+00:00",
   "sample_version": "sample_20261006",
   "quality": {
     "wallets": 100,
@@ -34,10 +34,10 @@
       "small_alt_core": 4
     },
     "activity_time_bands": {
-      "jst_18_23": 38,
+      "jst_18_23": 35,
       "jst_06_11": 13,
       "unknown": 18,
-      "jst_00_05": 17,
+      "jst_00_05": 20,
       "jst_12_17": 14
     },
     "active_days_bands": {
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "5bbd1a8e81e70f5af09e70265c003f43fad9ca7cccd2358f7ecbcecbe728a770",
+  "market_snapshot_version": "572a7d1f357bfa16baf79bb0b4677d6799043d829bfe70134410211590a1bc21",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -93,10 +93,10 @@
       "small_alt_core": 4
     },
     "activity_time_bands": {
-      "jst_18_23": 38,
+      "jst_18_23": 35,
       "jst_06_11": 13,
       "unknown": 18,
-      "jst_00_05": 17,
+      "jst_00_05": 20,
       "jst_12_17": 14
     },
     "active_days_bands": {
