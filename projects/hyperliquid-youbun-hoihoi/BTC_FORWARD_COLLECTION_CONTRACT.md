@@ -2,7 +2,7 @@
 
 ## 状態
 
-`CANARY_READY_NOT_STARTED`。collectorと手動artifact-only workflowを実装済み。既存current/shadow checkpointは変更しない。定期workflowはまだ有効化しない。
+`CANARY24H_RUNNING`。5-wallet隔離windowを2026-10-06 00:15:45 JSTに開始。既存current/shadow checkpointは変更しない。24時間Gate完了前に限定cohortやsampleへ昇格しない。
 
 ## 目的
 
