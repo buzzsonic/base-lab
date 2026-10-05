@@ -12,7 +12,7 @@
 
 BTC event-studyのdata contractとevent/outcome schemaは固定済み。synthetic report mockも作成済みだが、今後はレポート作成を先行しない。
 
-現在取得済みの実データから仮説を作り、exploratory backtest、条件・閾値・regime修正、再backtest、別期間・別sampleのout-of-sample検証を順に行う。再現した仮説だけを最終レポートへ載せる。
+実データreadiness監査を完了した。現データはconfirmatory backtestに不適格で、exploratory split上のpipeline検証だけを許可する。再現した仮説だけを最終レポートへ載せる方針は維持する。
 
 ## Key Status
 
@@ -23,10 +23,14 @@ BTC event-studyのdata contractとevent/outcome schemaは固定済み。syntheti
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
 - report mock: 参考UIとして保持。synthetic 120 events / 480 outcomes / observed market rows 0。研究判断には不使用
-- tests: 67 passed
+- tests: 73 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
 - 現在の実データ: 品質条件を満たす44 wallets / 22,973 completed episodes。ただし56%除外によるsampling biasがあり、探索用途に限定
 - behavior label本適用 / 500-wallet expansion / inverse-signal結論: HOLD
+- BTC readiness: 10,125 completed episodes / 69,708 canonical fills / 7,291 active 5m buckets
+- bias: 56/100 wallet除外、BTC fill上位5 wallet依存72.76%
+- outcome coverage: 5m 55.85% / 60m 55.70%。historical OI・asset context・trades・wallet stateは0%
+- decision: `NOT_READY_FOR_CONFIRMATORY_BACKTEST` / exploratoryはpipeline検証だけ
 
 ## New Research Goal
 
@@ -51,12 +55,11 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 
 ## Next
 
-1. 取得済み実データのcoverage・bias・利用可能期間を仮説項目別に棚卸し
-2. BTC優先仮説をversion付きregistryへ事前登録し、exploratory / validation / held-outを時間順に固定
-3. LONG/SHORT集中、entry集中、高値/安値飛び乗りから実データbacktestを開始
-4. averaging down、size急拡大、OI/Funding/Volume複合条件をcoverageがある範囲だけ追加
-5. 5/15/30/60分return、MFE/MAE、反対方向flow、panic exit / liquidation-like flowを評価
-6. 条件修正はexploratory内だけでversionを上げ、validationとheld-outは固定条件で検証
+1. held-outへ触れずexploratory期間だけで全連続5分event aggregatorを作る
+2. zero activityとsource gapを区別する
+3. H02/H04/H05のoutcome-free featureを生成する
+4. OHLCV完備windowだけでH07 outcome pipelineを検証する
+5. H01/H06/H08/H09は不足seriesを推定せずblockを維持する
 
 詳細正本: `RESEARCH_DIRECTION.md`
 

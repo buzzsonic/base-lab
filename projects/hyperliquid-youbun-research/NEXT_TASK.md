@@ -119,7 +119,7 @@ future leakageを避け、entry時点で利用可能な特徴とpost-event outco
 
 synthetic mockは参考UIとして保持する。仮説作成、閾値選択、研究判断、採否には使わず、ユーザー確認を次工程の開始条件にしない。
 
-## PHASE 3: 実データbacktest readiness監査【次】
+## PHASE 3: 実データbacktest readiness監査【完了】
 
 現在取得済みの実データについて、優先仮説ごとに次を定量化する。
 
@@ -144,7 +144,27 @@ synthetic mockは参考UIとして保持する。仮説作成、閾値選択、�
 - historical subsetの56%除外biasを代表sampleとして扱っている
 - validation / held-outを見て閾値を調整している
 
-## PHASE 4: 仮説別exploratory backtest
+完了内容:
+- 品質一致44 wallet・完結22,973 episodeを監査し、BTC完結10,125 episode、canonical fills 69,708件を確認
+- 100 wallet中56 wallet除外、BTC fills上位5 wallet依存72.76%を重大biasとして固定
+- active 5分bucket 7,291件に対し60分outcome coverage 55.70%、historical OI / asset context / trades / wallet stateは0%
+- 9仮説をversion付きregistryへ登録し、実装可能・部分探索のみ・blockを分離
+- 時間順exploratory / validation / held-outと境界前60分purgeを固定
+- 判定は`NOT_READY_FOR_CONFIRMATORY_BACKTEST`。仮説の成績・採否はまだ出していない
+
+## PHASE 4: exploratory pipeline構築【次】
+
+held-outへ触れず、exploratory期間だけで以下を実装・検証する。
+
+1. 全連続5分windowを保持するBTC event aggregator
+2. zero activityとsource gapを区別するcoverage列
+3. H02 entry価格帯集中、H04 averaging down、H05 size急拡大のoutcome-free feature
+4. OHLCV完備windowだけに対するH07の5/15/30/60分return・MFE・MAE
+5. event/outcomeの物理分離、一意join、future leakageなしのテスト
+
+この工程はpipeline検証であり、effect size、勝率、逆指標性、仮説採否を結論しない。H01/H06/H08/H09は不足seriesを推定せずblockを維持する。
+
+## PHASE 4B: 仮説別exploratory backtest【coverage Gate通過後】
 
 BTCで次の順に検証する。
 

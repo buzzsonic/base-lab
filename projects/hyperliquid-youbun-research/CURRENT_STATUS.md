@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-固定100口座forward collector v1/v2はschedule実間隔不足で品質Gate FAILとなり凍結。GitHub Actions scheduleに依存しないscheduler設計まで停止中。historical pilotは不採用のまま、OHLCV・行動ラベル・500口座拡大はHOLD。
+BTC実データreadiness監査を完了。historical subsetは再構成品質は満たすがselection biasとmarket series欠測が大きく、confirmatory backtestは禁止。exploratory split上のpipeline検証だけを次工程とする。
 
 ## Completed
 
@@ -68,6 +68,12 @@
 
 ## Latest Work
 
+- BTC実データ監査で44/100 wallet、完結22,973 episode、BTC 10,125 episode、canonical fills 69,708件を再集計。
+- 56% wallet除外とBTC fills上位5 wallet依存72.76%を重大biasとして固定。
+- active BTC 5分bucket 7,291件に対するfuture coverageは5分55.85%、60分55.70%。historical OI / asset context / trade stream / wallet stateは0%。
+- 9仮説をregistryへ事前登録。H02/H04/H05は導出未実装、H03/H07は部分探索のみ、H01/H06/H08/H09は必要series不足を明示。
+- 時間順splitと境界前60分purgeを固定。validation / held-outは閾値選択に使用しない。
+- 結論は`NOT_READY_FOR_CONFIRMATORY_BACKTEST`。仮説成績は未算出で、次はexploratory限定のevent/outcome pipeline構築。
 - 研究順序を「実データ仮説 → exploratory backtest → 条件・閾値・regime修正 → 再backtest → 別期間・別sampleのout-of-sample検証 → 採否」へ変更。
 - synthetic report mockは参考UIとして保持するが、仮説作成・閾値選択・研究判断には使わない。最終レポートは再現性を通過した結果だけで作る。
 - 単発の相関、少数sample、同一期間だけの好結果は不採用。有意義な再現性がない仮説は棄却する。
@@ -120,7 +126,7 @@
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 67 tests passed
+- 73 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
