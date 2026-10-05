@@ -78,7 +78,8 @@ class BtcEventStudyContractTest(unittest.TestCase):
             "最終レポートは研究の開始点ではなく",
         ):
             self.assertIn(phrase, direction)
-        self.assertIn("実データbacktest readiness監査【次】", next_task)
+        self.assertIn("実データbacktest readiness監査【完了】", next_task)
+        self.assertIn("exploratory pipeline構築【次】", next_task)
         self.assertIn("validation / held-out再現性検証", next_task)
 
     def test_synthetic_mock_is_not_research_evidence(self):

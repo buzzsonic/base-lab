@@ -1,0 +1,101 @@
+{
+  "active_jst_days": 31,
+  "audit_version": "btc-backtest-readiness-v1",
+  "blocking_reasons": [
+    "56% wallet exclusion creates material sampling bias",
+    "top five wallets contribute more than 70% of eligible BTC fills",
+    "BTC asset context and historical OI coverage are 0%",
+    "BTC trade stream and wallet-state snapshot coverage are 0%",
+    "future 60m OHLCV covers only part of active buckets",
+    "existing wallet-based splits are severely imbalanced and are replaced by time splits"
+  ],
+  "btc_active_5m_buckets": 7291,
+  "btc_candle_end_jst": "2026-09-30T03:35:00+09:00",
+  "btc_candle_rows": 4363,
+  "btc_candle_start_jst": "2026-09-15T00:05:00+09:00",
+  "btc_canonical_fills": 69708,
+  "btc_completed_episodes": 10125,
+  "btc_long_episodes": 5097,
+  "btc_period_end_jst": "2026-10-02T11:40:57.549000+09:00",
+  "btc_period_start_jst": "2026-09-02T12:19:21.854000+09:00",
+  "btc_short_episodes": 5028,
+  "btc_twap_only_fills": 71,
+  "btc_wallets_with_fills": 27,
+  "eligible_completed_episodes": 22973,
+  "eligible_wallets": 44,
+  "excluded_wallet_rate_pct": 56.0,
+  "excluded_wallets": 56,
+  "explicit_liquidations_observed": 0,
+  "exploratory_allowance": "PIPELINE_VALIDATION_ONLY",
+  "funding_prior_2h_coverage_buckets": 3433,
+  "funding_prior_2h_coverage_pct": 47.0854,
+  "funding_rows": 365,
+  "generated_at": "2026-10-06T00:00:00+09:00",
+  "historical_btc_asset_context_coverage_pct": 0.0,
+  "historical_btc_oi_coverage_pct": 0.0,
+  "historical_btc_trade_stream_coverage_pct": 0.0,
+  "historical_wallet_state_coverage_pct": 0.0,
+  "outcome_coverage": {
+    "15m": {
+      "buckets": 4070,
+      "pct": 55.8222
+    },
+    "30m": {
+      "buckets": 4067,
+      "pct": 55.7811
+    },
+    "5m": {
+      "buckets": 4072,
+      "pct": 55.8497
+    },
+    "60m": {
+      "buckets": 4061,
+      "pct": 55.6988
+    }
+  },
+  "outcome_coverage_pct": {
+    "15m": 55.8222,
+    "30m": 55.7811,
+    "5m": 55.8497,
+    "60m": 55.6988
+  },
+  "period_end_jst": "2026-10-02T11:42:13.323000+09:00",
+  "period_start_jst": "2026-09-02T12:19:21.854000+09:00",
+  "purged_counts": {
+    "all_completed_episodes": 28,
+    "btc_active_5m_buckets": 23,
+    "btc_completed_episodes": 9
+  },
+  "quality_decision": "NOT_READY_FOR_CONFIRMATORY_BACKTEST",
+  "sample_wallets": 100,
+  "source_kind": "existing real Hyperliquid public data",
+  "source_sha256": {
+    "btc_candles": "2f0e34de501a2e6729fc8bf9eccf8d1e01be189f13f4601dd42d682250488086",
+    "btc_funding": "992776424089936c2f59293571743190e52ab3cfa3ea1ee728c946702377e9dd",
+    "position_episodes": "ab1530ad88c5d86861901d3113de7854d088d115d2e6fc545dc9411682642c6c",
+    "sampling_manifest": "e7ef8b4c1373fee34c5f5dd4c91c8aaad196a538c18ac5f03e8c5e08bcf7f994",
+    "wallet_audit": "53ba7f52a0436948e14a9f6e1354070f295100765ebd2ec1848609f88c99f944"
+  },
+  "split_counts": {
+    "exploratory": {
+      "all_completed_episodes": 5144,
+      "btc_active_5m_buckets": 4112,
+      "btc_completed_episodes": 952,
+      "independent_jst_days": 19
+    },
+    "held_out": {
+      "all_completed_episodes": 10839,
+      "btc_active_5m_buckets": 1553,
+      "btc_completed_episodes": 7105,
+      "independent_jst_days": 7
+    },
+    "validation": {
+      "all_completed_episodes": 6962,
+      "btc_active_5m_buckets": 1603,
+      "btc_completed_episodes": 2059,
+      "independent_jst_days": 7
+    }
+  },
+  "top1_wallet_btc_fill_share_pct": 17.0569,
+  "top5_wallet_btc_fill_share_pct": 72.7564
+}

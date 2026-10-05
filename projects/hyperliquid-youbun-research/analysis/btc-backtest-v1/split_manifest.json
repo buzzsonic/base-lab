@@ -1,0 +1,46 @@
+{
+  "split_version": "btc-time-split-v1",
+  "timezone": "Asia/Tokyo",
+  "maximum_outcome_horizon_minutes": 60,
+  "purge_rule": "exclude the final 60 minutes before each boundary",
+  "splits": [
+    {
+      "name": "exploratory",
+      "start": "2026-09-02T12:19:21.854000+09:00",
+      "end_exclusive": "2026-09-20T23:00:00+09:00",
+      "all_completed_episodes": 5144,
+      "btc_completed_episodes": 952,
+      "btc_active_5m_buckets": 4112,
+      "independent_jst_days": 19
+    },
+    {
+      "name": "validation",
+      "start": "2026-09-21T00:00:00+09:00",
+      "end_exclusive": "2026-09-26T23:00:00+09:00",
+      "all_completed_episodes": 6962,
+      "btc_completed_episodes": 2059,
+      "btc_active_5m_buckets": 1603,
+      "independent_jst_days": 7
+    },
+    {
+      "name": "held_out",
+      "start": "2026-09-27T00:00:00+09:00",
+      "end_exclusive": "2026-10-02T11:42:13.323000+09:00",
+      "all_completed_episodes": 10839,
+      "btc_completed_episodes": 7105,
+      "btc_active_5m_buckets": 1553,
+      "independent_jst_days": 7
+    }
+  ],
+  "purged_at_boundaries": {
+    "all_completed_episodes": 28,
+    "btc_completed_episodes": 9,
+    "btc_active_5m_buckets": 23
+  },
+  "status": "BOUNDARIES_FROZEN_COUNTS_NOT_CONFIRMATORY_READY",
+  "notes": [
+    "Splits are chronological and replace the old wallet-based 60/20/20 assignment for market event-study.",
+    "Held-out data must not be inspected for threshold selection.",
+    "The current data remains biased and incomplete; these boundaries do not authorize confirmatory conclusions."
+  ]
+}

@@ -187,3 +187,12 @@
 - 変更管理: validation / held-outを見て条件を変えた場合は探索へ格下げし、新しい未使用期間または未使用sampleを要求する。
 - report: synthetic mockは参考UIとして保持するが研究判断には使わない。最終reportは再現性を通過した仮説だけで作る。
 - 次: 現在の実データについて仮説別coverage・期間・sampling bias・outcome可用性を監査し、version付きhypothesis registryと時間順splitを固定する。
+
+## 2026-10-06 現存データをconfirmatory backtestへ使わない
+
+- 事実: 品質一致subsetは44/100 wallet、完結22,973 episode、BTC 10,125 episode、canonical fills 69,708件。
+- bias: 56% wallet除外に加え、BTC fillsの上位5 wallet依存は72.76%。fill/event件数を独立sample数として扱えない。
+- coverage: active BTC 5分bucket 7,291件のfuture 60分OHLCV coverageは55.70%。historical OI / BTC asset context / trades / wallet stateは0%。
+- 決定: `NOT_READY_FOR_CONFIRMATORY_BACKTEST`。現データで許可するのはexploratory期間上のpipeline検証だけで、effect size・勝率・逆指標性・仮説採否を結論しない。
+- split: chronological exploratory / validation / held-outを固定し、各境界前60分をpurgeする。validation / held-outを閾値選択に使わない。
+- 欠測: H01/H06/H08/H09に必要なseriesを推定・0埋めしない。H02/H04/H05のoutcome-free featureとH07 outcome pipelineから実装する。
