@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-BTC exploratory pipeline検証を完了。連続5分event、H02/H04/H05のoutcome-free feature、物理分離したH07 outcomeは生成できたが、core feature READYは0。仮説成績評価を開始せず、forward core market seriesのcollector追加設計を次工程とする。
+BTC exploratory pipeline検証後、forward core market seriesのcollector追加設計を完了。core feature READYは0のままで仮説成績評価は開始していない。次はlive接続なしのfixture限定collector実装とする。
 
 ## Completed
 
@@ -68,6 +68,11 @@ BTC exploratory pipeline検証を完了。連続5分event、H02/H04/H05のoutcom
 
 ## Latest Work
 
+- BTC market collectorを`market-core-v1` / `forward-market-core-v1/`として既存wallet `forward-v3`から分離設計。
+- coreは`activeAssetCtx`、BTC 1分candle、collector health。BTC tradesはH08用optional、wallet state・BBO/L2・liquidation eventは延期。
+- asset ctxにsource timestampが無い場合はNULLを保持し、cutoff前120秒以内だけfreshとする。ctx gapは自動修復しない。
+- 1分candleは確定足だけcanonical化し、直近5,000本内の`candleSnapshot`修復だけ許可。修復元と未解決gapを明示する。
+- 24時間canaryと連続7 JST日のGateを定義したが、collector実装・VPS deploy・live収集は未開始。
 - exploratory限定で連続5分event 5,318件を生成。BTC activity 4,112件、zero activity 1,206件をsource gapと分離。
 - H02 new-entry feature 662 window、H04 averaging-down 251 window、H05 past-20 size baseline 2,593 windowをoutcome-freeで生成。
 - H07 price outcomeを別fileへ保存し、5/15/30/60分各1,714 windowをREADYと判定。5分足解像度であることをschema名とfield名へ明示。
@@ -132,7 +137,7 @@ BTC exploratory pipeline検証を完了。連続5分event、H02/H04/H05のoutcom
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 79 tests passed
+- 84 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -158,4 +163,4 @@ BTC exploratory pipeline検証を完了。連続5分event、H02/H04/H05のoutcom
 
 ## Next
 
-取得済み実データのbacktest readinessを優先仮説ごとに監査し、version付きhypothesis registryと時間順splitを固定する。レポート作成は再現性確認後まで行わない。
+`market-core-v1`を既存wallet collectorから分離した別entrypointとしてfixture限定実装する。live接続・VPS deployは行わず、実装品質Gateを先に通す。

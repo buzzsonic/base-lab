@@ -205,3 +205,14 @@
 - 品質: event / outcome key一意、future field分離、欠測NULL、再実行byte-identical、公開成果物のwallet address 0を確認した。
 - 停止: historical BTC asset contextが0%でcore feature READYは0。partial featureとoutcomeを結合したeffect size・勝率・p値・逆指標性は計算しない。
 - 次: forward collectorへBTC mark / OI / Funding、1分candle、gap healthを最小coreとして追加設計する。BTC tradesはoptional、wallet state・BBO/L2・liquidation eventは後段へ分離する。
+
+## 2026-10-06 BTC market coreをwallet collectorから分離設計する
+
+- 分離: `market-core-v1` / `forward-market-core-v1/`を新設し、既存wallet `forward-v3`のstate、lock、runtime、namespaceを共有・変更しない。
+- core: BTC `activeAssetCtx`のmark/OI/Funding、BTC 1分candle、collector healthだけを必須とする。
+- 時刻: asset ctxにsource timestampが無ければNULLとし、受信時刻を取引所時刻として保存しない。cutoff以前120秒以内だけfreshとする。
+- 修復: 1分candleは直近5,000本内の`candleSnapshot`だけで修復可能。修復元を明示し、ctx gap、範囲外candle gap、trades gapは推定・前方補完しない。
+- optional: BTC tradesはH08専用の障害分離group。wallet state、BBO/L2、liquidation eventは後段へ延期する。
+- Gate: 24時間canary後、連続7 JST日のcandle 100%、asset ctx fresh全体99.5%以上・各日99%以上、unresolved candle gap 0を要求する。欠測windowは分析対象外。
+- 現在地: 設計と契約testのみ完了。live collector、VPS service/timer、収集、仮説成績計算は未実施。
+- 次: fixture限定で別entrypointを実装し、live接続前にtransaction、restart、gap、stale、optional障害分離をtestする。
