@@ -240,14 +240,18 @@ fixtureだけで別entrypointを実装し、raw-before-checkpoint、再起動重
 - core errorとcheckpoint直前failureで前回checkpointが進まないことを検証
 - 既存wallet collector / runtime / namespaceは未変更
 
-## PHASE 6C: 24時間live canary【停止・ユーザー確認待ち】
+## PHASE 6C: live adapter / VPS package【完了】
 
-次は公式WebSocket接続とREST candle修復adapterを実装し、VPS上でBTC market coreだけを24時間canary観測する。
+公式WebSocket接続、REST candle修復adapter、既存wallet runtimeと分離したDocker/systemd packageを実装した。mockでchannel変換、ctx時刻NULL、BTC trade filter、REST修復元を検証済み。live接続はまだ行っていない。
+
+## PHASE 6D: 24時間live canary【停止・ユーザー確認待ち】
+
+次はVPS上でBTC market coreだけを24時間canary観測する。
 
 停止理由:
-- live接続とVPS配置は外部操作を伴う
+- VPS配置とservice起動は外部操作を伴う
 - 24時間の実データ観察待ちが発生する
-- 現在はfixture Gateだけ通過しており、VPS契約・配置先が確定していない
+- adapter/package Gateは通過したが、VPS契約・配置先が確定していない
 
 ユーザー確認事項:
 - 既存または新規VPSを使って24時間canaryへ進むか

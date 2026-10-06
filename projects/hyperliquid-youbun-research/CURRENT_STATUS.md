@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-BTC exploratory pipeline検証後、forward core market seriesの分離設計とfixture限定collector実装を完了。core feature READYは0のままで仮説成績評価は開始していない。次の24時間live canaryはVPS配置先のユーザー確認待ち。
+BTC exploratory pipeline検証後、forward core market seriesの分離設計、fixture collector、live adapter、独立VPS packageまで完了。core feature READYは0のままで仮説成績評価は開始していない。次の24時間live canaryはVPS配置先のユーザー確認待ち。
 
 ## Completed
 
@@ -140,7 +140,7 @@ BTC exploratory pipeline検証後、forward core market seriesの分離設計と
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 91 tests passed
+- 94 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -167,3 +167,5 @@ BTC exploratory pipeline検証後、forward core market seriesの分離設計と
 ## Next
 
 24時間canary用の公式WebSocket / REST adapterとVPS配置へ進むには外部操作が必要。ユーザーが配置先を決めるまで停止する。
+- 公式WebSocketのasset ctx / candle / trades変換と限定REST candle修復adapterを実装。
+- market core専用Docker Compose / systemd serviceを追加し、wallet runtimeと分離。

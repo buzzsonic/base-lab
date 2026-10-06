@@ -1,0 +1,8 @@
+services:
+  market-core:
+    build:
+      context: ../../../..
+      dockerfile: projects/hyperliquid-youbun-research/deploy/market-core/Dockerfile
+    volumes:
+      - /var/lib/youbun-market-core:/data
+    restart: unless-stopped

@@ -23,7 +23,7 @@ exploratory split上のpipeline検証を完了した。historical BTC asset cont
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
 - report mock: 参考UIとして保持。synthetic 120 events / 480 outcomes / observed market rows 0。研究判断には不使用
-- tests: 91 passed
+- tests: 94 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
 - 現在の実データ: 品質条件を満たす44 wallets / 22,973 completed episodes。ただし56%除外によるsampling biasがあり、探索用途に限定
 - behavior label本適用 / 500-wallet expansion / inverse-signal結論: HOLD
@@ -38,6 +38,7 @@ exploratory split上のpipeline検証を完了した。historical BTC asset cont
 - market core design: `market-core-v1` / `forward-market-core-v1/`。asset ctx・1分candle・healthがcore、tradesはoptional
 - live market collection: 未実装・未開始。既存wallet `forward-v3`は変更なし
 - fixture collector: raw run、確定1分足canonical、gap/stale、restart dedup、fail-safe checkpointを実装済み
+- live adapter/package: 公式WS channel変換、限定REST修復、独立Docker/systemd serviceを実装済み。未配置・未起動
 
 ## New Research Goal
 
@@ -67,10 +68,11 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 - `market-core-v1`をfixture限定の別entrypointへ実装
 - raw-before-checkpoint、restart重複、1分足確定、修復元保存、asset ctx staleを自動test
 - BTC tradesの障害がcoreへ波及しないことをtest
+- live adapterと独立VPS packageをmock検証
 
 ### 停止理由
 
-次の24時間live canaryは公式WebSocketへのlive接続、VPS配置という外部操作と、24時間の観察待ちを伴う。fixture品質GateはPASSしたが、配置先が未確定のため停止する。
+次の24時間live canaryはVPS配置・service起動という外部操作と、24時間の観察待ちを伴う。adapter/package品質GateはPASSしたが、配置先が未確定のため停止する。
 
 ### ユーザーに確認してほしいこと
 
