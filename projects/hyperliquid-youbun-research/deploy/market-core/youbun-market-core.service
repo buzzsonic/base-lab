@@ -1,0 +1,16 @@
+[Unit]
+Description=Youbun BTC market core v1 collector
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/base-lab/projects/hyperliquid-youbun-research/deploy/market-core
+ExecStart=/usr/bin/docker compose up
+ExecStop=/usr/bin/docker compose down
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

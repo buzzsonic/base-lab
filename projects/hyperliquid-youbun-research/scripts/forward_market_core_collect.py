@@ -20,7 +20,7 @@ from typing import Any, Iterable
 
 VERSION = "market-core-v1"
 SCHEMA_VERSION = "forward-market-core-row-v1.0.0"
-CORE_STREAMS = {"btc_asset_ctx", "btc_candle_1m"}
+CORE_STREAMS = {"btc_asset_ctx", "btc_candle_1m", "collector_health"}
 OPTIONAL_STREAMS = {"btc_trades"}
 
 
@@ -233,6 +233,7 @@ def collect_fixture(
             "last_successful_run_id": run_id,
             "last_run_finished_at_ms": run_finished_at_ms,
             "last_asset_ctx_received_at_ms": latest_ctx_ms,
+            "last_canonical_candle_t": max(canonical) if canonical else prior_state.get("last_canonical_candle_t"),
         }
         state_temp = output_root / ".state.json.tmp"
         write_json(state_temp, next_state)

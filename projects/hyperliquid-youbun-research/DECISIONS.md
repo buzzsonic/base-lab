@@ -224,3 +224,11 @@
 - 検証: source time NULL、未確定足除外、restart dedup、REST修復元保持、未解決gap、ctx staleをfixture testで確認した。
 - 非変更: wallet `forward-v3`、Docker/systemd runtime、VPS、GitHub schedule、live dataは変更していない。
 - 停止: 次の24時間canaryはlive WebSocket接続、VPS配置、観察期間待ちを伴う。配置先が未確定のためユーザー確認まで開始しない。
+
+## 2026-10-06 live adapterとVPS packageまで先行実装する
+
+- 実装: 公式WebSocketのBTC asset ctx / 1分candle / optional tradesを内部raw envelopeへ変換するadapterを追加した。
+- 修復: checkpoint後のcandle欠落範囲だけ`candleSnapshot`を要求し、`REST_CANDLE_SNAPSHOT`を明示する。
+- runtime: market core専用Docker image、Compose、常駐systemd serviceを追加し、wallet collectorのtimer/state/lockを共有しない。
+- 検証: live通信せずmockでchannel変換、ctx source time NULL、BTCだけのtrade filter、REST修復元を確認した。
+- 停止: コード上の次工程は完了。VPS配置・起動と24時間観察は外部操作なので、配置先のユーザー確認を待つ。
