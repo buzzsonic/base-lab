@@ -1,0 +1,39 @@
+{
+  "pipeline_version": "btc-exploratory-pipeline-v1",
+  "decision_scope": "PIPELINE_VALIDATION_ONLY",
+  "split": "exploratory",
+  "validation_or_held_out_rows_processed": 0,
+  "eligible_wallets": 44,
+  "wallets_with_btc_fills_before_exploratory_end": 18,
+  "source_start_ms": 1788317023773,
+  "exploratory_end_exclusive_ms": 1789912800000,
+  "event_rows": 5318,
+  "zero_activity_event_rows": 1206,
+  "activity_event_rows": 4112,
+  "wallet_flow_ready_rows": 5318,
+  "btc_candle_ready_rows": 1714,
+  "prior_60m_ready_rows": 1703,
+  "core_feature_ready_rows": 0,
+  "new_entry_rows": 662,
+  "averaging_down_rows": 251,
+  "size_baseline_ready_rows": 2593,
+  "outcome_rows": 21272,
+  "price_outcome_ready_by_horizon": {
+    "5": 1714,
+    "15": 1714,
+    "30": 1714,
+    "60": 1714
+  },
+  "blocked_series": [
+    "historical_btc_asset_context",
+    "historical_btc_oi",
+    "historical_btc_trades",
+    "historical_wallet_state",
+    "explicit_liquidation_events"
+  ],
+  "hypothesis_performance_computed": false,
+  "source_sha256": {
+    "canonical_exploratory_btc_fills_aggregate": "1f67bfa7200f73e4a262e9d8a492417a55c88e8569aa5fdb6b5b84f9f4520ce9",
+    "btc_candles": "2f0e34de501a2e6729fc8bf9eccf8d1e01be189f13f4601dd42d682250488086"
+  }
+}

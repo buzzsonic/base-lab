@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-BTC実データreadiness監査を完了。historical subsetは再構成品質は満たすがselection biasとmarket series欠測が大きく、confirmatory backtestは禁止。exploratory split上のpipeline検証だけを次工程とする。
+BTC exploratory pipeline検証を完了。連続5分event、H02/H04/H05のoutcome-free feature、物理分離したH07 outcomeは生成できたが、core feature READYは0。仮説成績評価を開始せず、forward core market seriesのcollector追加設計を次工程とする。
 
 ## Completed
 
@@ -68,6 +68,12 @@ BTC実データreadiness監査を完了。historical subsetは再構成品質は
 
 ## Latest Work
 
+- exploratory限定で連続5分event 5,318件を生成。BTC activity 4,112件、zero activity 1,206件をsource gapと分離。
+- H02 new-entry feature 662 window、H04 averaging-down 251 window、H05 past-20 size baseline 2,593 windowをoutcome-freeで生成。
+- H07 price outcomeを別fileへ保存し、5/15/30/60分各1,714 windowをREADYと判定。5分足解像度であることをschema名とfield名へ明示。
+- event / outcome key一意、future field物理分離、欠測NULL、再実行byte-identical、wallet address非出力を確認。
+- historical BTC asset context 0%のためcore feature READYは0。effect size、勝率、p値、逆指標性、仮説採否は未計算。
+- 次はmark / OI / Funding、BTC 1分candle、gap healthの最小forward core collector設計。market tradesはoptional group。
 - BTC実データ監査で44/100 wallet、完結22,973 episode、BTC 10,125 episode、canonical fills 69,708件を再集計。
 - 56% wallet除外とBTC fills上位5 wallet依存72.76%を重大biasとして固定。
 - active BTC 5分bucket 7,291件に対するfuture coverageは5分55.85%、60分55.70%。historical OI / asset context / trade stream / wallet stateは0%。
@@ -126,7 +132,7 @@ BTC実データreadiness監査を完了。historical subsetは再構成品質は
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 73 tests passed
+- 79 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
