@@ -152,7 +152,7 @@ synthetic mockは参考UIとして保持する。仮説作成、閾値選択、�
 - 時間順exploratory / validation / held-outと境界前60分purgeを固定
 - 判定は`NOT_READY_FOR_CONFIRMATORY_BACKTEST`。仮説の成績・採否はまだ出していない
 
-## PHASE 4: exploratory pipeline構築【次】
+## PHASE 4: exploratory pipeline構築【完了】
 
 held-outへ触れず、exploratory期間だけで以下を実装・検証する。
 
@@ -164,7 +164,14 @@ held-outへ触れず、exploratory期間だけで以下を実装・検証する�
 
 この工程はpipeline検証であり、effect size、勝率、逆指標性、仮説採否を結論しない。H01/H06/H08/H09は不足seriesを推定せずblockを維持する。
 
-## PHASE 4B: 仮説別exploratory backtest【coverage Gate通過後】
+完了内容:
+- exploratoryだけに連続5分window 5,318件を生成し、BTC transitionあり4,112件・zero activity 1,206件を分離
+- H02 new-entry 662 window、H04 averaging-down 251 window、H05 past-20 size baseline 2,593 windowのoutcome-free fieldを生成
+- H07はeventと別fileへ保存し、5/15/30/60分それぞれ1,714 windowで5分足連続coverageを確認
+- event key / outcome key一意、event側future fieldなし、欠測NULL、再実行byte-identicalを確認
+- historical BTC asset contextが0%のためcore `feature_ready`は0。仮説成績・採否は未計算
+
+## PHASE 4B: 仮説別exploratory backtest【HOLD】
 
 BTCで次の順に検証する。
 
@@ -179,6 +186,8 @@ BTCで次の順に検証する。
 
 各仮説はID・version・必要field・閾値候補・regime・主metric・最低sample・欠測条件を事前登録する。閾値修正は元versionを上書きせず、新versionとしてexploratory内で再backtestする。
 
+停止理由: core feature READYが0件。partial H02/H04/H05とH07を結合して成績を出すことは技術的には可能だが、事前登録したcore coverageを満たさないため実行しない。
+
 ## PHASE 5: validation / held-out再現性検証
 
 - exploratoryで固定した条件を変更しない
@@ -191,9 +200,17 @@ BTCで次の順に検証する。
 
 validation / held-outを見て条件を変えた場合、その結果は探索へ格下げし、新しい未使用期間または未使用sampleを必要とする。
 
-## PHASE 6: collector追加設計
+## PHASE 6: collector追加設計【次】
 
 実データreadiness監査で重要仮説の必要fieldが不足すると確定した場合だけ、既存Ubuntu VPS + Docker + systemd timer packageへforward snapshotを追加する。収集自体を目的化しない。
+
+次の設計対象:
+- BTC asset context（mark / OI / Funding）の時系列snapshot
+- BTC 1分candle（H07を正規schemaの1分解像度へ合わせる）
+- BTC trades（H08 opposite flow用。任意追加group）
+- collector health / gap manifest
+
+wallet state、BBO/L2、liquidation eventは別のoptional拡張とし、最小core collectorへ一度に混ぜない。
 
 ## PHASE 7: 最終レポート
 

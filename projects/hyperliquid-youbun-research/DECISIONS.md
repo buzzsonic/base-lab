@@ -196,3 +196,12 @@
 - 決定: `NOT_READY_FOR_CONFIRMATORY_BACKTEST`。現データで許可するのはexploratory期間上のpipeline検証だけで、effect size・勝率・逆指標性・仮説採否を結論しない。
 - split: chronological exploratory / validation / held-outを固定し、各境界前60分をpurgeする。validation / held-outを閾値選択に使わない。
 - 欠測: H01/H06/H08/H09に必要なseriesを推定・0埋めしない。H02/H04/H05のoutcome-free featureとH07 outcome pipelineから実装する。
+
+## 2026-10-06 exploratory pipeline PASS、仮説成績評価はHOLD
+
+- 実装: exploratory期間だけに連続5分event 5,318件を生成し、activity 4,112件とzero activity 1,206件を分離した。
+- feature: H02 new-entry 662 window、H04 averaging-down 251 window、H05 past-20 size baseline 2,593 windowをoutcome-freeで生成した。
+- outcome: eventと別fileへ5/15/30/60分を保存し、各1,714 windowで連続5分足coverageを確認した。1分足ではないためtime-to-high/lowは5分解像度と明記した。
+- 品質: event / outcome key一意、future field分離、欠測NULL、再実行byte-identical、公開成果物のwallet address 0を確認した。
+- 停止: historical BTC asset contextが0%でcore feature READYは0。partial featureとoutcomeを結合したeffect size・勝率・p値・逆指標性は計算しない。
+- 次: forward collectorへBTC mark / OI / Funding、1分candle、gap healthを最小coreとして追加設計する。BTC tradesはoptional、wallet state・BBO/L2・liquidation eventは後段へ分離する。
