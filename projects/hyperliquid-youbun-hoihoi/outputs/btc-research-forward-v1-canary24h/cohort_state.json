@@ -2,9 +2,9 @@
   "analysis_start_ms": 1791213345616,
   "cohort_id": "btc-forward-canary24h-20261006",
   "config_sha256": "1afb47b9558c3d53863f3b0c985996691e60c6da11edd8c930ef2e5325c74f72",
-  "last_run_id": "20261005T220546Z",
-  "last_success_poll_ms": 1791237946529,
+  "last_run_id": "20261006T021458Z",
+  "last_success_poll_ms": 1791252898704,
   "schema_version": 1,
-  "successful_run_count": 3,
+  "successful_run_count": 4,
   "window_end_ms": 1791299745616
 }
