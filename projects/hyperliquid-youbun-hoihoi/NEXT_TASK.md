@@ -10,7 +10,7 @@
 
 ## Current Task
 
-BTC forward v1の5-wallet・24時間canaryを完走させ、TWAPとoverlapの実証を監査する。
+GitHub scheduleを使わないHoihoi専用single-flight timerを設計し、新namespaceの24時間canaryを再開できる状態にする。
 
 契約正本: `contracts/btc-research-sample-v0.1/`
 収集契約: `BTC_FORWARD_COLLECTION_CONTRACT.md`
@@ -28,18 +28,20 @@ BTC forward v1の5-wallet・24時間canaryを完走させ、TWAPとoverlapの実
 - 観察期間: 2026-10-06 00:15:45 JST〜2026-10-07 00:15:45 JST
 - state/config SHA/legacy分離を確認。自動sample昇格はfalse
 
-### 2. Running Canary Gate
+### 2. Completed 24h Gate
 
-- 5 walletを24時間観察し、TWAP実rowまたはoverlap重複を得る
-- raw重複を残し、canonicalがfirst-seen rowを維持することを実データで確認する
-- 同一timestampの通常fill＋TWAP chainは一意な場合だけ採用し、曖昧ならFAILを維持する
-- 空応答を「順序検証済み」とは扱わない
+- 判定: FAIL（scheduler gap / BTC 5m coverage）
+- collection run 5 / expected 73、最大gap 413.8分、終端gap 367.0分
+- BTC 5m 77 / 288 = 26.7%
+- TWAP 2,499、overlap重複180、source order / ambiguity / continuity error 0
+- workflowは`disabled_manually`
 
-### 3. Durable Window Design
+### 3. Durable Window Redesign
 
-- canary artifactからpromotionせず、legacyと完全分離した新state/data rootを定義する
-- 成功JST日はfills/TWAP/marketのrequired endpointが全て成功した日のみ加算する
-- schedule遅延、cap、gap、順序不明、state rollbackは当日失敗として扱う
+- GitHub scheduleを正本schedulerにしない
+- external timer + flock/single-flight + dirty/push failure fail-fastを使う
+- v1 canary24hを凍結し、再試験は新namespace / new analysis startにする
+- 成功JST日はfills/TWAP/marketとcadence coverageが全て通った日のみ加算する
 
 ### 4. Expansion Gate
 
@@ -63,7 +65,7 @@ BTC forward v1の5-wallet・24時間canaryを完走させ、TWAPとoverlapの実
 - forward contract/order primitives: 43 tests PASS、live canary NOT RUN
 - canary collector/manual workflow: 49 tests PASS
 - live canary: run 37328123994 PASS、BTC 12、TWAP 0、overlap重複0のためpartial evidence
-- 24h canary: `CANARY24H_RUNNING`、51 tests PASS、initial run 37330544150、data `a0d35cca`
+- 24h canary: `CANARY24H_GATE_FAIL_SCHEDULER`、52 tests PASS、workflow disabled
 - weekly: run 37172824334 success / JST report `2026-10-04` / data `1b7786e`
 - 1,000-wallet expansion: HOLD（当面は非優先）
 

@@ -1,5 +1,13 @@
 # DECISIONS
 
+## 2026-10-07: GitHub schedule canaryを不採用
+
+- 20分cronは24時間でcollection run 5、最大gap 413.8分となり、研究windowのscheduler要件を満たさなかった。
+- TWAP 2,499件、overlap重複180件によりsource-order/first-seen経路は実証済み。再試験の目的はschedulerと市場coverageに限定する。
+- 既存canary24h namespaceはFAIL証跡として凍結し、成功JST日に数えない。
+- 次回はGitHub scheduleを使わず、external timer + single-flightの新namespaceで開始する。
+- Hoihoi候補は開始直前のBTC活動をoutcome-freeに確認して固定する。
+
 ## 2026-10-06: 24時間canaryは5 wallet固定・sample外で開始
 
 - 1件のHoihoi暫定候補と、TWAP API経路検証専用4件を分離roleで固定した。

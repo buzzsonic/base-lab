@@ -2,7 +2,7 @@
 
 ## 状態
 
-`CANARY24H_RUNNING`。5-wallet隔離windowを2026-10-06 00:15:45 JSTに開始。既存current/shadow checkpointは変更しない。24時間Gate完了前に限定cohortやsampleへ昇格しない。
+`CANARY24H_GATE_FAIL_SCHEDULER`。初回5-wallet windowはGitHub schedule gapとBTC 5m coverage不足でFAIL、workflow停止済み。既存current/shadow checkpointは変更していない。再試験はexternal timer・新namespace・新analysis startを必須とする。
 
 ## 目的
 

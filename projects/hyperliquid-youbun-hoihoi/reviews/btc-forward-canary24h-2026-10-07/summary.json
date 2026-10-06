@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "audit_version": "btc-forward-canary24h-gate-v1",
+  "decision": "FAIL",
+  "failure_reasons": [
+    "BTC_5M_COVERAGE_LT_95PCT",
+    "FINAL_COVERAGE_GAP_GT_40M",
+    "SCHEDULE_GAP_GT_40M"
+  ],
+  "analysis_start_ms": 1791213345616,
+  "window_end_ms": 1791299745616,
+  "collection_runs": 5,
+  "successful_runs": 5,
+  "expected_run_slots": 73,
+  "max_run_gap_minutes": 413.8333333333333,
+  "final_tail_gap_minutes": 366.96026666666666,
+  "fills_raw_records": 800,
+  "twap_raw_records": 2499,
+  "raw_records": 3299,
+  "canonical_records": 3119,
+  "overlap_duplicates": 180,
+  "btc_position_rows": 46,
+  "ambiguous_same_ms_times": 0,
+  "position_continuity_errors": 0,
+  "source_order_failures": 0,
+  "endpoint_failures": 0,
+  "page_cap_hits": 0,
+  "source_gaps": 0,
+  "btc_5m_unique_slots": 77,
+  "btc_5m_expected_slots": 288,
+  "btc_5m_coverage": 0.2673611111111111,
+  "hoihoi_candidate": {
+    "wallet": "0x7b2dd048c04282c86f2f7e95b56e404c08451522",
+    "fills_raw": 3,
+    "twap_raw": 0,
+    "btc_position_rows": 0
+  },
+  "workflow_state_after_audit": "disabled_manually",
+  "promotion_allowed": false
+}
