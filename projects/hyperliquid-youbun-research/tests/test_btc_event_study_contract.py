@@ -81,7 +81,8 @@ class BtcEventStudyContractTest(unittest.TestCase):
         self.assertIn("実データbacktest readiness監査【完了】", next_task)
         self.assertIn("exploratory pipeline構築【完了】", next_task)
         self.assertIn("collector追加設計【完了】", next_task)
-        self.assertIn("market core collector実装【次】", next_task)
+        self.assertIn("market core collector実装【完了】", next_task)
+        self.assertIn("24時間live canary【停止・ユーザー確認待ち】", next_task)
         self.assertIn("validation / held-out再現性検証", next_task)
 
     def test_synthetic_mock_is_not_research_evidence(self):

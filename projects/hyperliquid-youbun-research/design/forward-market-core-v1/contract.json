@@ -1,6 +1,6 @@
 {
   "schema_version": "forward-market-core-contract-v1.0.0",
-  "status": "DESIGN_COMPLETE_NOT_IMPLEMENTED",
+  "status": "FIXTURE_IMPLEMENTATION_COMPLETE_NOT_LIVE",
   "collector_version": "market-core-v1",
   "storage_namespace": "forward-market-core-v1/",
   "existing_wallet_collector_unchanged": true,

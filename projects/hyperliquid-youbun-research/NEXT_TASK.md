@@ -226,11 +226,32 @@ wallet state、BBO/L2、liquidation eventは別のoptional拡張とし、最小c
 - `design/forward-market-core-v1/contract.json`
 - `design/forward-market-core-v1/quality_gate.md`
 
-## PHASE 6B: market core collector実装【次】
+## PHASE 6B: market core collector実装【完了】
 
 fixtureだけで別entrypointを実装し、raw-before-checkpoint、再起動重複、1分足確定、REST修復、asset ctx stale、trades障害分離を検証する。
 
 この工程ではVPSへdeployせず、WebSocket live canaryも開始しない。既存wallet `forward-v3`のfile・state・Docker/systemd runtimeを変更しない。実装Gate通過後、別タスクで24時間canary開始可否を判断する。
+
+完了内容:
+- 独立entrypoint `scripts/forward_market_core_collect.py`を追加
+- fixture JSONLからasset ctx / 1分candle / optional tradesをraw runへappend-only保存
+- source time NULL保持、確定足だけcanonical化、restart重複排除、gap / stale manifestを実装
+- optional tradesのparse失敗をcoreから分離
+- core errorとcheckpoint直前failureで前回checkpointが進まないことを検証
+- 既存wallet collector / runtime / namespaceは未変更
+
+## PHASE 6C: 24時間live canary【停止・ユーザー確認待ち】
+
+次は公式WebSocket接続とREST candle修復adapterを実装し、VPS上でBTC market coreだけを24時間canary観測する。
+
+停止理由:
+- live接続とVPS配置は外部操作を伴う
+- 24時間の実データ観察待ちが発生する
+- 現在はfixture Gateだけ通過しており、VPS契約・配置先が確定していない
+
+ユーザー確認事項:
+- 既存または新規VPSを使って24時間canaryへ進むか
+- 使用する場合の配置先を指定すること（秘密情報はGitへ保存しない）
 
 ## PHASE 7: 最終レポート
 

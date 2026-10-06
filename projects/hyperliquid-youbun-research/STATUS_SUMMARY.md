@@ -12,7 +12,7 @@
 
 BTC event-studyのdata contractとevent/outcome schemaは固定済み。synthetic report mockも作成済みだが、今後はレポート作成を先行しない。
 
-exploratory split上のpipeline検証を完了した。連続5分eventとoutcomeの物理分離はPASSしたが、historical BTC asset contextが0%でcore feature READYも0件。仮説成績へ進まず、必要なforward core seriesのcollector追加設計を完了した。次はfixture限定の別collector実装で、live収集はまだ開始しない。
+exploratory split上のpipeline検証を完了した。historical BTC asset contextが0%でcore feature READYも0件のため仮説成績はHOLD。forward market coreの分離設計とfixture限定collector実装まで完了し、live収集開始前で停止している。
 
 ## Key Status
 
@@ -23,7 +23,7 @@ exploratory split上のpipeline検証を完了した。連続5分eventとoutcome
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
 - report mock: 参考UIとして保持。synthetic 120 events / 480 outcomes / observed market rows 0。研究判断には不使用
-- tests: 84 passed
+- tests: 91 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
 - 現在の実データ: 品質条件を満たす44 wallets / 22,973 completed episodes。ただし56%除外によるsampling biasがあり、探索用途に限定
 - behavior label本適用 / 500-wallet expansion / inverse-signal結論: HOLD
@@ -37,6 +37,7 @@ exploratory split上のpipeline検証を完了した。連続5分eventとoutcome
 - core feature READY: 0。PHASE 4B hypothesis performanceはHOLD
 - market core design: `market-core-v1` / `forward-market-core-v1/`。asset ctx・1分candle・healthがcore、tradesはoptional
 - live market collection: 未実装・未開始。既存wallet `forward-v3`は変更なし
+- fixture collector: raw run、確定1分足canonical、gap/stale、restart dedup、fail-safe checkpointを実装済み
 
 ## New Research Goal
 
@@ -61,11 +62,19 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 
 ## Next
 
-1. `market-core-v1`をfixture限定で別entrypointへ実装
-2. raw-before-checkpoint、restart重複、1分足確定、REST修復、asset ctx staleを自動test
-3. BTC tradesの障害がcoreへ波及しないことをtest
-4. VPS deploy / live canaryは実装Gate後の別タスクまで開始しない
-5. core coverage Gateを通過するまでPHASE 4Bの仮説成績評価を開始しない
+### 完了したこと
+
+- `market-core-v1`をfixture限定の別entrypointへ実装
+- raw-before-checkpoint、restart重複、1分足確定、修復元保存、asset ctx staleを自動test
+- BTC tradesの障害がcoreへ波及しないことをtest
+
+### 停止理由
+
+次の24時間live canaryは公式WebSocketへのlive接続、VPS配置という外部操作と、24時間の観察待ちを伴う。fixture品質GateはPASSしたが、配置先が未確定のため停止する。
+
+### ユーザーに確認してほしいこと
+
+24時間canaryへ進めるVPSを用意するか、既存VPSの配置先を指定してほしい。指定されるまでlive接続、deploy、仮説成績評価は開始しない。
 
 詳細正本: `RESEARCH_DIRECTION.md`
 

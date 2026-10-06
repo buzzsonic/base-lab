@@ -8,4 +8,4 @@
 
 既存のwallet collector `forward-v3` / `forward-data-v3/` は変更しない。market coreは将来実装する場合も、別entrypoint・別state・別lock・別systemd unit・別保存namespace `forward-market-core-v1/` を使う。
 
-現時点の状態は `DESIGN_COMPLETE_NOT_IMPLEMENTED`。VPS起動、WebSocket接続、データ収集、仮説成績計算は行っていない。
+現時点の状態は `FIXTURE_IMPLEMENTATION_COMPLETE_NOT_LIVE`。`scripts/forward_market_core_collect.py`で保存・canonical化・gap・checkpointをfixture検証できる。VPS起動、WebSocket接続、実データ収集、仮説成績計算は行っていない。
