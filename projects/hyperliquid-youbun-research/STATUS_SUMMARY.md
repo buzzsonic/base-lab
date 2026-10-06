@@ -12,7 +12,7 @@
 
 BTC event-studyのdata contractとevent/outcome schemaは固定済み。synthetic report mockも作成済みだが、今後はレポート作成を先行しない。
 
-exploratory split上のpipeline検証を完了した。連続5分eventとoutcomeの物理分離はPASSしたが、historical BTC asset contextが0%でcore feature READYも0件。仮説成績へ進まず、必要なforward core seriesのcollector追加設計へ移る。
+exploratory split上のpipeline検証を完了した。連続5分eventとoutcomeの物理分離はPASSしたが、historical BTC asset contextが0%でcore feature READYも0件。仮説成績へ進まず、必要なforward core seriesのcollector追加設計を完了した。次はfixture限定の別collector実装で、live収集はまだ開始しない。
 
 ## Key Status
 
@@ -23,7 +23,7 @@ exploratory split上のpipeline検証を完了した。連続5分eventとoutcome
 - v1/v2 forward collector: GitHub schedule間隔不足でFAIL / 凍結
 - v3 VPS runtime package: 実装済み、Ubuntu CI / Docker build PASS
 - report mock: 参考UIとして保持。synthetic 120 events / 480 outcomes / observed market rows 0。研究判断には不使用
-- tests: 79 passed
+- tests: 84 passed
 - behavior label v1: 既存PoCとして保持するが主研究単位ではない
 - 現在の実データ: 品質条件を満たす44 wallets / 22,973 completed episodes。ただし56%除外によるsampling biasがあり、探索用途に限定
 - behavior label本適用 / 500-wallet expansion / inverse-signal結論: HOLD
@@ -35,6 +35,8 @@ exploratory split上のpipeline検証を完了した。連続5分eventとoutcome
 - outcome-free features: H02 662 windows / H04 251 / H05 baseline-ready 2,593
 - H07 price outcome READY: 5/15/30/60m 各1,714 windows（5分足解像度）
 - core feature READY: 0。PHASE 4B hypothesis performanceはHOLD
+- market core design: `market-core-v1` / `forward-market-core-v1/`。asset ctx・1分candle・healthがcore、tradesはoptional
+- live market collection: 未実装・未開始。既存wallet `forward-v3`は変更なし
 
 ## New Research Goal
 
@@ -59,10 +61,10 @@ BTCを第一対象に、1分/5分などのmarket window単位で:
 
 ## Next
 
-1. BTC asset context（mark / OI / Funding）を最小coreとしてforward収集設計へ追加
-2. BTC 1分candleとcollector health / gap manifestを同じ時刻契約で保存
-3. BTC tradesはH08用optional groupとして分離設計
-4. wallet state、BBO/L2、liquidation eventは一括実装せず後段optional拡張にする
+1. `market-core-v1`をfixture限定で別entrypointへ実装
+2. raw-before-checkpoint、restart重複、1分足確定、REST修復、asset ctx staleを自動test
+3. BTC tradesの障害がcoreへ波及しないことをtest
+4. VPS deploy / live canaryは実装Gate後の別タスクまで開始しない
 5. core coverage Gateを通過するまでPHASE 4Bの仮説成績評価を開始しない
 
 詳細正本: `RESEARCH_DIRECTION.md`
@@ -73,4 +75,5 @@ synthetic report mockは参考UIとして残すが、仮説作成・閾値選択
 主分析は連続5分window、一次保存は1分bucket。event featureは`cutoff_ms`以前、outcomeは5/15/30/60分を別namespaceへ物理分離する。optional state/trade/book欠測はcore eventを捨てず該当列だけNULLにする。
 wallet fills/TWAP/Fundingは履歴取得可能。position/leverage/margin/liquidation price/account stateはforward snapshotとしてのみ採用する。BTCのmarket-wide liquidation flowは公式公開APIで直接取得不能とし、proxyで同名保存しない。
 VPSは研究目的ではなく不足データを安定収集する手段。readiness監査で必要性を確認し、canary品質Gateを通過するまで本番VPS Shadowを開始しない。
+BTC market coreは既存wallet collectorと分離し、source timeのないasset ctxを受信時刻で偽装しない。candleだけを限定的にREST修復し、ctx/trades gapは欠測のまま残す。
 欠落stateの推定・0埋め、wallet差替え、先回りしたinverse-signal結論は禁止。

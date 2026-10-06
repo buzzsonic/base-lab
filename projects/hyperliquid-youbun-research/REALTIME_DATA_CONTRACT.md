@@ -5,6 +5,8 @@
 
 固定100口座のfills / TWAP / Funding先行収集は`FORWARD_COLLECTOR_CONTRACT.md`を正本とする。この先行collectorはepisode完全性のための基盤であり、account state・liquidation・BBO/L2を含む本Realtime DBの完成を意味しない。
 
+BTC市場の最小forward seriesは`design/forward-market-core-v1/`を正本とする。wallet collectorとはnamespace・state・lock・runtimeを分離し、asset context、1分candle、healthをcore、tradesをoptionalとして扱う。これは設計済み・未実装であり、VPS収集はまだ開始していない。
+
 ## 保存ストリーム
 
 | テーブル | 入力 | 最低限の保存内容 |

@@ -1,0 +1,64 @@
+{
+  "schema_version": "forward-market-core-contract-v1.0.0",
+  "status": "DESIGN_COMPLETE_NOT_IMPLEMENTED",
+  "collector_version": "market-core-v1",
+  "storage_namespace": "forward-market-core-v1/",
+  "existing_wallet_collector_unchanged": true,
+  "live_collection_started": false,
+  "raw_envelope": {
+    "required": [
+      "schema_version", "collector_version", "stream", "source", "coin",
+      "source_time_ms", "received_at_ms", "connection_id",
+      "sequence_in_connection", "is_snapshot", "repair_source",
+      "dedup_key", "payload"
+    ],
+    "nullable": ["source_time_ms", "repair_source"]
+  },
+  "core_streams": {
+    "btc_asset_ctx": {
+      "transport": "websocket",
+      "subscription": {"type": "activeAssetCtx", "coin": "BTC"},
+      "required_payload_fields": ["markPx", "openInterest", "funding"],
+      "source_time_nullable": true,
+      "freshness_ms": 120000,
+      "automatic_backfill": "NONE",
+      "missing_policy": "STALE_OR_UNAVAILABLE"
+    },
+    "btc_candle_1m": {
+      "transport": "websocket",
+      "subscription": {"type": "candle", "coin": "BTC", "interval": "1m"},
+      "canonical_key": ["coin", "interval", "t"],
+      "expected_step_ms": 60000,
+      "canonical_finalized_only": true,
+      "repair": {
+        "endpoint": "candleSnapshot",
+        "maximum_recent_candles": 5000,
+        "repair_source": "REST_CANDLE_SNAPSHOT"
+      },
+      "missing_policy": "UNAVAILABLE"
+    },
+    "collector_health": {
+      "heartbeat_ms": 30000,
+      "events": [
+        "PROCESS_START", "PROCESS_STOP", "CONNECTION_OPEN", "CONNECTION_CLOSE",
+        "SUBSCRIPTION_ACK", "HEARTBEAT", "RECONNECT", "STALE_INTERVAL",
+        "GAP_OPEN", "GAP_RESOLVED", "PARSE_ERROR", "WRITE_ERROR"
+      ]
+    }
+  },
+  "optional_streams": {
+    "btc_trades": {
+      "transport": "websocket",
+      "subscription": {"type": "trades", "coin": "BTC"},
+      "dedup_preference": ["tid", "canonical_payload_hash"],
+      "failure_isolation": "DOES_NOT_FAIL_CORE",
+      "missing_policy": "H08_UNAVAILABLE"
+    }
+  },
+  "deferred": ["wallet_state", "bbo", "l2", "liquidation_event"],
+  "gap_statuses": ["OPEN", "RESOLVED_REST", "UNRESOLVED"],
+  "forbidden": [
+    "orders", "signing", "private_keys", "fund_transfers",
+    "forward_fill", "zero_fill_missing", "synthetic_asset_ctx"
+  ]
+}

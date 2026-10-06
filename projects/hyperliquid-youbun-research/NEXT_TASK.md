@@ -200,7 +200,7 @@ BTCで次の順に検証する。
 
 validation / held-outを見て条件を変えた場合、その結果は探索へ格下げし、新しい未使用期間または未使用sampleを必要とする。
 
-## PHASE 6: collector追加設計【次】
+## PHASE 6A: collector追加設計【完了】
 
 実データreadiness監査で重要仮説の必要fieldが不足すると確定した場合だけ、既存Ubuntu VPS + Docker + systemd timer packageへforward snapshotを追加する。収集自体を目的化しない。
 
@@ -211,6 +211,26 @@ validation / held-outを見て条件を変えた場合、その結果は探索�
 - collector health / gap manifest
 
 wallet state、BBO/L2、liquidation eventは別のoptional拡張とし、最小core collectorへ一度に混ぜない。
+
+完了内容:
+- `forward-market-core-v1/`を既存wallet `forward-v3`と完全に分離する契約を固定
+- coreをBTC `activeAssetCtx`、1分candle、collector healthに限定
+- BTC tradesは障害分離したH08用optional group、wallet state / BBO/L2 / liquidation eventは後段へ延期
+- source timestampが無いasset ctxはNULL、120秒超はSTALEとして欠測化
+- 1分candleだけ直近5,000本内のREST修復を許可し、修復元と未解決gapを保存
+- 24時間canaryと連続7 JST日のresearch-ready Gateを定義
+- live collector、VPS service、timer、収集は未実装・未開始
+
+成果物:
+- `design/forward-market-core-v1/collector_contract.md`
+- `design/forward-market-core-v1/contract.json`
+- `design/forward-market-core-v1/quality_gate.md`
+
+## PHASE 6B: market core collector実装【次】
+
+fixtureだけで別entrypointを実装し、raw-before-checkpoint、再起動重複、1分足確定、REST修復、asset ctx stale、trades障害分離を検証する。
+
+この工程ではVPSへdeployせず、WebSocket live canaryも開始しない。既存wallet `forward-v3`のfile・state・Docker/systemd runtimeを変更しない。実装Gate通過後、別タスクで24時間canary開始可否を判断する。
 
 ## PHASE 7: 最終レポート
 
