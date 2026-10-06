@@ -216,3 +216,11 @@
 - Gate: 24時間canary後、連続7 JST日のcandle 100%、asset ctx fresh全体99.5%以上・各日99%以上、unresolved candle gap 0を要求する。欠測windowは分析対象外。
 - 現在地: 設計と契約testのみ完了。live collector、VPS service/timer、収集、仮説成績計算は未実施。
 - 次: fixture限定で別entrypointを実装し、live接続前にtransaction、restart、gap、stale、optional障害分離をtestする。
+
+## 2026-10-06 market core fixture実装PASS、live canary前で停止する
+
+- 実装: `forward_market_core_collect.py`でraw run、確定1分足canonical、gap/stale manifest、atomic checkpointを実装した。
+- 障害分離: trades parse errorはoptional errorとしてcoreを継続し、core errorまたはcheckpoint前failureでは前回checkpointを進めない。
+- 検証: source time NULL、未確定足除外、restart dedup、REST修復元保持、未解決gap、ctx staleをfixture testで確認した。
+- 非変更: wallet `forward-v3`、Docker/systemd runtime、VPS、GitHub schedule、live dataは変更していない。
+- 停止: 次の24時間canaryはlive WebSocket接続、VPS配置、観察期間待ちを伴う。配置先が未確定のためユーザー確認まで開始しない。

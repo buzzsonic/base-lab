@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-BTC exploratory pipeline検証後、forward core market seriesのcollector追加設計を完了。core feature READYは0のままで仮説成績評価は開始していない。次はlive接続なしのfixture限定collector実装とする。
+BTC exploratory pipeline検証後、forward core market seriesの分離設計とfixture限定collector実装を完了。core feature READYは0のままで仮説成績評価は開始していない。次の24時間live canaryはVPS配置先のユーザー確認待ち。
 
 ## Completed
 
@@ -68,6 +68,9 @@ BTC exploratory pipeline検証後、forward core market seriesのcollector追加
 
 ## Latest Work
 
+- fixture限定の独立entrypointでasset ctx、1分candle、optional tradesのraw保存を実装。
+- 確定1分足だけのcanonical化、restart dedup、candle gap、asset ctx stale、optional障害分離、fail-safe checkpointを7 testで確認。
+- WebSocket接続、REST live adapter、VPS deploy、実データ収集は未実施。
 - BTC market collectorを`market-core-v1` / `forward-market-core-v1/`として既存wallet `forward-v3`から分離設計。
 - coreは`activeAssetCtx`、BTC 1分candle、collector health。BTC tradesはH08用optional、wallet state・BBO/L2・liquidation eventは延期。
 - asset ctxにsource timestampが無い場合はNULLを保持し、cutoff前120秒以内だけfreshとする。ctx gapは自動修復しない。
@@ -137,7 +140,7 @@ BTC exploratory pipeline検証後、forward core market seriesのcollector追加
 ## Tests
 
 - `python3 -m unittest discover -s tests -v`
-- 84 tests passed
+- 91 tests passed
 - 専用Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN` を使用。
 - Discord 403は解消済み。
 - 最終成功通知run: `36956495550`。
@@ -163,4 +166,4 @@ BTC exploratory pipeline検証後、forward core market seriesのcollector追加
 
 ## Next
 
-`market-core-v1`を既存wallet collectorから分離した別entrypointとしてfixture限定実装する。live接続・VPS deployは行わず、実装品質Gateを先に通す。
+24時間canary用の公式WebSocket / REST adapterとVPS配置へ進むには外部操作が必要。ユーザーが配置先を決めるまで停止する。

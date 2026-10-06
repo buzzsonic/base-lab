@@ -30,6 +30,21 @@
 8. GitHubへpushする。
 9. push成功後だけDiscord完了通知を送る。push失敗時はSUCCESSを送らない。
 
+## 連続実行
+
+各工程の完了後はユーザーの「次進めて」を待たず、`NEXT_TASK.md`の次工程へ続ける。実装、test、検証、状態文書更新、次工程を連続して行う。
+
+次の場合だけ停止する。
+
+- ユーザー判断が必要
+- 実データまたは観察期間の完了待ち
+- VPS契約など外部操作が必要
+- 大きな設計変更が必要
+- 品質Gateに失敗
+- 安全に次へ進める根拠がない
+
+停止時は`STATUS_SUMMARY.md`へ、完了内容、停止理由、ユーザーへ確認してほしいことを短く記載する。
+
 Discord Webhookは`YOUBUN_DISCORD_WEBHOOK_URL`環境変数からのみ読む。URLや秘密情報をファイル、ログ、commit、通知本文へ含めない。
 
 ローカルWebhookがない場合は、default branchへworkflow導入後、`Youbun Research Completion Notification`を`gh workflow run`で起動し、養分くん専用GitHub Secret `DISCORD_WEBHOOK_URL_YOUBUNKUN`を利用する。workflowが未mergeなら実送信待ちを明記し、成功と偽らない。
