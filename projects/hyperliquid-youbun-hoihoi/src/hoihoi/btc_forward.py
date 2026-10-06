@@ -353,3 +353,165 @@ def collect_canary_cohort(api, config_path: Path, output: Path, now_ms: int) -> 
             "successful_run_count": prior_runs + 1,
         })
     return report
+
+
+def audit_canary_cohort24h(output: Path, audit_at_ms: int) -> dict:
+    """Audit the completed 24h validation window; every research gate is fail-closed."""
+    state = json.loads((output / "cohort_state.json").read_text())
+    start_ms = int(state["analysis_start_ms"])
+    end_ms = int(state["window_end_ms"])
+    run_paths = sorted((output / "cohort_runs").glob("*.json"))
+    runs = [json.loads(path.read_text()) for path in run_paths]
+    run_times = [int(datetime.strptime(row["run_id"], "%Y%m%dT%H%M%SZ").replace(
+        tzinfo=timezone.utc).timestamp() * 1000) for row in runs]
+    intervals = [right - left for left, right in zip(run_times, run_times[1:])]
+    expected_interval_ms = 20 * 60_000
+    reasons: list[str] = []
+    if audit_at_ms < end_ms:
+        reasons.append("WINDOW_NOT_COMPLETE")
+    if not runs:
+        reasons.append("NO_COLLECTION_RUNS")
+    if any(row.get("quality_gate") != "PASS" for row in runs):
+        reasons.append("COLLECTION_RUN_FAILED")
+    if run_times:
+        if run_times[0] - start_ms > 5 * 60_000:
+            reasons.append("INITIAL_RUN_LATE")
+        if max(intervals, default=0) > 2 * expected_interval_ms:
+            reasons.append("SCHEDULE_GAP_GT_40M")
+        if end_ms - run_times[-1] > 2 * expected_interval_ms:
+            reasons.append("FINAL_COVERAGE_GAP_GT_40M")
+
+    wallet_reports = []
+    all_twap = 0
+    all_overlap_duplicates = 0
+    all_btc_rows = 0
+    all_ambiguous = 0
+    all_continuity = 0
+    source_order_failures = 0
+    market_times: set[int] = set()
+    wallet_dirs = sorted((output / "wallets").glob("0x*"))
+    for wallet_dir in wallet_dirs:
+        raw_rows: list[dict] = []
+        endpoint_counts = {"fills": 0, "twap": 0}
+        sequence_failures = 0
+        response_order_failures = 0
+        manifests = []
+        for run_dir in sorted(wallet_dir.glob("raw/date=*/run=*")):
+            manifest = json.loads((run_dir / "manifest.json").read_text())
+            manifests.append(manifest)
+            run_rows = []
+            for endpoint in ENDPOINTS:
+                path = run_dir / f"{endpoint}.jsonl"
+                rows = _read_jsonl(path) if path.exists() else []
+                endpoint_counts[endpoint] += len(rows)
+                run_rows.extend(rows)
+                grouped: dict[int, list[int]] = defaultdict(list)
+                for row in rows:
+                    grouped[int(row["page_index"])].append(int(row["row_index"]))
+                if any(indexes != list(range(len(indexes))) for indexes in grouped.values()):
+                    response_order_failures += 1
+            if [int(row["source_sequence"]) for row in run_rows] != list(range(len(run_rows))):
+                sequence_failures += 1
+            raw_rows.extend(run_rows)
+            candle_path = run_dir / "btc_5m.jsonl"
+            for candle in _read_jsonl(candle_path) if candle_path.exists() else []:
+                payload = candle.get("payload") or {}
+                timestamp = int(payload.get("t") or 0)
+                if start_ms <= timestamp < end_ms:
+                    market_times.add(timestamp)
+
+        canonical = canonical_first_seen(raw_rows)
+        overlap_duplicates = len(raw_rows) - len(canonical)
+        btc_rows = []
+        seen_tids = set()
+        for row in canonical:
+            payload = payload_for(row["source_endpoint"], row["payload"])
+            if payload.get("coin") != "BTC":
+                continue
+            tid = payload.get("tid")
+            key = ("tid", str(tid)) if tid is not None else (row["source_endpoint"], row["dedup_key"])
+            if key not in seen_tids:
+                seen_tids.add(key)
+                btc_rows.append(row)
+        by_time: dict[int, list[dict]] = defaultdict(list)
+        for row in btc_rows:
+            by_time[int(row["source_time_ms"])].append(row)
+        expected = None
+        ambiguous = 0
+        continuity = 0
+        for time_ms in sorted(by_time):
+            chain = unique_position_chain(by_time[time_ms], expected)
+            if chain is None:
+                ambiguous += 1
+                expected = None
+                continue
+            payload = payload_for(chain[0]["source_endpoint"], chain[0]["payload"])
+            before = Decimal(str(payload.get("startPosition") or "0"))
+            if expected is not None and before != expected:
+                continuity += 1
+            expected = _after_position(chain[-1])
+        manifest_failures = sum(item.get("quality_gate") != "PASS" for item in manifests)
+        source_order_failures += sequence_failures + response_order_failures
+        all_twap += endpoint_counts["twap"]
+        all_overlap_duplicates += overlap_duplicates
+        all_btc_rows += len(btc_rows)
+        all_ambiguous += ambiguous
+        all_continuity += continuity
+        wallet_reports.append({
+            "wallet": wallet_dir.name,
+            "runs": len(manifests),
+            "manifest_failures": manifest_failures,
+            "fills_raw": endpoint_counts["fills"],
+            "twap_raw": endpoint_counts["twap"],
+            "raw_records": len(raw_rows),
+            "canonical_records": len(canonical),
+            "overlap_duplicates": overlap_duplicates,
+            "btc_position_rows": len(btc_rows),
+            "ambiguous_same_ms_times": ambiguous,
+            "position_continuity_errors": continuity,
+            "source_sequence_failures": sequence_failures,
+            "api_response_order_failures": response_order_failures,
+        })
+
+    expected_market_slots = (end_ms - start_ms) // (5 * 60_000)
+    market_coverage = len(market_times) / expected_market_slots if expected_market_slots else 0.0
+    if source_order_failures:
+        reasons.append("SOURCE_ORDER_FAILURE")
+    if all_twap == 0:
+        reasons.append("NO_TWAP_EVIDENCE")
+    if all_overlap_duplicates == 0:
+        reasons.append("NO_LIVE_OVERLAP_DUPLICATES")
+    if all_btc_rows == 0:
+        reasons.append("NO_BTC_POSITION_EVIDENCE")
+    if all_ambiguous:
+        reasons.append("AMBIGUOUS_SAME_MS_ORDER")
+    if all_continuity:
+        reasons.append("BTC_POSITION_CONTINUITY_ERROR")
+    if market_coverage < 0.95:
+        reasons.append("BTC_5M_COVERAGE_LT_95PCT")
+
+    return {
+        "schema_version": 1,
+        "audit_version": "btc-forward-canary24h-gate-v1",
+        "decision": "PASS" if not reasons else "FAIL",
+        "failure_reasons": sorted(set(reasons)),
+        "analysis_start_ms": start_ms,
+        "window_end_ms": end_ms,
+        "audit_at_ms": audit_at_ms,
+        "collection_runs": len(runs),
+        "successful_runs": sum(row.get("quality_gate") == "PASS" for row in runs),
+        "expected_interval_minutes": 20,
+        "max_run_gap_minutes": max(intervals, default=0) / 60_000,
+        "final_tail_gap_minutes": (end_ms - run_times[-1]) / 60_000 if run_times else None,
+        "twap_raw_records": all_twap,
+        "overlap_duplicates": all_overlap_duplicates,
+        "btc_position_rows": all_btc_rows,
+        "ambiguous_same_ms_times": all_ambiguous,
+        "position_continuity_errors": all_continuity,
+        "source_order_failures": source_order_failures,
+        "btc_5m_unique_slots": len(market_times),
+        "btc_5m_expected_slots": expected_market_slots,
+        "btc_5m_coverage": market_coverage,
+        "wallets": wallet_reports,
+        "promotion_allowed": False,
+    }

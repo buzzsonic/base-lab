@@ -3,7 +3,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hoihoi.btc_forward import audit_canary_overlap, collect_canary, collect_canary_cohort
+from hoihoi.btc_forward import (
+    audit_canary_cohort24h,
+    audit_canary_overlap,
+    collect_canary,
+    collect_canary_cohort,
+)
 
 
 class FakeApi:
@@ -106,6 +111,24 @@ class BtcForwardCanaryTests(unittest.TestCase):
             config.write_text(config.read_text().replace('"role": "test"', '"role": "changed"'))
             with self.assertRaisesRegex(ValueError, "config changed"):
                 collect_canary_cohort(FakeApi(), config, root / "output", 2_002_000)
+
+    def test_24h_gate_fails_closed_on_schedule_and_market_gaps(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            config = root / "cohort.json"
+            config.write_text(json.dumps({
+                "schema_version": 1, "cohort_id": "test", "window_hours": 24,
+                "wallets": [{"wallet": "0x" + "1" * 40, "role": "test"}],
+            }))
+            output = root / "output"
+            start = 2_000_000
+            collect_canary_cohort(FakeApi(), config, output, start)
+            collect_canary_cohort(FakeApi(), config, output, start + 7 * 60 * 60_000)
+            report = audit_canary_cohort24h(output, start + 24 * 60 * 60_000 + 1)
+            self.assertEqual(report["decision"], "FAIL")
+            self.assertIn("SCHEDULE_GAP_GT_40M", report["failure_reasons"])
+            self.assertIn("BTC_5M_COVERAGE_LT_95PCT", report["failure_reasons"])
+            self.assertFalse(report["promotion_allowed"])
 
 
 if __name__ == "__main__":

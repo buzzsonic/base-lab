@@ -1,5 +1,17 @@
 # CURRENT_STATUS
 
+## 2026-10-07 BTC forward 24時間Gate FAIL
+
+- 期間2026-10-06 00:15:45〜10-07 00:15:45 JSTを監査し、GateはFAIL。
+- collection runは5回。20分cadenceのexpected 73に対し、最大gap 413.8分、終端gap 367.0分。
+- BTC 5分足coverageは77/288 = 26.7%。連続市場windowとして利用不可。
+- fills 800、TWAP 2,499、raw 3,299、canonical 3,119、overlap重複180。
+- endpoint failure / cap / source gap / source order failure / same-ms ambiguity / BTC continuity errorは全て0。
+- TWAP・first-seen・merge経路は実証できたが、schedule品質で不合格。
+- Hoihoi暫定候補はfills 3、TWAP 0、BTC row 0。短期活動性未確認。
+- workflowは`disabled_manually`、実行中run 0。7日window・sample昇格・拡大はHOLD。
+- 証拠: `reviews/btc-forward-canary24h-2026-10-07/`。
+
 ## 2026-10-06 BTC forward 5-wallet・24時間window開始
 
 - PR #48（merge `d6350567`）で隔離canary cohortを実装し、run `37330544150`で開始した。
