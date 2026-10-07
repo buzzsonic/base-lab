@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-06T22:40:03.695147+00:00",
-  "sample_version": "sample_20261007",
+  "generated_at": "2026-10-07T23:05:56.392018+00:00",
+  "sample_version": "sample_20261008",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
@@ -17,9 +17,9 @@
       "public_trade_stream": 40
     },
     "frequency_bands": {
-      "high": 42,
-      "medium": 37,
-      "low": 21
+      "high": 41,
+      "medium": 39,
+      "low": 20
     },
     "size_bands": {
       "medium": 48,
@@ -27,21 +27,21 @@
       "unknown": 17
     },
     "symbol_profiles": {
-      "alt_core": 40,
-      "small_alt_core": 12,
+      "alt_core": 42,
+      "small_alt_core": 10,
       "unknown": 17,
       "btc_eth_core": 31
     },
     "activity_time_bands": {
-      "jst_00_05": 22,
-      "jst_12_17": 18,
+      "jst_00_05": 17,
+      "jst_12_17": 19,
       "unknown": 17,
-      "jst_06_11": 21,
-      "jst_18_23": 22
+      "jst_06_11": 22,
+      "jst_18_23": 25
     },
     "active_days_bands": {
-      "11_plus": 45,
-      "4_10": 31,
+      "11_plus": 46,
+      "4_10": 30,
       "none": 17,
       "1_3": 7
     },
@@ -54,7 +54,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "b042c2c1d0e62376e36ca6f08456ee711fc5ce459b5107da25f637a3564849f1",
+  "market_snapshot_version": "5465ebb58c22a6afa1bb354b1969343a789afdd5f0767fee53ba2f4acf878ee0",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -75,9 +75,9 @@
       "public_trade_stream": 40
     },
     "frequency_bands": {
-      "high": 42,
-      "medium": 37,
-      "low": 21
+      "high": 41,
+      "medium": 39,
+      "low": 20
     },
     "size_bands": {
       "medium": 48,
@@ -85,21 +85,21 @@
       "unknown": 17
     },
     "symbol_profiles": {
-      "alt_core": 40,
-      "small_alt_core": 12,
+      "alt_core": 42,
+      "small_alt_core": 10,
       "unknown": 17,
       "btc_eth_core": 31
     },
     "activity_time_bands": {
-      "jst_00_05": 22,
-      "jst_12_17": 18,
+      "jst_00_05": 17,
+      "jst_12_17": 19,
       "unknown": 17,
-      "jst_06_11": 21,
-      "jst_18_23": 22
+      "jst_06_11": 22,
+      "jst_18_23": 25
     },
     "active_days_bands": {
-      "11_plus": 45,
-      "4_10": 31,
+      "11_plus": 46,
+      "4_10": 30,
       "none": 17,
       "1_3": 7
     },
