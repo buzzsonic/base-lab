@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-09T21:01:27.890278+00:00",
-  "sample_version": "sample_20261010",
+  "generated_at": "2026-10-10T20:10:51.436899+00:00",
+  "sample_version": "sample_20261011",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
-    "inactive": 20,
-    "bot_suspected": 38,
+    "inactive": 21,
+    "bot_suspected": 37,
     "mm_suspected": 12,
     "arbitrage_suspected": 1,
     "farm_suspected": 1,
@@ -17,34 +17,34 @@
       "official_leaderboard": 63
     },
     "frequency_bands": {
-      "medium": 33,
+      "medium": 30,
       "high": 42,
-      "low": 25
+      "low": 28
     },
     "size_bands": {
       "small": 27,
-      "medium": 52,
-      "unknown": 19,
+      "medium": 51,
+      "unknown": 20,
       "large": 2
     },
     "symbol_profiles": {
       "btc_eth_core": 35,
-      "unknown": 19,
-      "alt_core": 39,
-      "small_alt_core": 7
+      "unknown": 20,
+      "alt_core": 37,
+      "small_alt_core": 8
     },
     "activity_time_bands": {
-      "jst_12_17": 16,
+      "jst_18_23": 33,
       "jst_06_11": 13,
-      "unknown": 19,
-      "jst_18_23": 31,
-      "jst_00_05": 21
+      "unknown": 20,
+      "jst_00_05": 22,
+      "jst_12_17": 12
     },
     "active_days_bands": {
       "11_plus": 44,
-      "none": 19,
-      "1_3": 10,
-      "4_10": 27
+      "none": 20,
+      "1_3": 12,
+      "4_10": 24
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "f38435fc846df57a1cdf8e686072dbb849b56b6f079a076c16bd51baf656c476",
+  "market_snapshot_version": "f898dbf356937352de3736946a1b4dacf68b97b15bd5bb53ed67432dfcce9131",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -63,8 +63,8 @@
   "pool_quality": {
     "wallets": 100,
     "duplicates": 0,
-    "inactive": 20,
-    "bot_suspected": 38,
+    "inactive": 21,
+    "bot_suspected": 37,
     "mm_suspected": 12,
     "arbitrage_suspected": 1,
     "farm_suspected": 1,
@@ -76,34 +76,34 @@
       "official_leaderboard": 63
     },
     "frequency_bands": {
-      "medium": 33,
+      "medium": 30,
       "high": 42,
-      "low": 25
+      "low": 28
     },
     "size_bands": {
       "small": 27,
-      "medium": 52,
-      "unknown": 19,
+      "medium": 51,
+      "unknown": 20,
       "large": 2
     },
     "symbol_profiles": {
       "btc_eth_core": 35,
-      "unknown": 19,
-      "alt_core": 39,
-      "small_alt_core": 7
+      "unknown": 20,
+      "alt_core": 37,
+      "small_alt_core": 8
     },
     "activity_time_bands": {
-      "jst_12_17": 16,
+      "jst_18_23": 33,
       "jst_06_11": 13,
-      "unknown": 19,
-      "jst_18_23": 31,
-      "jst_00_05": 21
+      "unknown": 20,
+      "jst_00_05": 22,
+      "jst_12_17": 12
     },
     "active_days_bands": {
       "11_plus": 44,
-      "none": 19,
-      "1_3": 10,
-      "4_10": 27
+      "none": 20,
+      "1_3": 12,
+      "4_10": 24
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
