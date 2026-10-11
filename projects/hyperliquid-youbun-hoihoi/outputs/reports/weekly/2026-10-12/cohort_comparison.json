@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-11T19:18:54.685060+00:00",
+  "minimum_successful_jst_observation_days": 7,
+  "decision_policy": "report only; never replace, merge, promote, trade, or notify automatically",
+  "current": {
+    "cohort_id": "current",
+    "registry_wallets": 100,
+    "pool_wallets": 200,
+    "sample_wallets": 41,
+    "duplicates": 0,
+    "sample_duplicates": 0,
+    "complete_histories": 79,
+    "incomplete_histories": 21,
+    "status_counts": {
+      "ACTIVE": 41,
+      "EXCLUDED": 38,
+      "INACTIVE": 21
+    },
+    "successful_observation_days": {
+      "0": 21,
+      "10": 79
+    },
+    "bot_suspected": 37,
+    "mm_suspected": 12,
+    "farm_suspected": 1,
+    "arbitrage_suspected": 1,
+    "small_alt_core": 8,
+    "valid_candidates": 41,
+    "elapsed_ready_candidates": 41,
+    "observation_ready_candidates": 41,
+    "active_wallets": 41,
+    "active_sample_mismatch": 0,
+    "structural_gate": "PASS",
+    "promotion_gate": "READY_FOR_HUMAN_REVIEW"
+  },
+  "shadow": {
+    "cohort_id": "stratified-20261003",
+    "registry_wallets": 100,
+    "pool_wallets": 200,
+    "sample_wallets": 51,
+    "duplicates": 0,
+    "sample_duplicates": 0,
+    "complete_histories": 97,
+    "incomplete_histories": 3,
+    "status_counts": {
+      "ACTIVE": 51,
+      "EXCLUDED": 32,
+      "INACTIVE": 17
+    },
+    "successful_observation_days": {
+      "0": 2,
+      "1": 1,
+      "9": 97
+    },
+    "bot_suspected": 28,
+    "mm_suspected": 4,
+    "farm_suspected": 7,
+    "arbitrage_suspected": 0,
+    "small_alt_core": 13,
+    "valid_candidates": 51,
+    "elapsed_ready_candidates": 51,
+    "observation_ready_candidates": 51,
+    "active_wallets": 51,
+    "active_sample_mismatch": 0,
+    "structural_gate": "PASS",
+    "promotion_gate": "READY_FOR_HUMAN_REVIEW"
+  },
+  "shadow_minus_current": {
+    "complete_histories": 18,
+    "incomplete_histories": -18,
+    "bot_suspected": -9,
+    "mm_suspected": -8,
+    "farm_suspected": 6,
+    "small_alt_core": 5,
+    "valid_candidates": 10
+  },
+  "replacement_gate": "READY_FOR_HUMAN_REVIEW"
+}
