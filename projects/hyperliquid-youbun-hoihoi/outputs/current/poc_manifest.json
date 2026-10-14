@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-13T21:21:12.276327+00:00",
-  "sample_version": "sample_20261014",
+  "generated_at": "2026-10-14T20:15:29.237723+00:00",
+  "sample_version": "sample_20261015",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
@@ -17,9 +17,9 @@
       "official_leaderboard": 63
     },
     "frequency_bands": {
-      "medium": 31,
-      "high": 41,
-      "low": 28
+      "medium": 30,
+      "high": 40,
+      "low": 30
     },
     "size_bands": {
       "small": 27,
@@ -28,23 +28,23 @@
       "large": 1
     },
     "symbol_profiles": {
-      "alt_core": 43,
+      "alt_core": 46,
       "btc_eth_core": 30,
       "unknown": 22,
-      "small_alt_core": 5
+      "small_alt_core": 2
     },
     "activity_time_bands": {
       "jst_18_23": 28,
-      "jst_06_11": 15,
+      "jst_06_11": 16,
       "unknown": 22,
       "jst_00_05": 21,
-      "jst_12_17": 14
+      "jst_12_17": 13
     },
     "active_days_bands": {
       "11_plus": 44,
-      "4_10": 24,
+      "4_10": 25,
       "none": 22,
-      "1_3": 10
+      "1_3": 9
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
@@ -55,7 +55,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "20550b416a7a21530d72ec5663fbac019e6f90cae279e3ee73a83e3998ef9937",
+  "market_snapshot_version": "5e06cfb4d6d024c9dd00f6ff3e68677f311a94fea45f14d583c69945bcfbd2cf",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -76,9 +76,9 @@
       "official_leaderboard": 63
     },
     "frequency_bands": {
-      "medium": 31,
-      "high": 41,
-      "low": 28
+      "medium": 30,
+      "high": 40,
+      "low": 30
     },
     "size_bands": {
       "small": 27,
@@ -87,23 +87,23 @@
       "large": 1
     },
     "symbol_profiles": {
-      "alt_core": 43,
+      "alt_core": 46,
       "btc_eth_core": 30,
       "unknown": 22,
-      "small_alt_core": 5
+      "small_alt_core": 2
     },
     "activity_time_bands": {
       "jst_18_23": 28,
-      "jst_06_11": 15,
+      "jst_06_11": 16,
       "unknown": 22,
       "jst_00_05": 21,
-      "jst_12_17": 14
+      "jst_12_17": 13
     },
     "active_days_bands": {
       "11_plus": 44,
-      "4_10": 24,
+      "4_10": 25,
       "none": 22,
-      "1_3": 10
+      "1_3": 9
     },
     "leaderboard_rank_bands": {
       "not_ranked": 37,
