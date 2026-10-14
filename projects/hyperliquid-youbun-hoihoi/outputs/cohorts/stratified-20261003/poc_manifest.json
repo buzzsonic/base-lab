@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-13T22:45:39.819810+00:00",
-  "sample_version": "sample_20261014",
+  "generated_at": "2026-10-14T21:42:18.603735+00:00",
+  "sample_version": "sample_20261015",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
@@ -18,32 +18,32 @@
     },
     "frequency_bands": {
       "high": 43,
-      "low": 19,
-      "medium": 38
+      "low": 21,
+      "medium": 36
     },
     "size_bands": {
-      "medium": 48,
-      "small": 35,
+      "medium": 47,
+      "small": 36,
       "unknown": 17
     },
     "symbol_profiles": {
-      "alt_core": 45,
-      "small_alt_core": 10,
+      "alt_core": 41,
+      "small_alt_core": 13,
       "unknown": 17,
-      "btc_eth_core": 28
+      "btc_eth_core": 29
     },
     "activity_time_bands": {
       "jst_00_05": 21,
-      "jst_12_17": 15,
+      "jst_12_17": 14,
       "unknown": 17,
-      "jst_06_11": 22,
-      "jst_18_23": 25
+      "jst_06_11": 24,
+      "jst_18_23": 24
     },
     "active_days_bands": {
-      "11_plus": 52,
+      "11_plus": 53,
       "none": 17,
-      "1_3": 9,
-      "4_10": 22
+      "1_3": 7,
+      "4_10": 23
     },
     "leaderboard_rank_bands": {
       "top_10pct": 19,
@@ -54,7 +54,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "5aa10f09e7e6f4162c36ef5177b2a04b2c27e79795e829466aab244347ac304b",
+  "market_snapshot_version": "0ed2708079387e34937e8219e668030bbbb10719fb9b6513342b0e24c934b07b",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -76,32 +76,32 @@
     },
     "frequency_bands": {
       "high": 43,
-      "low": 19,
-      "medium": 38
+      "low": 21,
+      "medium": 36
     },
     "size_bands": {
-      "medium": 48,
-      "small": 35,
+      "medium": 47,
+      "small": 36,
       "unknown": 17
     },
     "symbol_profiles": {
-      "alt_core": 45,
-      "small_alt_core": 10,
+      "alt_core": 41,
+      "small_alt_core": 13,
       "unknown": 17,
-      "btc_eth_core": 28
+      "btc_eth_core": 29
     },
     "activity_time_bands": {
       "jst_00_05": 21,
-      "jst_12_17": 15,
+      "jst_12_17": 14,
       "unknown": 17,
-      "jst_06_11": 22,
-      "jst_18_23": 25
+      "jst_06_11": 24,
+      "jst_18_23": 24
     },
     "active_days_bands": {
-      "11_plus": 52,
+      "11_plus": 53,
       "none": 17,
-      "1_3": 9,
-      "4_10": 22
+      "1_3": 7,
+      "4_10": 23
     },
     "leaderboard_rank_bands": {
       "top_10pct": 19,
