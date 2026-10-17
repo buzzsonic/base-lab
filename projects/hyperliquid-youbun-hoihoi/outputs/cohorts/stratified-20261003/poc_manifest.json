@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-16T21:09:04.432585+00:00",
-  "sample_version": "sample_20261017",
+  "generated_at": "2026-10-17T20:37:30.144436+00:00",
+  "sample_version": "sample_20261018",
   "quality": {
     "wallets": 100,
     "duplicates": 0,
@@ -22,28 +22,28 @@
       "medium": 38
     },
     "size_bands": {
-      "medium": 45,
-      "small": 37,
+      "medium": 46,
+      "small": 36,
       "unknown": 18
     },
     "symbol_profiles": {
-      "alt_core": 43,
-      "small_alt_core": 10,
+      "alt_core": 37,
+      "small_alt_core": 16,
       "unknown": 18,
       "btc_eth_core": 29
     },
     "activity_time_bands": {
-      "jst_12_17": 17,
+      "jst_12_17": 16,
       "unknown": 18,
       "jst_18_23": 24,
-      "jst_00_05": 20,
+      "jst_00_05": 21,
       "jst_06_11": 21
     },
     "active_days_bands": {
       "11_plus": 54,
       "none": 18,
-      "4_10": 22,
-      "1_3": 6
+      "4_10": 21,
+      "1_3": 7
     },
     "leaderboard_rank_bands": {
       "top_10pct": 19,
@@ -54,7 +54,7 @@
     }
   },
   "mode": "observe",
-  "market_snapshot_version": "4762a1df5f31afe5285f746b12969053c88e09f7aab46cc48c8b4920fa267cd4",
+  "market_snapshot_version": "e73d70b3626474a9164f42a6ec80a180072afbd042b3e2bd985c255371f6dddf",
   "candidate_wallets": 100,
   "discovery_pool_wallets": 200,
   "refreshed_pool_wallets": 100,
@@ -80,28 +80,28 @@
       "medium": 38
     },
     "size_bands": {
-      "medium": 45,
-      "small": 37,
+      "medium": 46,
+      "small": 36,
       "unknown": 18
     },
     "symbol_profiles": {
-      "alt_core": 43,
-      "small_alt_core": 10,
+      "alt_core": 37,
+      "small_alt_core": 16,
       "unknown": 18,
       "btc_eth_core": 29
     },
     "activity_time_bands": {
-      "jst_12_17": 17,
+      "jst_12_17": 16,
       "unknown": 18,
       "jst_18_23": 24,
-      "jst_00_05": 20,
+      "jst_00_05": 21,
       "jst_06_11": 21
     },
     "active_days_bands": {
       "11_plus": 54,
       "none": 18,
-      "4_10": 22,
-      "1_3": 6
+      "4_10": 21,
+      "1_3": 7
     },
     "leaderboard_rank_bands": {
       "top_10pct": 19,
