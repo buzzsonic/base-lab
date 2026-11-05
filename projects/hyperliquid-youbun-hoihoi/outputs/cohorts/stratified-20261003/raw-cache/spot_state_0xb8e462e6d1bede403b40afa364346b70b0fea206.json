@@ -1,1 +1,1 @@
-{"balances": [{"coin": "USDC", "token": 0, "total": "60365.25653188", "hold": "16895.853386", "entryNtl": "0.0"}, {"coin": "PURR", "token": 1, "total": "404946.39772", "hold": "0.0", "entryNtl": "50398.460102"}], "tokenToAvailableAfterMaintenance": [[0, "55747.65653188"]]}
+{"balances": [{"coin": "USDC", "token": 0, "total": "56353.44051188", "hold": "15561.273386", "entryNtl": "0.0"}, {"coin": "PURR", "token": 1, "total": "404946.39772", "hold": "0.0", "entryNtl": "50398.460102"}], "tokenToAvailableAfterMaintenance": [[0, "52403.13051188"]]}
