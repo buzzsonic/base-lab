@@ -1,1 +1,1 @@
-{"balances": [], "tokenToAvailableAfterMaintenance": [[0, "0.0"]]}
+{"balances": [{"coin": "USDC", "token": 0, "total": "5411.849197", "hold": "5411.644768", "entryNtl": "0.0"}], "tokenToAvailableAfterMaintenance": [[0, "0.204429"]]}

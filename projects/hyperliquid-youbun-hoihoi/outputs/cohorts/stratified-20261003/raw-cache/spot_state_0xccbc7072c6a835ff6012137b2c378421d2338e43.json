@@ -1,1 +1,1 @@
-{"balances": [{"coin": "USDC", "token": 0, "total": "1774.42999313", "hold": "1557.845598", "entryNtl": "0.0"}, {"coin": "HYPE", "token": 150, "total": "0.00870005", "hold": "0.0", "entryNtl": "0.71945504"}], "tokenToAvailableAfterMaintenance": [[0, "1131.53524013"]]}
+{"balances": [{"coin": "USDC", "token": 0, "total": "1519.82662413", "hold": "1519.82662413", "entryNtl": "0.0"}, {"coin": "HYPE", "token": 150, "total": "0.00870005", "hold": "0.0", "entryNtl": "0.71945504"}], "tokenToAvailableAfterMaintenance": [[0, "873.39360213"]]}

@@ -1,1 +1,1 @@
-{"balances": [{"coin": "USDC", "token": 0, "total": "337.87255979", "hold": "337.828202", "entryNtl": "0.0"}, {"coin": "RAGE", "token": 39, "total": "0.02031221", "hold": "0.0", "entryNtl": "0.00458173"}], "tokenToAvailableAfterMaintenance": [[0, "0.04435779"]]}
+{"balances": [{"coin": "USDC", "token": 0, "total": "261.33124279", "hold": "261.299141", "entryNtl": "0.0"}, {"coin": "RAGE", "token": 39, "total": "0.02031221", "hold": "0.0", "entryNtl": "0.00458173"}], "tokenToAvailableAfterMaintenance": [[0, "0.03210179"]]}
