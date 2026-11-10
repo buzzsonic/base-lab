@@ -1,1 +1,1 @@
-{"balances": [{"coin": "USDC", "token": 0, "total": "2744.24657434", "hold": "584.629024", "entryNtl": "0.0"}, {"coin": "UBTC", "token": 197, "total": "0.0103972751", "hold": "0.0", "entryNtl": "901.11289753"}], "tokenToAvailableAfterMaintenance": [[0, "2159.61755034"]]}
+{"balances": [{"coin": "USDC", "token": 0, "total": "2469.09735334", "hold": "0.0", "entryNtl": "0.0"}, {"coin": "UBTC", "token": 197, "total": "0.0103972751", "hold": "0.0", "entryNtl": "901.11289753"}], "tokenToAvailableAfterMaintenance": [[0, "2469.09735334"]]}
